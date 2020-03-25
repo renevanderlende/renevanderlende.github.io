@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>Insert title here</title>
+
+<style id="ers-globals-default">
+/******************************/
+/* Just a few preferred rules */
+/******************************/
+html,body           { box-sizing: border-box; margin: 0 }
+body                { min-height: 100vh }
+
+*::before,
+*::after, *         { box-sizing: inherit; outline: none }
+
+::-moz-focus-inner  { padding: 0; border: 0 } /* Kills FF extra outline */
+
+/* y=mx+b => f:y(320,14)(1280,20) */
+html                { font-size: calc(0.625vmin + 0.75rem) } /* 14>20 */
+html [lang="ar"]    { font-size: calc(0.625vmin + 1rem)    } /* 18>24 (Arabic looks small at 16>22) */
+
+/* f:y=mx+b => T/B f:y(320,32)(1920, 72) => 0.025x + 24
+            => L/R f:y(320, 0)(1920,320) => 0.2x - 64 */
+section             { padding: calc(2.5vh + 24px) calc(20vw - 64px) }
+</style>
+<style id="ers-utility-default">
+/**************************************************/
+/* Utility rules, first so they can be overridden */
+/**************************************************/
+body  { cursor: default } /* Plain arrow for everything, but... */
+input { cursor: auto    } /* ...use HTML default cursor on inputs, unless it is an: */
+
+input[list="datalist"],input[type="button"],input[type="checkbox"],input[type="radio"],
+input[type="color"],input[type="range"],input[type="reset"],input[type="file"],input[type="submit"],
+label:not([for=""]),
+a,button,select,keygen   { cursor: pointer } 
+[contenteditable="true"] { cursor: text    }
+
+/* Darker/more contrast text (put in <body>)
+   => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,::selection,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+/* prohibit user from selecting text (put in <body>) */
+.noselect,[select="0"],[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+.select  ,[select="1"],[select]   { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
+
+[push="R"] { margin-left : auto } /* push elements Right/Left */
+[push="L"] { margin-right: auto }
+
+[hide], [data-hide="1"] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+
+/* show all elements with outlines (put in <body>) */
+[data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
+[data-debug="1"] *                  { outline: 1px dashed purple }
+
+[data-debug] #debug,
+[data-debug] #debug *               { outline: none }
+#debug                              { position: fixed; z-index: 999; bottom: 0; padding: .5rem; background-color: rgba(0,0,0,.5) }
+</style>
+
+</head>
+<body>
+
+</body>
+</html>

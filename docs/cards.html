@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cards Demo</title>
+
+<!-- link rel="stylesheet" href="https://unpkg.com/normalize.css@latest/normalize.css" -->
+
+<!-- Google Material Icons v3.0.1, disabled for speed, this document uses inline SVG icons instead -->
+<!-- link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" crossorigin="anonymous" -->
+
+<style>
+/******************************/
+/* Just a few preferred rules */
+/******************************/
+/* preferred defaults */
+html,body           { box-sizing: border-box; margin: 0 }
+body                { min-height: 100vh; width: 100% }
+
+*::before,
+*::after, *         { box-sizing: inherit; outline: none }
+
+/* remove tiny bottom whitespace, stretch to fill parent */
+img,svg             { display: block; width: 100%; height: auto }
+
+p                   { margin: 0; padding-bottom: .5rem }
+a                   { text-decoration: none; color: currentColor; font-style: italic }
+iframe              { border: none }
+
+/* fontsize */
+html                { font-size: calc(0.625vmin + 12px) } /* 14>20 */
+html [lang="ar"]    { font-size: calc(0.625vmin + 14px) } /* 16>22 (Arabic looks small at 16>22) */
+body                { font-size: 1rem }
+
+/* utilities */
+/**************************************************/
+/* Utility rules, first so they can be overridden */
+/**************************************************/
+/* Default HTML cursor overrides */
+body  { cursor: default } /* plain arrow for everything, but... */
+input { cursor: auto    } /* ...use HTML default cursor on inputs, unless it is an: */
+
+input[list="datalist"],input[type="button"],input[type="checkbox"],input[type="radio"],
+input[type="color"],input[type="range"],input[type="reset"],input[type="file"],input[type="submit"],
+label:not([for=""]),
+a,button,select,keygen  { cursor: pointer } 
+[contenteditable="true"]{ cursor: text    }
+
+/* Darker/more contrast text (put this in <body> or some (parent) tag with text)
+    => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,header,b,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+[push*="R"] { margin-left  : auto } /* push elements Right/Left/Top/Bottom */
+[push*="L"] { margin-right : auto }
+[push*="T"] { margin-top   : auto }
+[push*="B"] { margin-bottom: auto }
+
+[hide] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+</style>
+
+<style id="ers-custom-variables-default">
+html { /* (or :root) */
+    /* f:y=mx+b => T/B (320,32)(1920,72) => 0.025x + 24 => L/R (320,0)(1920,320) => 0.2x - 64 */
+    --bandpadTB   : calc(2.5vh + 24px);
+    --bandpadLR   : calc(20vw  - 64px);
+
+    --cardSize    : calc(0.9375vw + 297px); /* y=mx+b => P1=(320,300) and P2=(1920,315) */
+    --ratioHigh   : 1.618;                  /* Golden Ratio */
+    --ratioLow    : 0.61805;                /* 100/1.618 */
+
+    --colCountCard: 1;                      /* default row/cloumn count in single card container */
+    --rowCountCard: 1;                      /* override these with <tag> inline styling */
+}
+</style>
+
+
+<style id="ers-icons-default">
+/***********************************/
+/* Google Material Icons overrides */
+/***********************************/
+[icon], .material-icons {
+    font-size: 1.5em;
+    line-height: 1;
+}
+[icon]>svg, .material-icons>svg {
+    width : 1em;
+    height: 1em;
+    fill  : currentColor; stroke: none; /* SVG */
+}
+</style>
+
+<style id="ers-typography-default">
+/***********************************************************/
+/* easy RESPONSIVE|TYPOGRAPHY|NESS [OPTIONAL][STABLE][WIP] */
+/***********************************************************/
+body { font-weight: 300 }
+
+/* Default font-sizes, borrowed from on Google Material Components Web 4.0.0 (Nov 2019) */
+[data-typo="headline1"]       { font-size: 6rem    ; line-height: 6rem    ; letter-spacing: -0.015625em    } /* 96sp/96sp */
+[data-typo="headline2"]       { font-size: 3.75rem ; line-height: 3.75rem ; letter-spacing: -0.008333333em } /* 60sp/60sp */
+[data-typo="headline3"]       { font-size: 3rem    ; line-height: 3.125rem; letter-spacing: normal         } /* 48sp/50sp */
+[data-typo="headline4"]       { font-size: 2.125rem; line-height: 2.5rem  ; letter-spacing: 0.0073529412em } /* 34sp/40sp */
+[data-typo="headline5"]       { font-size: 1.5rem  ; line-height: 2rem    ; letter-spacing: normal         } /* 24sp/32sp */
+[data-typo="headline6"]       { font-size: 1.25rem ; line-height: 2rem    ; letter-spacing: 0.0125em       } /* 20sp/32sp */
+[data-typo^="subtitle1"]      { font-size: 1rem    ; line-height: 1.75rem ; letter-spacing: 0.009375em     } /* 16sp/28sp */
+[data-typo^="subtitle2"]      { font-size: 0.875rem; line-height: 1.375rem; letter-spacing: 0.0071428571em } /* 14sp/22sp */
+[data-typo^="body1"]          { font-size: 1rem    ; line-height: 1.5rem  ; letter-spacing: 0.03125em      } /* 16sp/24sp */
+[data-typo^="body2"]          { font-size: 0.875rem; line-height: 1.25rem ; letter-spacing: 0.0178571429em } /* 14sp/20sp */
+[data-typo^="caption1"]       { font-size: 0.75rem ; line-height: 1.25rem ; letter-spacing: 0.0333333333em } /* 12sp/20sp */
+[data-typo^="button1"]        { font-size: 0.875rem; line-height: 2.25rem ; letter-spacing: 0.0892857143em } /* 14sp/36sp */
+[data-typo^="button2"],button { font-size: 0.75rem ; line-height: 1.25rem ; letter-spacing: 0.0892857143em } /* 14sp/36sp */
+[data-typo^="overline1"]      { font-size: 0.625rem; line-height: 1.5rem  ; letter-spacing: 0.1666666667em } /* 10sp/32sp */
+
+[data-typo^="headline"],[data-typo^="subtitle"],[data-typo^="body"],
+[data-typo="caption1"]      { text-decoration: inherit; text-transform: inherit }
+
+[data-typo="button1"],
+[data-typo="overline1"]     { text-decoration: none; text-transform: uppercase }
+</style>
+
+<style id="ers-typo-gmc-REPLY">
+@import "https://fonts.googleapis.com/css?family=Work+Sans:100,200,300,400,500,600,700,800,900&display=swap";
+/**********************************************************/
+/* easy RESPONSIVE|TYPOGRAPHY|NESS Google MC 'REPLY' demo */
+/**********************************************************/
+body { font-family: "Work Sans",sans-serif }
+
+[data-typo^="headline1"]        { font-weight: 300 }
+[data-typo^="headline2"]        { font-weight: 600 }
+[data-typo^="headline3"]        { font-weight: 400 }
+[data-typo^="headline4"]        { font-weight: 600 }
+[data-typo^="headline5"]        { font-weight: 700 }
+[data-typo^="headline6"]        { font-weight: 500 }
+[data-typo^="subtitle1"]        { font-weight: 400 }
+[data-typo^="subtitle2"]        { font-weight: 500 }
+[data-typo^="body1"]            { font-weight: 400 }
+[data-typo^="body2"]            { font-weight: 400 }
+[data-typo^="caption1"]         { font-weight: 400 }
+[data-typo^="button1"]          { font-weight: 500 }
+[data-typo^="button2"],button   { font-weight: 500 }
+[data-typo^="overline1"]        { font-weight: 600 }
+</style>
+
+<style id="tgl-typo-defaults">
+@import "https://fonts.googleapis.com/css?family=Noto+Sans:100,200,300,400,500,600,700,800,900&display=swap&subset=latin-ext";
+/*******************************************/
+/* easy RESPONSIVE|TYPOGRAPHY|NESS DEFAULT */
+/*******************************************/
+body { font-family: "Noto Sans",sans-serif }
+
+[data-typo^="headline1"]        { font-weight: 300 }
+[data-typo^="headline2"]        { font-weight: 300 }
+[data-typo^="headline3"]        { font-weight: 300 }
+[data-typo^="headline4"]        { font-weight: 300 }
+[data-typo^="headline5"]        { font-weight: 300 }
+[data-typo^="headline6"]        { font-weight: 300 }
+[data-typo^="subtitle1"]        { font-weight: 400 }
+[data-typo^="subtitle2"]        { font-weight: 500 }
+[data-typo^="body1"]            { font-weight: 300 }
+[data-typo^="body2"]            { font-weight: 400 }
+[data-typo^="caption1"]         { font-weight: 400 }
+[data-typo^="button1"]          { font-weight: 500 }
+[data-typo^="button2"],button   { font-weight: 500 }
+[data-typo^="overline1"]        { font-weight: 400 }
+</style>
+
+
+<style id="ers-banding-default">
+/*************************************************/
+/* easy RESPONSIVE|LAYOUT|NESS      (STABLE WIP) */
+/*************************************************/
+body                    { display: flex; flex-direction: column }
+
+/*******************/
+/* generic flexbox */
+/*******************/
+[start]                 { justify-content: flex-start; text-align: left   } /* 'text-align' for non-flexbox tags */
+[centered]              { justify-content: center    ; text-align: center } /* don't use [center] as that is a HTML keyword */
+[end]                   { justify-content: flex-end  ; text-align: right  }
+
+/*****************/
+/* generic bands */
+/*****************/
+[band],[block]          { display: flex; position: relative; overflow: hidden }
+[band],[block]          { justify-content: center; align-content: center }
+
+[band],[band*="cols"]   { flex-flow: row wrap }     /* a row of columns */
+       [band*="rows"]   { flex-flow: column wrap }  /* a column of rows */
+
+/* f:y=mx+b => T/B (320,0)(1920,80) => 0.05x - 16, L/R => 0 */
+[band*="main"]          { padding: 0 }
+
+[band*="padded"]        { padding: 0 }
+
+/******************/
+/* generic blocks */
+/******************/
+[block],[block*="rows"] { flex-flow: column wrap }
+        [block*="cols"] { flex-flow: row wrap }
+
+[block]>*               { display: flex; flex-wrap: wrap }
+</style>
+<style id="tgl-band-defaults">
+[band*="padded"] { padding: calc(2.5vh + 24px) calc(20vw - 64px); /* fallback for IE11 */
+                   padding: var(--bandpadTB) var(--bandpadLR) }
+</style>
+
+
+
+<style id="ers-cards-default">
+/*****************/
+/* generic cards */
+/*****************/
+
+[band*="cards"] { /* cardlist, generic 'band' holding 1:N cards */ }
+
+/* for all cards in the 'cardlist' */
+[band*="cards"]>* { /* Assumes a container parent element holding a 'card' */
+    display  : flex;                    /* [MANDATORY] */
+    flex-flow: row wrap;                /* [MANDATORY], when used as multi-card container */
+
+    /* [MANDATORY] see description above, combined with [band*="padded"] L/R padding */
+    flex-basis: calc(0.9375vw + 297px); /* fallback for IE11 */
+    flex-basis: calc(var(--cardSize) * var(--colCountCard));
+
+    padding: calc(0.125vmin + 1.6px);   /* [OPTIONAL] spacing around cards, instead of margin per 'card' */
+}
+[band*="cards"]>:last-child {
+    margin-right: auto                  /* [OPTIONAL] pushes last card left (instead of centered) when 'ratio' is ON */
+}
+
+/* general 'card' rule */
+[card] {
+    display: flex;                  /* [MANDATORY] default 'row nowrap' */
+    width: 100%;                    /* [MANDATORY] for fill-parent when cards are put inside a 'container' */
+    flex-direction: column;         /* [PREFERRED] assume a 'column of rows' */
+    justify-content: space-between; /* [OPTIONAL]  but convenient when using header/footer */
+}
+[card]:not(:last-child) {           /* [OPTIONAL], used here for multi-card container trial */
+    margin-bottom: calc(0.25vmin + 3.2px);
+}
+
+/* additions/exceptions to 'card' rule */
+[card]>*        { display: flex; flex-wrap: wrap; width: 100% }
+[card]>header   { justify-content: center   }
+[card]>footer   { justify-content: flex-end }
+
+[card]>item {
+    flex-direction: column;         /* [PREFERRED] when used as a vertical container for several child elements */
+    flex-grow: 1;                   /* [MANDATORY] to fill parent's size. Replace with 'height: 100%' if so required */
+    overflow: auto;                 /* [OPTIONAL]  show scrollbar when overflowing, make 'hidden' to just cut-off */
+}
+</style>
+
+
+<style id="ers-card-overrides">
+/************************************/
+/* OVERRIDES: various demo settings */
+/************************************/
+[band*="cards"]>* { 
+    height    : calc((0.9375vw + 297px) * 1.618); /* fallbacks for IE11, max is single card with Golden Ratio */
+    max-height: calc((0.9375vw + 297px) * 1.618);
+
+    height    : calc(var(--cardSize) * var(--rowCountCard) * var(--ratioHigh));
+    max-height: calc(var(--cardSize) * var(--rowCountCard) * var(--ratioHigh));
+    /* Also overrides/disables 'align-self: flex-start' */
+
+    /* defaults, set for toggle demo use */
+    flex-grow: 0;               /* override of [MANDATORY] value using formula of b1) 4 cards row */
+    align-self: flex-start;     /* [OPTIONAL]  for minimal use of space per card (irregular heights) */
+}
+</style>
+
+
+<style id="tgl-card-defaults">
+/****************************/
+/* Demo TOGGLE 'card' rules */
+/****************************/
+[band*="cards"]>* {
+    flex-grow: 1;               /* [OPTIONAL]  grow to fill parent row, use for IE11 instead of 'flex: 1'  */
+    height: auto;               /* [MANDATORY] for fill-parent, especially when used with 'container' rule */ 
+}
+</style>
+<style id="tgl-card-alignment">
+[band*="cards"]>* { align-self: stretch }   /* HTML default, here to demo 'flex-start' and 'stretch' */
+</style>
+<style id="tgl-card-maxheight">
+[band*="cards"]>* { max-height: none }      /* HTML default, cancels'max-height' in general rule above */
+</style>
+
+
+<style id="ers-card-demo-styling">
+/*********************/
+/* CARD demo styling */
+/*********************/
+[card] { 
+    background-color: rgba(255,255,255,1);
+    opacity: .85;
+
+    /* Google Material Components Web default card elevation */
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12); /* elevation 1dp */
+}
+[card]:hover {
+    opacity: 1;
+
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 5px  8px  0px rgba(0,0,0,.14),
+                0px 1px 14px  0px rgba(0,0,0,.12); /* elevation 5dp */
+}
+[card]:active               { transform: scale(0.995) }
+
+/* styling */
+[card]>header,
+[card]>footer               { padding: .25rem .5rem }
+
+[card]>header               { color: rgba(0,116,230,1);
+                              font-weight: 400; font-size: 0.875rem; line-height: 1.375rem; letter-spacing: 0.0071428571em }
+
+[card]>footer               { background-color: rgba(157,255,59,.3) /* #9dff3b */; color: black;
+                              font-weight: 500; font-size: 0.625rem; line-height: 1.5rem; letter-spacing: 0.1666666667em }
+[card]:hover>footer         { background-color: rgba(157,255,59,1) }
+
+[card]>item                 { padding: 0 .75rem }
+</style>
+
+
+<style id="ers-demo-styling">
+body                { color           : rgba( 52, 47, 41,1)  /* #342f29 */;
+                      background-color: rgba(129,117,102,.6) /* #817566 */ }
+
+::selection         { color: rgba( 52, 47, 41,1); background-color: rgba(157,255, 59,.85) }
+
+[data-clr^="y."]    { color: rgba(255,255, 59,1) } /* #ffff3b rgba(255,255, 59,.9) yellow */
+[data-clr^="b."]    { color: rgba( 59, 59,255,1) } /* #3b3bff rgba( 59, 59,255,.9) blue   */
+[data-clr^="g."]    { color: rgba(157,255, 59,1) } /* #9dff3b rgba(157,255, 59,.9) green  */
+[data-clr^="o."]    { color: rgba(255,157, 59,1) } /* #ff9d3b rgba(255,157, 59,.9) orange */
+[data-clr^="p."]    { color: rgba(255, 59,157,1) } /* #ff3b9d rgba(255, 59,157,.9) pink   */
+
+[data-clr$=".y"]    { background-color: rgba(255,255, 59,.8) }
+[data-clr$=".b"]    { background-color: rgba( 59, 59,255,.8) }
+[data-clr$=".g"]    { background-color: rgba(157,255, 59,.8) }
+[data-clr$=".o"]    { background-color: rgba(255,157, 59,.8) }
+[data-clr$=".p"]    { background-color: rgba(255, 59,157,.8) }
+
+.text-vmin          { font-size: calc(0.625vmin + 12px) } /* 320,14>1280,20 */
+.text-vmax          { font-size: calc(0.625vmax + 12px) }
+.text-vh            { font-size: calc(0.625vh   + 12px) }
+.text-vw            { font-size: calc(0.625vw   + 12px) }
+
+.fittext            { padding: 1rem; text-align: center; width: 100% }
+
+#demo-left          { fill: rgba( 41, 38,33,.8) } /* #292621 */
+#demo-right         { fill: rgba(173,255,47,.7) }
+</style>
+
+<style id="ers-debug-default">
+/* show all elements with outlines (put in <body>) */
+[data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
+[data-debug="1"] *                  { outline: 1px dashed purple }
+
+[data-debug] #debug,
+[data-debug] #debug *               { outline: none }
+#debug                              { position: fixed; z-index: 999; bottom: 0; right: 0; padding: .5rem }
+
+#debug button                       { font-family: Arial, Helvetica, sans-serif; font-weight: 400 }
+
+[data-debug="1"] [card]>item        { background-color: linen }
+</style>
+
+
+<style>
+[media]                     { display: block; /* 'display: flex' disables 'position: relative' somehow */
+                              position: relative; z-index: 1 }
+
+[media*="3D"]>*,
+[media*="video"]>*          { width: 100%;
+                              height: calc((0.9375vw + 297px) * 0.61805); /* fallback for IE11 */
+                              height: calc(var(--cardSize) * var(--ratioLow))
+                            }
+
+[media*="img"]              { background-color: rgba(129,117,102,1) } /* rgba(157,255,59,1) */
+[media*="img"] svg>image    { width: 100.5%; height: 100.5%; }
+
+[media*="img"] *            { opacity: .8; filter: grayscale(100%) }
+[card]:hover [media] *      { opacity: 1 ; filter: none }
+
+[media*="img"] a>img        { width: 100%; object-fit: cover; 
+                              height: calc((0.9375vw + 297px) * 0.61805); /* fallback for IE11 */
+                              height: calc(var(--cardSize) * var(--ratioLow))
+                            }
+[media*="img"] a:focus>img  {  cursor: default;
+                              height: calc(0.9375vw + 297px); /* fallback for IE11 */
+                              height: calc(var(--cardSize)); } /* same as width, making it a square block */
+</style>
+
+
+<style>
+[icon]>svg                  { filter: invert(100%) } /* just looks nice with '[media*="img"] *' grayscale filter above */
+
+a~.btn-close                { position: absolute; cursor: pointer;
+                              top: .25rem; right: .25rem;
+                              color: white;
+                              text-shadow: 0px 2px 1px rgba(0,0,0,.20),
+                                           0px 1px 1px rgba(0,0,0,.14),
+                                           0px 1px 3px rgba(0,0,0,.12);
+                                           /* elevation 1dp (only shows with font icons, not SVG icons) */
+                            }
+a~.btn-close [icon]                             { display: none  }
+a:hover:not(:focus)~.btn-close [icon*="hover"]  { display: block }
+a:active:not(:focus)~.btn-close [icon*="active"]{ display: block }
+a:focus~.btn-close [icon*="focus"]              { display: block }
+
+</style>
+
+</head>
+<body dir="ltr" data-debug="0">
+
+<div band="main.rows">
+    <section band="padded.cols.cards">
+        <div>
+            <div card class="text-vmin">
+                <header>
+                    <div>minimum</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>vmin</div>
+                </footer>
+            </div>
+        </div>
+        <div>
+            <div card class="text-vmax">
+                <header>
+                    <div>maximum</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>vmax</div>
+                </footer>
+            </div>
+        </div>
+        <div>
+            <div card class="text-vh">
+                <header>
+                    <div>height</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>vh</div>
+                </footer>
+            </div>
+        </div>
+        <div>
+            <div card class="text-vw">
+                <header>
+                    <div>width</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>vw</div>
+                </footer>
+            </div>
+        </div>
+<!--
+
+
+
+-->
+        <div>
+            <div card class="text-vmin">
+                <div media="img">
+                    <img src="https://picsum.photos/300/200?random=0">
+                </div>
+                <header>
+                    <div>IMG 300x200</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+        <div style="--colCountCard: 1; --rowCountCard: 1">
+            <div card class="text-vmin">
+                <div media="img">
+                    <img src="https://picsum.photos/300/200?random=1" style="object-fit: cover; object-position: center;">
+                </div>
+                <header>
+                    <div>IMG object-fit</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+        <div>
+            <div card class="text-vmin">
+                <div media="img">
+                    <svg viewBox="0 0 1 0.66667" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <image xlink:href="https://picsum.photos/300/300?random=2" preserveAspectRatio="xMidYMid slice"/>
+                    </svg>
+                </div>
+                <header>
+                    <div>SVG image</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+        <div>
+            <div card class="text-vmin">
+                <div media="img">
+                        <svg viewBox="0 0 1 0.66667" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <defs>
+                            <filter id="image">
+                                <feImage xlink:href="https://picsum.photos/300/300?random=3" preserveAspectRatio="xMidYMid slice"/>
+                            </filter>
+                        </defs>
+                        <rect x="0" y="0" width="100%" height="100%" style="filter:url(#image);"/>
+                    </svg>
+                </div>
+                <header>
+                    <div>SVG feImage</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+
+
+
+        <div>
+            <div card class="text-vmin">
+                <div media="img">
+                    <a href="javascript:void(0)">
+                        <img src="https://picsum.photos/300/200?random=4">
+                    </a>
+                    <div class="btn-close"><i icon="hover" ><svg><use xlink:href="#svg-mi-zoom-in" ></use></svg></i>
+                                           <i icon="focus" ><svg><use xlink:href="#svg-mi-zoom-out"></use></svg></i>
+                    </div>
+                </div>
+                <header>
+                    <div>&lt;a&gt; resize</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>vmin</div>
+                </footer>
+            </div>
+        </div>
+
+
+        <div style="--rowCountCard: 2">
+            <div card class="text-vmin">
+                <div media="video">
+                    <iframe src  ="https://www.youtube.com/embed/H7jzb_2s-hU"
+                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <header>
+                    <div>YouTube video 1/2</div>
+                </header>
+                <item>
+                    <p centered>'Ain't Got No - I Got Life'<br>by Nina Simone</p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+            <div card class="text-vmin">
+                <header>
+                    <div>lorum ipsum 2/2</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+        <div style="--colCountCard: 2; --rowCountCard: 2">
+            <div card class="text-vmin">
+                <header>
+                    <div>flex-basis x 2 x 2 rows</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+            <div card class="text-vmin">
+                <header>
+                    <div>lorum ipsum</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+        <div style="--rowCountCard: 4">
+            <div card class="text-vmin">
+                <div media="3D">
+                    <iframe src="https://sketchfab.com/models/53a61d58c09b4d2ab30e269aa3e22078/embed"
+                            allow="autoplay; fullscreen; vr"
+                            mozallowfullscreen="true"
+                            webkitallowfullscreen="true">
+                    </iframe>
+                </div>
+                <header>
+                    <div>Sketchfab 3D 1/4</div>
+                </header>
+                <item>
+                    <p centered>'Mosquito in amber'<br>by Loïc Norgeot</p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+            <div card class="text-vmin">
+                <header>
+                    <div>lorum ipsum 2/4</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+            <div card class="text-vmin">
+                <header>
+                    <div>lorum ipsum 3/4</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+            <div card class="text-vmin">
+                <header>
+                    <div>lorum ipsum 4/4</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+        <div style="--colCountCard: 3">
+            <div card class="text-vmin">
+                <header>
+                    <div>flex-basis x 3</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+        <div style="--colCountCard: 2">
+            <div card class="text-vmin">
+                <header>
+                    <div>flex-basis x 2</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+        <div style="--colCountCard: 2">
+            <div card class="text-vmin">
+                <header>
+                    <div>flex-basis x 2</div>
+                </header>
+                <item>
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+                        deleniti copiosae.
+                    </p>
+                </item>
+                <footer>
+                    <div>dolor</div>
+                </footer>
+            </div>
+        </div>
+    </section>
+
+    <section band="padded.rows">
+        <header data-typo="headline5" band="header">
+            <p>CARD 'WIDTH'</p>
+            <p>or 'FLEX-BASIS' with 'FLEX-GROW'</p>
+        </header>
+
+        <p>Use vp min (320) and max (1920) from y=mx+b vp band padding</p>
+        <ul>
+            <li>minus scrollbar width (17 rounded up to 20)
+            <li>minus left and right vp band padding (scrollbar adjust adds 10px on either side allready)
+            <li>minus left and right margin per card (2 * calc(0.625vmin - 2px) per card)
+            <li>divided by number of cards required in a row at vp min/max (1 at 320 and 4 at 1920)
+        </ul>
+
+    a) ( 320 - 20) / 1 => 300
+    b0) (1920 - 2*320 - 20) / 3 => 1260 / 3 => 420 (3 cards row)
+    b1) (1920 - 2*320 - 20) / 4 => 1260 / 4 => 315 (alternative 4 cards row) [PREFERRED]
+    b2) (1920 - 2*320 - 20) / 5 => 1260 / 5 => 252 (            5          )
+    b3) (1920 - 2*320 - 20) / 6 => 1260 / 6 => 210 (            6          )
+    b4) (1920 - 2*320 - 20) / 7 => 1260 / 7 => 180 (            7          )
+
+
+    y = the result we need    - Rise        => how far up the line
+    m = (y2 - y1) / (x2 - x1) - Slope       => steepness of the line (change in Y / change in X) or (Rise / Run)
+    x = 100vp                 - Run         => how far along the line (100vp: use either vh,vw,vmin or vmax)
+    b = y1 - (m * x1)         - Y-Intercept => where the line crosses the Y-axis
+
+    x-scale: viewport width
+    y-scale: container width
+
+    substitution
+    b0) m = (420 - 300) / (1920 - 320) =  120/1600 =  0.075
+    b1) m = (315 - 300) / (1920 - 320) =   15/1600 =  0.009375
+    b2) m = (252 - 300) / (1920 - 320) =  -48/1600 = -0.03
+    b3) m = (210 - 300) / (1920 - 320) =  -90/1600 = -0.05625
+    b4) m = (180 - 300) / (1920 - 320) = -120/1600 = -0.075
+
+    x = 100vw = fixed value (use 'vw' because of viewport width dependency)
+
+    b0) b = 300 - (m * 320) = 300 -  0.075    * 320 = 300 - 24   = 276
+    b1) b = 300 - (m * 320) = 300 -  0.009375 * 320 = 300 -  3   = 297
+    b2) b = 300 - (m * 320) = 300 - -0.03     * 320 = 300 +  9.6 = 309.4 (-- is +)
+    b3) b = 300 - (m * 320) = 300 - -0.05625  * 320 = 300 + 18   = 318
+    b4) b = 300 - (m * 320) = 300 - -0.075    * 320 = 300 + 24   = 324
+
+    b0) P1=(320,300) and P2=(1920,420) =>  0.075x    - 276   => calc(7.5vw + 276px)
+    b1) P1=(320,300) and P2=(1920,315) =>  0.009375x + 297   => calc(0.9375vw + 297px)
+    b2) P1=(320,300) and P2=(1920,252) => -0.03x     + 309.4 => calc(-3vw + 309.4px)
+    b3) P1=(320,300) and P2=(1920,210) => -0.05625x  + 318   => calc(-5.625vw + 318px)
+    b4) P1=(320,300) and P2=(1920,210) => -0.075x    + 324   => calc(-7.5vw + 324px)
+
+    As 'x' is always fixed in our calculations (100vw/vh/vmin/vmax) we can multiply the first part
+    of our result with 100 to combine with 'x' and simplify the calc():
+
+    To get rid of the margin calculation (2 * calc(0.625vmin - 2px)) we are going to set the width of
+    some card container element instead of the width of the cards themselves. This way container padding
+    creates space between cards, yielding the following formulas:
+
+    When using the proper flexbox justifications (center, space-around)
+    all we need is a card width without any further need for element padding/margin.
+
+    If we cannot use REM in our calculations then we must use the calculation for the :root/html font-size
+    which here is calc(0.625vmin + 14px).
+
+    Use ERS FontSizer 3.1b for y=mx+b https://www.geogebra.org/classic/kdbjqyzs
+*/
+
+/*
+    width   at (320,300)(1920,315) =>  0.009375x + 297
+    height  at (320,300)(1920,315) => (0.009375x + 297) * 1.518
+
+    padding at (320,  4)(1920,  8) => 0.0025x   + 3.2
+    padding at (320,  2)(1920,  4) => 0.0125x   + 1.6
+*/
+    </section>
+
+    <section id="debug" band="rows" dir="ltr" data-clr=".y">
+        <label for="chk-fonts" ><input         onclick="toggleStyle('tgl-typo-defaults')"  type="checkbox" id="chk-fonts"  /> fonts</label>
+        <label for="chk-padded"><input checked onclick="toggleStyle('tgl-band-defaults')"  type="checkbox" id="chk-padded" /> band spacing</label>
+        <label for="chk-ratio" ><input         onclick="toggleStyle('tgl-card-defaults')"  type="checkbox" id="chk-ratio"  /> fixed ratio</label>
+        <label for="chk-align" ><input checked onclick="toggleStyle('tgl-card-alignment')" type="checkbox" id="chk-align"  /> alignment</label>
+        <button onclick="toggleDocDir()"            >doc [dir]</button>
+        <button onclick="toggleStateB('data-debug')">outlines</button>
+    <!-- 
+        <button onclick="stylesOff(['ers-theming-gmc','ers-theming-default','ers-layout-default'])">OFF</button>
+        <button onclick="stylesOn (['ers-layout-default','ers-theming-default','ers-theming-gmc'])">ON </button>
+    -->
+    </section>
+</div>
+
+<svg hide xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!--
+        Google Material Icons (3.0.1)
+    -->
+    <symbol id="svg-mi-cancel" viewBox="0 0 24 24">
+        <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
+        <path d="M0 0h24v24H0z" fill="none"/>
+    </symbol>
+    <symbol id="svg-mi-close" viewBox="0 0 24 24">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        <path d="M0 0h24v24H0z" fill="none"/>
+    </symbol>
+    <symbol id="svg-mi-zoom-in" viewBox="0 0 24 24">
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        <path fill="none" d="M0 0h24v24H0V0z"/>
+        <path d="M12 10h-2v2H9v-2H7V9h2V7h1v2h2v1z"/>
+    </symbol>
+    <symbol id="svg-mi-zoom-out" viewBox="0 0 24 24">
+        <path fill="none" d="M0 0h24v24H0V0z"/>
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"/>
+    </symbol>
+
+    <!--
+        Font-Awsome Icons (5.12.0)
+    -->
+
+    <!--
+        Custom Icons
+    -->
+</svg>
+
+<noscript>
+<style>
+#debug { /* The same as [hide], debug uses JS so hide buttons from use */
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+</style>
+</noscript>
+
+<script>
+'use-strict';
+
+var root  = document.documentElement;
+var body  = document.body;
+
+const DEBUG = true;
+const crlf  = '\r\n';
+const br    = '<br>';
+
+// Traverse an array and execute the passed callback function for each array element found.
+var doForEachEntryIn = function (array, callback, scope) {
+    for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
+
+//Utilities
+function byId(e)            { return document.getElementById(e); };             // Get reference to a HTML element by ID
+function computed(e)        { return window.getComputedStyle(e); };             // Retreive computed styles of an element
+function eVMin(e)           { return Math.min(e.clientHeight,e.clientWidth); }; // get min of W/H without padding, border
+function eVMax(e)           { return Math.max(e.clientHeight,e.clientWidth); }; // get max...
+
+function toggleStateB(d)    { if (body.getAttribute(d)=='1') body.setAttribute(d,'0'); else body.setAttribute(d,'1'); }
+function toggleStateR(d)    { if (root.getAttribute(d)=='1') root.setAttribute(d,'0'); else root.setAttribute(d,'1'); }
+
+// Toggle the use of a specific style element
+function toggleStyle(id)    { var el = byId(id); el.disabled = !el.disabled }
+
+// Toggle/Disable/Enable an array of style elements (by ID)
+function stylesToggle(a)    { doForEachEntryIn(a, function (i,e,s) { toggleStyle(e); }); }
+function stylesOff(a)       { doForEachEntryIn(a, function (i,e,s) { byId(e).disabled = true;  }); }
+function stylesOn(a)        { doForEachEntryIn(a, function (i,e,s) { byId(e).disabled = false; }); }
+
+// Toggles the document direction from LTR to RTL and v.v.
+function toggleDocDir()     { if  (body.getAttribute('dir')=='rtl') body.setAttribute('dir','ltr');
+                              else body.setAttribute('dir','rtl'); }
+
+/*****************************************************/
+document.addEventListener('DOMContentLoaded', initialize); // Do when all HTML/CSS has been loaded
+/*****************************************************/
+
+function initialize() {
+};
+</script>
+</body>
+</html>

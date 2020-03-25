@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>Codrops Doc</title>
+<!-- Google Material Icons v3.0.1, all of them! -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" crossorigin="anonymous">
+
+<!-- just a few fonts to toy with -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Work+Sans:100,200,300,400,500,600,700,800,900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&display=swap&subset=latin-ext">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900&display=swap&subset=latin-ext">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,200,300,400,500,600,700,800,900&display=swap&subset=latin-ext">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900&display=swap&subset=latin-ext">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:100,200,300,400,500,600,700,800,900&display=swap&subset=latin-ext">
+
+<style id="ers-global-default">
+/******************************/
+/* Just a few preferred rules */
+/******************************/
+html,body           { box-sizing: border-box; margin: 0 }
+body                { min-height: 100vh }
+
+*::before,
+*::after, *         { box-sizing: inherit; outline: none }
+
+tr,ul,li            { margin: 0; padding: 0; list-style-type: none }
+th,td               { padding: 0 .5rem }
+a,q                 { color: currentColor; font-style: italic }
+p                   { margin: 0; padding-bottom: 1rem }
+
+pre,code            { font-size: calc(0.015625 * 100vmin); /*5>20*/
+                      font-family: Consolas, monospace;
+                      font-weight: normal; white-space: pre-wrap;
+                      letter-spacing: .02em }
+
+</style>
+
+<style id="ers-typography-global">
+/*************************************************/
+/* easy RESPONSIVE|TYPOGRAPHY|NESS [STABLE][WIP] */
+/*************************************************/
+/*
+    => 1/160 x current MIN(vp width, vp height) + minimum font-size at 100vmin = 320px
+       result of y=mx+b with points P1(320,14) and P2(1280,20)
+
+   + 0.6875rem => 11/16 => 13>19px
+     0.7500rem => 12/16 => 14>20px
+     0.8125rem => 13/16 => 15>21px
+     0.8750rem => 14/16 => 16>22px (at viewport 320>1280px)
+*/
+html             { font-size: calc(0.625vmin + 0.75rem) } /* 14>20 */
+html [lang="ar"] { font-size: calc(0.625vmin + 1rem)    } /* 18>24 (Arabic looks small at 16>22) */
+</style>
+
+<style id="ers-typography-default">
+body { font-family: "Open Sans","Source Sans Pro",sans-serif }
+</style>
+
+<style id="ers-typography-gmc">
+/****************************************************************/
+/* easy RESPONSIVE|TYPOGRAPHY|NESS [GMC][OPTIONAL][STABLE][WIP] */
+/****************************************************************/
+/* Default font-sizes, based on Google Material Components for Web 4.0.0 (Nov 2019) */
+
+body { font-family: Roboto,sans-serif }
+
+[data-typo^="headline1"]  { font-weight: 300; font-size: 6rem    ; line-height: 6rem    ; letter-spacing: -0.015625em    } /* 96sp/96sp */
+[data-typo^="headline2"]  { font-weight: 300; font-size: 3.75rem ; line-height: 3.75rem ; letter-spacing: -0.008333333em } /* 60sp/60sp */
+[data-typo^="headline3"]  { font-weight: 300; font-size: 3rem    ; line-height: 3.125rem; letter-spacing: normal         } /* 48sp/50sp */
+[data-typo^="headline4"]  { font-weight: 300; font-size: 2.125rem; line-height: 2.5rem  ; letter-spacing: 0.0073529412em } /* 34sp/40sp */
+[data-typo^="headline5"]  { font-weight: 300; font-size: 1.5rem  ; line-height: 2rem    ; letter-spacing: normal         } /* 24sp/32sp */
+[data-typo^="headline6"]  { font-weight: 300; font-size: 1.25rem ; line-height: 2rem    ; letter-spacing: 0.0125em       } /* 20sp/32sp */
+[data-typo^="subtitle1"]  { font-weight: 400; font-size: 1rem    ; line-height: 1.75rem ; letter-spacing: 0.009375em     } /* 16sp/28sp */
+[data-typo^="subtitle2"]  { font-weight: 500; font-size: 0.875rem; line-height: 1.375rem; letter-spacing: 0.0071428571em } /* 14sp/22sp */
+[data-typo^="body1"]      { font-weight: 300; font-size: 1rem    ; line-height: 1.5rem  ; letter-spacing: 0.03125em      } /* 16sp/24sp */
+[data-typo^="body2"]      { font-weight: 400; font-size: 0.875rem; line-height: 1.25rem ; letter-spacing: 0.0178571429em } /* 14sp/20sp */
+[data-typo^="caption1"]   { font-weight: 400; font-size: 0.75rem ; line-height: 1.25rem ; letter-spacing: 0.0333333333em } /* 12sp/20sp */
+[data-typo^="button1"]    { font-weight: 500; font-size: 0.875rem; line-height: 2.25rem ; letter-spacing: 0.0892857143em } /* 14sp/36sp */
+[data-typo^="overline1"]  { font-weight: 400; font-size: 0.625rem; line-height: 2rem    ; letter-spacing: 0.1666666667em } /* 10sp/32sp */
+
+[data-typo^="headline"],[data-typo^="subtitle"],[data-typo^="body"],
+[data-typo="caption1"]    { text-decoration: inherit; text-transform: inherit }
+
+[data-typo="button1"],
+[data-typo="overline1"]   { text-decoration: none; text-transform: uppercase }
+</style>
+
+<style id="ers-typography-gmc-REPLY">
+body { font-family: "Work Sans",sans-serif }
+
+[data-typo^="headline1"]  { font-weight: 300 }
+[data-typo^="headline2"]  { font-weight: 600 }
+[data-typo^="headline3"]  { font-weight: 400 }
+[data-typo^="headline4"]  { font-weight: 600 }
+[data-typo^="headline5"]  { font-weight: 700 }
+[data-typo^="headline6"]  { font-weight: 500 }
+[data-typo^="subtitle1"]  { font-weight: 400 }
+[data-typo^="subtitle2"]  { font-weight: 500 }
+[data-typo^="body1"]      { font-weight: 400 }
+[data-typo^="body2"]      { font-weight: 400 }
+[data-typo^="caption1"]   { font-weight: 400 }
+[data-typo^="button1"]    { font-weight: 500 }
+[data-typo^="overline1"]  { font-weight: 600 }
+</style>
+
+<style id="ers-utility-default">
+/**************************************************/
+/* Utility rules, first so they can be overridden */
+/**************************************************/
+body      { cursor: default } /* Plain arrow for everything, but... */
+pre,input { cursor: auto    } /* ...use HTML default cursor on inputs, unless it is an: */
+
+input[list="datalist"],input[type="button"],input[type="checkbox"],input[type="radio"],
+input[type="color"],input[type="range"],input[type="reset"],input[type="file"],input[type="submit"],
+label:not([for=""]),
+a,button,select,keygen   { cursor: pointer } 
+[contenteditable="true"] { cursor: text    }
+
+/* Darker/more contrast text (put in <body>)
+   => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+/* prohibit user from selecting text (put in <body>) */
+.noselect,[select="0"],[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+.select  ,[select="1"],[select]   { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
+
+[push="R"] { margin-left : auto } /* push elements Right/Left */
+[push="L"] { margin-right: auto }
+
+[hide], [data-hide="1"] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+
+/* show all elements with outlines (put in <body>) */
+[data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
+[data-debug="1"] *                  { outline: 1px dashed purple }
+
+[data-debug] #debug,
+[data-debug] #debug *               { outline: none }
+#debug                              { position: fixed; z-index: 999; bottom: 0; padding: .5rem; background-color: rgba(0,0,0,.5) }
+</style>
+
+<style id="comment-01">
+/*
+    EQUATION
+    --------
+    y = mx + b  "Definition of a straight line"
+
+    WHERE
+    -----
+    y = the result we need    - Rise        => how far up the line
+    m = (y2 - y1) / (x2 - x1) - Slope       => steepness of the line (change in Y / change in X) or (Rise / Run)
+    x = 100                   - Run         => how far along the line (always 100 expressed in vh,vw,vmin or vmax making it variable)
+    b = y1 - (m * x1)         - Y-Intercept => where the line crosses the Y-axis
+
+
+    using y = mx + b for P1(320,16) and P2(1280,22) (alternatively P2(1920,22))
+
+
+                     (y2 - y1)   100      (y2 - y1)   100/100      (y2 - y1)
+    for 1280:  mx = ---------- * ---  =>  --------- * -------  =>  ---------
+                    1280 - 320    1        960/100       1            9.6
+
+
+                          (y2 - y1)    320      (y2 - y1)   320/320                   (y2 - y1)
+                b = y1 - ---------- *  ---  =>  --------- * -------  simplified: y1 - ---------
+                         1280 - 320     1        960/320       1                          3
+
+
+                y = ((y2 - y1) / 9.6) + (y1 - (y2 - y1) / 3)
+
+
+
+    for P1(320,16) and P2(1280,22):  y = (22 - 16) / 9.6 + (16 - (22 - 16) / 3) => ( 6/9.6)x + 16 -  2 =>  0.625 + 14
+    for P1(320,22) and P2(1280,16):  y = (16 - 22) / 9.6 + (22 - (16 - 22) / 3) => (-6/9.6)x + 22 - -2 => -0.625 + 24
+
+
+
+                     (y2 - y1)   100      (y2 - y1)   100/100              (y2 - y1)
+    for 1920:  mx = ---------- * ---  =>  --------- * -------  simplified: ---------
+                    1920 - 320    1        1600/100      1                    16
+
+
+                          (y2 - y1)    320      (y2 - y1)   320/320                   (y2 - y1)
+                b = y1 - ---------- *  ---  =>  --------- * -------  simplified: y1 - ---------
+                         1920 - 320     1       1600/320       1                          5
+
+                y = ((y2 - y1) / 16) + (y1 - (y2 - y1) / 5)
+
+
+    for P1(320,16) and P2(1280,22):  y = (22 - 16) / 16 + (16 - (22 - 16) / 5) => (6/16)x + 16 - 1.2 => 0.375x + 14.8
+
+
+    x-scale: minimum viewport size
+    y-scale: fontsize
+
+    In the case of our <html> tag:
+
+    1) At minimum viewport size of  320px we want our font to be 16px tall
+    2) At minimum viewport size of 1280px we want our font to be 22px tall
+    3) We want the fontsize to be to scale at all other minimum viewport sizes
+
+    Variable fontsize 
+    -----------------
+    m = (22 - 16) / (1280 - 320) = 6/960 = 1/160 = 0.00625
+    x = 100vmin                  = fixed value
+    b = 16 - (m * 320)           = 16 - 0.00625 * 320 = 16 - 2 = 14
+
+    y = 0.00625x + 14            = calc(0.00625 * 100vmin + 14px)
+    simplify                     = calc(0.625vmin + 14px)
+    divide 14 by 16 to get REM   = 0.875rem
+
+    resulting CSS code: calc(0.625vmin + 0.875rem)
+
+    Why VMIN: - VMAX yields larger and incorrect results
+              - VH/VW will make the fontsize viewport Height/Width depended, which is incorrect logic
+                (use only when you specifically need it to be)
+
+    Why REM: Users can modify the default font size (ROOT, usually 16px) of their browsers.
+             Using PX on :root/HTML disregards, and therefore overrides, that setting,
+             while REM does not, subsequently scaling the resulting font size to the user's requirement.
+             Think of the vision impaired when setting font sizes.
+
+             => Until W3C comes up with a spec to obtain the correct ROOT font size,
+                always divide PX by 16 to get REM. This will do just fine in most cases.
+
+    FINALLY
+    -------
+    Equation "y=mx+b" can be used for any CSS size value which supports CSS calc().
+    Think of variable padding/margin, (min/max)height/width, etc.
+
+    Some examples (using PX instead of REM => W/H depended not ROOT depended)
+
+    1) Some Card padding:
+       16px at  320vp
+       40px at 1280vp => padding: calc(2.5vmin + 8px);
+
+    2) A nice smartphone/desktop Landing page
+
+      T/B padding (height depended, use VH):
+      32px at 320vp
+      72px at 1920vp => padding: 0 calc(2.5vh + 24px);
+    
+      L/R padding (width depended, use VW):
+        0px at 320vp
+      320px at 1920vp => padding: 0 calc(20vw - 64px);
+
+    In many cases you will no longer need Media Queries to check for Device Size breakpoints,
+    and only have to be concerned about device orientation: landscape or portrait.
+
+    BE AWARE OF THIS
+    ----------------
+    Multiplications and divsions by 16 and 160 (or a mult/div thereof) are your friend.
+    
+    Do the following arithmetic series ring a bell?
+    
+    16,32,64,128,256 or 160,320,640,1280,2560   => think PX
+     8,24,48, 96,192 or  80,240,480, 960,1920
+     4, 8,12, 16, 20 or  40, 80,120, 160, 200
+     
+    1,1.5,2,2.5,3,3.5,4 or 10,15,20,25,30,35,40 => think REM
+
+    All PC/tablet/smartphone calculations are hexadecimal (base 16) related. So, in all your
+    calculations always look for the exact or the nearest lower mult/div of 16 or 160.
+    Manufacturers follow this rule (yes, Apple too), it is a hardware thing.
+    Use it to your advantage.
+
+    EXTRAS
+    ------
+    Tool: ERS FontSizer 3.1b created with GeoGebra by me (René van der Lende)
+          https://www.geogebra.org/m/kdbjqyzs
+
+          Simply: drag the blue P1 triangle to set (x1,y1)
+                  drag the blue P2 triangle to set (x2,y2)
+
+                  to get the required equation for CSS: calc(m * 100vmin/vmax/vh/vw + b)
+                  multiply m with 100 to simplify CSS to calc(mvmin/vmax/vh/vw + b)
+                  
+                  example: calc(0.00625 * 100vmin + 14px) becomes calc(0.625vmin + 14px)
+                  (REMARK: the math above already incorporates this simplification!!!)
+
+          Use: keyboard keys and sliders to finetune the values for P1 and P2. 
+
+    GeoGebra: free open-source desktop/smartphone/online mathematical apps (2D/3D math)
+              free account, packed with mathematical goodies from the user base.
+              Well worth your time to investigate!
+
+    Math reference: http://www.mathsisfun.com/equation_of_line.html
+                    http://www.mathsisfun.com/algebra/line-equation-2points.html
+                    http://www.mathsisfun.com/geometry/slope.html
+*/
+</style>
+
+<style id="ers-layout-default">
+/********************************************/
+/* easy RESPONSIVE|LAYOUT|NESS (STABLE WIP) */
+/********************************************/
+
+/*****************/
+/* generic bands */
+/*****************/
+[data-band],
+[data-block]            { display: flex; width: 100%; position: relative;
+                          justify-content: center; align-content: center }
+
+[data-band] ,
+[data-band*="cols"]     { flex-flow: row wrap }     /* a row of columns */
+[data-band*="rows"]     { flex-flow: column wrap }  /* a column of rows */
+
+[data-band]>div         { flex-flow: row wrap }     /* direct descendants of [data-band] only */
+[data-band]>item        { flex-flow: column wrap }
+
+[data-band*="outer"]    { padding: 0 }
+
+[data-band*="padded"],
+[data-band*="inner"]    { padding: calc(2.5vh + 24px) calc(20vw - 64px) }
+/* 
+    f:y=mx+b => T/B (320,32)(1920, 72) => 0.025x + 24
+             => L/R (320, 0)(1920,320) => 0.2x - 64
+*/
+
+[data-band*="main"]     { height: 100%; flex-wrap: nowrap }
+
+/******************/
+/* generic blocks */
+/******************/
+[data-block]>*          { display: flex }
+[data-block],
+[data-block]>*          { flex-wrap: wrap }
+
+[data-block],
+[data-block*="rows"]    { flex-flow: column wrap }
+[data-block*="cols"]    { flex-flow: row wrap }
+
+/*****************/
+/* generic cards */
+/*****************/
+[card],[card]>* { display: flex }
+
+/* (320,240)(1280,480) => 0.25x + 160 */
+[card]          { flex-basis: calc(25vh + 160px); width: 100%; justify-content: space-between; }
+[card*="outer"] { padding: .5rem; background-color: transparent }
+[card*="inner"] { flex-direction: column; }
+
+[card] header,
+[card] footer   { width: 100% }
+
+[card] item     { flex-flow: column wrap; flex-grow: 1 }
+[card] footer   { text-align: right }
+
+/*******************/
+/* generic flexbox */
+/*******************/
+[start]         { justify-content: flex-start; text-align: left   } /* 'text-align' for non-flexbox tags */
+[centered]      { justify-content: center    ; text-align: center }
+[end]           { justify-content: flex-end  ; text-align: right  }
+</style>
+
+<style id="ers-theming-gmc">
+/**************************************/
+/* Google Material Components theming */
+/**************************************/
+body { background-color: #f2f2f2 }
+
+[data-band*="code"]     {}
+[data-band*="code"] pre { padding-top: .5rem; padding-bottom: .5rem; padding: 1.5rem }
+
+[card*="inner"] {
+    /* GMC Web default card elevation */
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12); /* elevation 1dp */
+
+    background-color: white; border-radius: 3px;
+}
+[card*="inner"]:hover {
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 5px  8px  0px rgba(0,0,0,.14),
+                0px 1px 14px  0px rgba(0,0,0,.12); /* elevation 5dp */
+}
+</style>
+
+<style id="ers-theming-gmc-REPLY">
+/**************************************/
+/* Google Material Components theming */
+/**************************************/
+body { background-color: #edf0f2 }
+
+[card*="inner"]       { box-shadow: none; border: 1px solid rgba(74,101,114,.2) }
+
+[card*="inner"]:hover {
+    /* GMC Web default card elevation */
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12); /* elevation 1dp */
+
+    background-color: white; border-radius: 3px;
+}
+</style>
+
+<style id="ers-theming-default">
+/*******************************************/
+/* easy RESPONSIVE|THEME|NESS (STABLE WIP) */
+/*******************************************/
+body { background-color: rgba(138,113,106,.9) }
+
+/* Google Material Icons overrides */
+.material-icons { font-size: inherit; line-height: inherit }
+
+[card*="inner"] {
+    background-color: rgba(194,184,178,.9);
+
+    /* My preferred card elevation */
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 5px  8px  0px rgba(0,0,0,.14),
+                0px 1px 14px  0px rgba(0,0,0,.12); /* elevation 5dp */
+}
+</style>
+
+<style id="ers-colors-default">
+/*******************************************/
+/* easy RESPONSIVE|COLOR|NESS (STABLE WIP) */
+/*******************************************/
+.black          { background-color: black  ; color: white }
+.grey           { background-color: #7f7f7f; color: white } /* (NOT 'gray' #808080) */
+.white          { background-color: white  ; color: black }
+
+.red            { background-color: #ff0000; color: white } /* Primary colors */
+.lime           { background-color: #00ff00; color: black }
+.blue           { background-color: #0000ff; color: white }
+.cyan           { background-color: #00ffff; color: black } /* Secondary colors / complementary */
+.magenta        { background-color: #ff00ff; color: white } /* also: hue rotated 180deg */
+.yellow         { background-color: #ffff00; color: black }
+
+.red30          { background-color: #ff8000; color: black } /* hue rotated +30deg */
+.lime30         { background-color: #00ff80; color: black }
+.blue30         { background-color: #8000ff; color: white }
+
+.red30cmp       { background-color: #007fff; color: black } /* hue rotated +30deg complmentary */
+.lime30cmp      { background-color: #ff007f; color: black }
+.blue30cmp      { background-color: #7fff00; color: white }
+
+
+[fg=black  ]  { color: black   }
+[fg=grey   ]  { color: #7f7f7f }
+[fg=white  ]  { color: white   }
+[fg=red    ]  { color: #ff0000 }
+[fg=lime   ]  { color: #00ff00 }
+[fg=blue   ]  { color: #0000ff }
+[fg=cyan   ]  { color: #00ffff }
+[fg=magenta]  { color: #ff00ff }
+[fg=yellow ]  { color: #ffff00 }
+[fg=red30    ]  { color: #ff8000 }
+[fg=lime30   ]  { color: #00ff80 }
+[fg=blue30   ]  { color: #8000ff }
+[fg=red30cmp ]  { color: #007fff }
+[fg=lime30cmp]  { color: #ff007f }
+[fg=blue30cmp]  { color: #7fff00 }
+</style>
+
+<style id="ers-theming-base-colors">
+/*******************************************/
+/* easy RESPONSIVE|THEME|NESS (STABLE WIP) */
+/*******************************************/
+/* BASE colors */
+[data-clr^="b."]            { color: black }
+[data-clr^="w."]            { color: white }
+[data-clr$=".b"]            { background-color: black }
+[data-clr$=".w"]            { background-color: white }
+
+[data-clr^="c."]            { color: currentColor }
+[data-clr^="t."]            { color: transparent  }
+[data-clr$=".c"]            { background-color: currentColor }
+[data-clr$=".t"]            { background-color: transparent  }
+
+[data-clr^="0."]            { color: rgba(35,47,52,.9) } /* #232f34 800 */
+[data-clr^="F."]            { color: rgba(255,255,255,.9) }
+[data-clr$=".0"]            { background-color: rgba(35,47,52,.9) }
+[data-clr$=".F"]            { background-color: rgba(255,255,255,1) }
+
+/* BASE foreground colors */
+[data-clr^="1."]            { color: rgba(134,191,227,.87) }
+[data-clr^="2."]            { color: rgba(213, 72, 87,.87) }
+
+[data-clr^="3."]            { color: rgba(166, 52, 70,.87) }
+[data-clr^="4."]            { color: rgba(138,113,106,.87) }
+[data-clr^="5."]            { color: rgba(194,184,178,.87) }
+
+[data-clr^="cold."]         { color: rgba(113,180,223,.9) }
+[data-clr^="hot."]          { color: rgba(223,156,113,.9) }
+
+/* BASE background colors */
+[data-clr$=".0D"]           { background-color: rgba(35, 47, 52,.9) } /* #1f1f24 dark   #232f34 800 */
+[data-clr$=".0M"]           { background-color: rgba(52, 73 ,85,.9) } /* #24242a medium #344955 700 */
+[data-clr$=".0L"]           { background-color: rgba(74,101,114,.9) } /* #2e2e35 light  #4a6572 600 */
+
+[data-clr$=".P"]            { background-color: rgba( 52, 73,85,.9) } /* #344955 700 primary   Reply Blue   */
+[data-clr$=".S"]            { background-color: rgba(249,170,51,.9) } /* #f9aa33 500 secondary Reply Orange */
+
+[data-clr$=".1"]            { background-color: rgba(134,191,227,.9) } /**/
+[data-clr$=".2"]            { background-color: rgba(213, 72, 87,.9) }
+
+[data-clr$=".3"]            { background-color: rgba(166, 52, 70,.9) }
+[data-clr$=".4"]            { background-color: rgba(138,113,106,.9) }
+[data-clr$=".5"]            { background-color: rgba(194,184,178,.9) }
+
+[data-clr$=".cold"]         { background-color: rgba(113,180,223,.9) }
+[data-clr$=".hot"]          { background-color: rgba(223,156,113,.9) }
+</style>
+
+<style id="ers-landing-page">
+/************************/
+/* page specific styles */
+/************************/
+/*************************************/
+#main           { display: none; margin-bottom: 6rem } /* Set by JS or NoScript */
+
+[card]>header,
+[card]>footer   { padding: .25rem .5rem }
+[card]>item     { padding: 0 1.5rem }
+</style>
+
+</head>
+
+
+<body data-typo="body1" cleartype="0" dir="ltr" data-debug="0">
+<div id="main" data-band="outer.rows.main">
+
+    <section data-band="outer">
+        <div data-band="inner">
+            <div card="outer">
+                <div card="inner">
+                    <header data-block="cols" data-typo="headline6" data-clr="0M.">
+                        <div>header</div>
+                        <ul  push="R" menu>
+                            <li><i class="material-icons">more_vert</i></li>
+                        </ul>
+                    </header>
+                    <item>
+                        <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad.
+                           Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.</p>
+                    </item>
+                    <footer data-block="cols" data-clr="F.P" data-typo="overline1">
+                        <div push="R">footer</div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section data-band="outer">
+        <item data-band="inner">
+        <header data-typo="headline5">equation</header>
+
+        <p><b>y = mx + b</b> - <q><a target="_blank" href="https://www.mathsisfun.com/algebra/linear-equations.html" title="mathisfun.com (new tab)">Definition of a straight line</a></q></p>
+
+        <header data-typo="headline5">where</header>
+        <div id="table1">
+            <style>
+                #table1,.tbody  { display: flex; flex-flow: column wrap }
+                .tr             { display: flex; flex-flow: row wrap }
+                
+                .tbody          { padding-bottom: 1.5rem }
+                .tr             { margin-bottom: .5rem; padding: 1rem; background-color: white }
+                
+                #table1 .tr>:nth-child(1)           { min-width:  1.25rem; font-weight: bold }
+                #table1 .tr>:nth-child(2)           { min-width: 12rem }
+                #table1 .tr>:nth-child(3)           { min-width:  9rem; font-weight: bold }
+                #table1 .tr>:nth-child(2)::before   { content: ' = ' }
+            </style>
+            <div class="tbody">
+                <div class="tr"><div>y</div><div>result               </div><div><q>Rise</q>       </div><div>how far up the line</div></div>
+                <div class="tr"><div>m</div><div>(y2 - y1) / (x2 - x1)</div><div><q>Slope</q>      </div><div>steepness of the line (change in Y / change in X) or (Rise / Run)</div></div>
+                <div class="tr"><div>x</div><div>100vmin              </div><div><q>Run</q>        </div><div>how far along the line (fixed value, using either vmin, vmax, vw or vh)</div></div>
+                <div class="tr"><div>b</div><div>y1 - (m * x1)        </div><div><q>Y-Intercept</q></div><div>where the line crosses the Y-axis</div></div>
+                <div class="tr"><div>y</div><div>(y2 - y1) / (x2 - x1) * 100 + (y1 - (y2 - y1) / (x2 - x1) * x1)</div></div>
+            </div>
+            <div class="tbody">
+                <div><b>x-scale</b>: viewport size</div>
+                <div><b>y-scale</b>: font size</div>
+            </div>
+        </div>
+        </item>
+    </section>
+
+    <section data-band="outer">
+        <item data-band="inner">
+            <div data-band="code" class="white" dir="ltr">
+    <pre><code><b>&lt;style id="ers-linear-functions-default"&gt;</b>
+    <b fg=blue>:root</b> {
+        <b fg=red>--y1</b>: 320; <b fg=red>--y2</b>: 1280; <b fg=grey>/* defaults */</b>
+        <b fg=red>--x1</b>:  16; <b fg=red>--x2</b>:   22;
+        <b fg=red>--lh</b>: 1.5;
+    }
+    <span fg=grey><b>/*
+        Long version of the linear equation with CSS custom variables, VMIN dependend.
+        All variables (x1,y1,x2,y2) can be defined elsewhere.
+    */</b></span>
+    <b fg=blue>[data-fnc*="full"]</b> { <b fg=grey>/* fully substituted formula: <b fg=magenta>y = mx + b</b> */</b>
+        <b fg=red>--y</b>: calc(
+                   <b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b> * <b fg=lime30cmp>100vmin</b> +
+                   <b fg=blue30>(var(--y1) - (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * var(--x1))</b>
+                 )
+    }
+    <span fg=grey><b>/* Intercept-Slope: same result, different setup */</b></span>
+    <b fg=blue>[data-fnc*="i-slope"]</b> {
+        <b fg=red>--m</b>: calc(<b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b>);
+        <b fg=red>--x</b>: <b fg=lime30cmp>100vmin</b>;
+        <b fg=red>--b</b>: calc(<b fg=blue30>var(--y1) - var(--m) * var(--x1)</b>);
+        <b fg=red>--y</b>: calc(<b>var(--m) * var(--x) + var(--b)</b>) <b fg=grey>/* must be last, determine m,x,b first */</b>
+    }
+    <span fg=grey><b>/* Point-Slope alternative: y-y1 = m(x-x1) <=> y = y1 + m(x-x1) */</b></span>
+    <b fg=blue>[data-fnc*="p-slope"]</b> {
+        <b fg=red>--y</b>: calc(
+                   var(--y1)
+                   + <b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b>
+                   * (<b fg=lime30cmp>100vmin</b> - var(--x1))
+                 )
+    }
+<b>&lt;/style&gt;</b>
+<b>&lt;style id="ers-linear-functions-usage"&gt;</b>
+    <span fg=grey><b>/*
+        Sample use of the formula with fonts
+        The selector does not care which formula is used, as long as <b fg=red>--y</b> has a value
+        As the result is numeric we need to convert it to pixels, hence: <b fg=black>--y * 1px</b>
+    */</b></span>
+    <b fg=blue>[data-fnc][data-typo]</b>, <b fg=blue>[data-fnc="full"][data-typo]</b>,
+    <b fg=blue>[data-fnc="i-slope"][data-typo]</b>, <b fg=blue>[data-fnc="p-slope"][data-typo]</b>
+    { font-size: calc(var(<b fg=red>--y</b>) * 1px); line-height: var(<b fg=red>--lh</b>) }
+
+    <b fg=blue>[data-typo*="headline"]</b> { --y1: <b>24</b>; --y2: <b>36</b> }
+    <b fg=blue>[data-typo*="subtitle"]</b> { --y1: <b>18</b>; --y2: <b>30</b> }
+    <b fg=blue>[data-typo*="body"]</b>     { --y1: <b>14</b>; --y2: <b>20</b> }
+<b>&lt;/style&gt;</b></code></pre>
+            </div>
+        <br>
+        <header data-typo="headline5">variable fontsize</header>
+        <p>In the case of our &lt;html&gt; tag:</p>
+        <ul>
+            <li>1) At minimum viewport size of  320px we want our font to be 16px tall    </li>
+            <li>2) At minimum viewport size of 1280px we want our font to be 22px tall    </li>
+            <li>3) We want the fontsize to be to scale at all other minimum viewport sizes</li>
+        </ul>
+
+        </item>
+    </section>
+
+
+    <section id="debug" data-band="outer" dir="ltr">
+        <button onclick="toggleStateB('data-debug')"        >Outlines  </button>
+        <button onclick="toggleDocDir()"                    >Doc Dir   </button>
+        <button onclick="toggleStyle('ers-theming-default')">Toggle GMC</button>
+
+        <button onclick="stylesOff(['ers-theming-gmc','ers-theming-default','ers-layout-default'])">OFF</button>
+        <button onclick="stylesOn (['ers-layout-default','ers-theming-default','ers-theming-gmc'])">ON </button>
+    </section>
+</div>
+
+
+<noscript>
+<style>
+/* Cannot be set by JS 'initialize', so activate here */
+#main  { display: flex }
+
+#debug { /* The same as [hide], uses JS so hide buttons from user */
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+</style>
+</noscript>
+
+<script id="ers-oneliners">
+'use-strict';
+
+/* Shortcuts to both the html and body element */
+var root = document.documentElement;
+var body = document.body;
+
+// Traverse an array and execute the passed callback function for each array element found
+var forEachEntryIn = function (array, callback, scope) {
+for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
+
+/*****************************/
+/* Oneliner toggle functions */
+/*****************************/
+
+// No error checking whatsoever, so the elements better exist...
+
+//Get reference to HTML element by its ID
+function elem(e) { return document.getElementById(e); }; 
+
+function toggleStateB(d) { if (body.getAttribute(d)=='1') body.setAttribute(d,'0'); else body.setAttribute(d,'1'); }
+function toggleStateR(d) { if (root.getAttribute(d)=='1') root.setAttribute(d,'0'); else root.setAttribute(d,'1'); }
+
+// Toggle the use of a specific style element
+function toggleStyle(id) { var el = elem(id); el.disabled = !el.disabled }
+
+// Toggle/Disable/Enable an array of style elements (by ID)
+function stylesToggle(array) { forEachEntryIn( array, function (i,e,s) { toggleStyle(e); }); }
+function stylesOff(array)    { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = true;  }); }
+function stylesOn(array)     { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = false; }); }
+
+// Toggles the document direction from LTR to RTL and v.v.
+function toggleDocDir() { if  (body.getAttribute('dir')=='rtl') body.setAttribute('dir','ltr');
+                          else body.setAttribute('dir','rtl'); }
+
+/**************/
+/* Page setup */
+/**************/
+function intialize() { 
+//var config = readUserSettings(); // LocalStorage?
+
+    /* if (config) { */
+        toggleStyle('ers-theming-default'); // whatever you saved before
+    /*  toggleStyle('');
+        toggleStyle('');
+    };*/
+
+    elem('main').style.display = "flex"; 
+};
+
+/******************************************************/
+window.addEventListener("DOMContentLoaded",intialize);
+/******************************************************/
+</script>
+
+</body>
+</html>

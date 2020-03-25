@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<script src="https://cdn.geogebra.org/apps/deployggb.js"></script>
+
+<title>Codrops Doc Test</title>
+
+<link id="typo-work-sans" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Work+Sans:100,200,300,400,500,600,700,800,900&display=swap">
+
+<style id="ers-linear-equation-default">
+/***********************************************************/
+/* [MANDATORY] Using Custom Properties to calculate y=mx+b */
+/***********************************************************/
+:root {
+    /* NOTE: All values in this block hold pixel values (px),
+             but without the px unit attached. */
+
+    /* 
+        Initialize 'internal' custom properties. These properties will hold
+        the current value of 100vmin/vmax/vw/vh respectively and are being
+        kept up to date with by Javascript (Here for demo only as they will 
+        be defined by JS either way).
+    */
+    --js-vmin: 0; --js-vmax: 0; --js-vw: 0; --js-vh: 0;
+
+    /*
+        Initial values are two points on a straight line
+        p1(x1,y1) and p2(x2,y2) => p1(320,14) and p2(1280,20)
+
+        NOTE: Setting these to 0 will work just as well, but giving them a meaningfull
+              initial value makes more sense as it may save writing CSS code later as
+              [--x1] and [--x2] will hardly/not change (in this document anyway).
+
+              In this case the variables hold the values for [html:font-size]...
+    */
+
+    /*
+        GeoGebra online examples 
+
+            ERS sizing example 1 (font-size): https://www.geogebra.org/m/pxbq6sx4
+            ERS sizing example 2 (padding)  : https://www.geogebra.org/m/avewtwqj
+    */
+
+    --x1:  320; --y1: 14;   /* p1 => 14px at  320px (100vmin = 320px)  */
+    --x2: 1280; --y2: 20;   /* p2 => 20px at 1280px (100vmin = 1280px) */
+
+    /* Initially assume that [--x] is minimum viewport size dependend */
+    --x : var(--js-vmin); /* current 100vmin JS value */
+
+    /* Some initial value. May be 0 too, but now you have a value you can already use */
+    --y: calc(0.625vmin + 0.75rem); /* p1(320,14) p2(1280,20) where b=12/16 to get REM */
+    /* BEWARE: [--y] now holds some pixel value (unless 'px' is stripped by browser, not sure),
+               but will be reassigned and then hold a regular decimal!
+               (Maybe just assign 0 after all, to prevent use as 'hidden feature'...) */
+
+    /* NOTE: I always use REM instead of PX with all pros and cons considered,
+             therefore all values of [--y] will be divided by 16 converting
+             PX to REM using below [--factorP2R].
+    */
+    /* Division factor PX to REM */
+    --factorP2R: 16;
+}
+/*
+    (1) [DEFAULT] Main Equation for use as all-purpose y=mx+b calculation.
+
+        Point-Slope variation: y = y1 + m(x-x1), converted to REM with [--factorP2R]
+        Made default as it is the shortest, saving CPU time.
+
+        NOTE: When in doubt, use this one.
+*/
+[data-math],
+[data-math="p-slope"] {
+    --y: calc((var(--y1) + (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * (var(--x) - var(--x1))) / var(--factorP2R))
+}
+/*
+    All you need to do now is assign the value of [--y] to an element's...
+
+    - font-size
+    - width and/or height
+    - padding and/or margin (or -top, -right, -bottom, -left versions)
+    - box-shadow, text-shadow (TODO test browser calc() support)
+    - border (TODO test browser calc() support)
+    - etc.
+
+    ...with a usage selector.
+*/
+/*********************************************************/
+/* [OPTIONAL][EXTRA] Alternative ways to calculate [--y] */
+/*********************************************************/
+/* (2) Fully substituted version, converted to REM.
+       Slower than (1), use it for learning purposes only */
+[data-math="y=mx+b"] {
+    --y: calc(((var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * var(--x) +
+              (var(--y1) - var(--x1) * (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)))) / var(--factorP2R))
+}
+/* (3) Split into main variables, Intercept-Slope of y=mx+b.
+       Likely slower than (1) and (2) as it uses 3 calc()'s,
+       only use it when you need to access [--m] and/or [--b] */
+[data-math="i-slope"] {
+    --m: calc((var(--y2) - var(--y1)) / (var(--x2) - var(--x1)));   /* m = (y2 - y1)/(x2 - x1) */
+    --b: calc(var(--y1) - var(--m) * var(--x1));                    /* b = y1 - x1(y2 - y1)/(x2 - x1) */
+    --y: calc((var(--m) * var(--x) + var(--b)) / var(--factorP2R)); /* y = mx + b, converted to REM */
+}
+</style>
+<style id="ers-linear-equation-optional">
+/*********************************************************/
+/* [OPTIONAL][EXTRA] Alternative ways to calculate [--y] */
+/*********************************************************/
+:root {
+    /* Shortcut variables for 'fixed value' use of 'y=mx+b' equation */
+    --bdiv: 3;   /* --b divisor = 1280/320 - 1 or (x2/x1 - 1)          => (var(--x2) / var(--x1) - 1) */
+    --mdiv: 9.6; /* --m divisor = bdiv * 3.2 or (x2/x1 - 1) * (x1/100) => (var(--x2) / var(--x1) - 1) * var(--x1) / 100 */
+}
+/*
+    Main/Default alternate 'y=mx+b' equation, always uses --x = 1.
+    Assumes [--x] = --js-vmin/vmax/vw/vh (CSS 100vmin/vmax/vw/vh), so we need to divide --x by 100.
+
+    Uses either :root predefined [--bdiv] and [--mdiv]
+                or elsewhere overridden [--bdiv] and [--mdiv] values
+*/
+/* 
+    (4) Fixed '1280' RULE
+
+    When p1 and p2 are always fixed (320, y1) and (1280, y2), you might consider using this equation
+    over (1) as variables [--x1] and [--x2] are removed from the eqation.
+*/
+[data-math="1280"] { --y: calc((((var(--y2) - var(--y1)) / 9.6) * (var(--x)/100) +
+                               (var(--y1) - (var(--y2) - var(--y1)) / 3)) / var(--factorP2R)) }
+/*
+    (5) Fixed Alternative RULE
+
+    Generic version of (4) enabling modification of [--mdiv] and [--bdiv]
+*/
+[data-math="alternative"] {
+    --y: calc((((var(--y2) - var(--y1)) / var(--mdiv)) * (var(--x)/100) +
+              (var(--y1) - (var(--y2) - var(--y1)) / var(--bdiv))) / var(--factorP2R));
+}
+/*  (6) Split Alternative RULE
+
+    Even more generic version of (4), calculates [bdiv] and [mdiv] on-the-fly,
+    same as above but uses 2 extra CSS calc()s, hense more CPU intensive.
+
+    NOTE: Use (6) if you think your document can afford a little extra CPU overhead,
+          this way [bdiv] and [mdiv] always get recalculated.
+          Although, it is rather pointless to use (6) as [--x1] and [--x2] are required again
+          and (1), therefore, yields the same result faster...
+*/
+[data-math="alternative.split"] {
+    --bdiv: calc(var(--x2) / var(--x1) - 1);
+    --mdiv: calc(var(--bdiv) * var(--x1) / 100);
+
+    --y   : calc((((var(--y2) - var(--y1)) / var(--mdiv)) * (var(--x)/100) +
+                 (var(--y1) - (var(--y2) - var(--y1)) / var(--bdiv))) / var(--factorP2R));
+}
+/* (7) Example fixed rules */
+/* Alternative uses with fixed values: x1 = 320 and x2 = 1600 and 1920 respectively */
+/* in the examples this value will grow a little less fast than the "1280" rule */
+[data-math="1600"] { --y: calc((((var(--y2) - var(--y1)) / 12.8) * (var(--x)/100) +
+                               (var(--y1) - (var(--y2) - var(--y1)) / 4)) / var(--factorP2R)) }
+
+/* in the examples this value will grow a little less fast than the "1600" */
+[data-math="1920"] { --y: calc((((var(--y2) - var(--y1)) / 16  ) * (var(--x)/100) +
+                               (var(--y1) - (var(--y2) - var(--y1)) / 5)) / var(--factorP2R)) }
+</style>
+<style id="ers-linear-equation-demo-usage-IE11-NOCP">
+/*
+    IE11 has no 'CSS custom properties' support, so all the equation fun does not work.
+    We need to 'translate' the result (--y) and equation usage into something does support...
+*/
+[data-math][data-typo] { --x: var(--js-vmin); font-size: calc(var(--y) * 1rem) }
+/* Values are uncertain as the above won't work, falling back to previously defined 'font-size' */
+
+/*
+    To make things work for IE11 (and other browser that don't support 'Custom Properties')
+    we need to manually calculate equation y=mx+b by substituting values for p1(x1,y1) and p2(x2,y2) and (x) into
+    y = (y2 - y1) / (x2 - x1) * x + (y1 - (y2 - y1) / (x2 - x1) * x1),
+    and finish with b/16 to get REM.
+
+    Bummer, however, this approach will eventually be least CPU intensive (next to hardcoded px sizes)
+
+    NOTE: Use WebMATH online calculator: http://www.webmath.com/equline1.html
+          - Example values from below [data-typo="default"]: 320,14 and 1280,20
+          - Final result: y=1/160x+12
+          - Convert x to vmin (1/160 * 100 to get rid of 100 from vmin)
+          - Divide 12 by 16 to get REM
+
+    OR https://www.mathwarehouse.com/algebra-calculators/slope-intercept-calculator.php
+       (set it to 'Maximum Accuracy')
+
+    Reference
+    ---------
+    https://www.mathsisfun.com/equation_of_line.html
+    https://www.math-only-math.com/equation-of-a-straight-line.html
+    https://undergroundmathematics.org/geometry-of-equations/the-equation-of-a-straight-line
+
+*/
+[data-math] [data-typo],
+[data-math] [data-typo="default"] { font-size: calc(0.625vmin + 0.75rem ) } /* 14>20, All [data-typo] and [data-typo] designated 'default', unless... */
+[data-math] [data-typo="header" ] { font-size: calc(1.25vmin  + 1.25rem ) } /* 24>35, [data-typo] is designated 'header'  */
+[data-math] [data-typo="subhead"] { font-size: calc(1.25vmin  + 0.875rem) } /* 18>30, [data-typo] is designated 'subhead' */
+</style>
+<style id="ers-linear-equation-demo-usage-OTHERS-CP">
+/*********************************/
+/* Use of the equation with fonts */
+/*********************************/
+/* Generic selector: all typography selectors [data-typo] use the default equation selector [data-math] */
+[data-math][data-typo] { --x: var(--js-vmin); font-size: calc(var(--y) * 1rem) }
+/* (js-)VMIN because VMAX will yield values that are too large (incorrect) and
+   VW/VH depend on how the browser window is being sized by the user */
+
+/* Specific: some typography selectors use different predefined y1 and y2 values */
+[data-typo],
+[data-typo="default"] { --y1: 14; --y2: 20 } /* All [data-typo] and [data-typo] designated 'default', unless... */
+[data-typo="header" ] { --y1: 24; --y2: 36 } /* [data-typo] is designated 'header'  */
+[data-typo="subhead"] { --y1: 18; --y2: 30 } /* [data-typo] is designated 'subhead' */
+
+/*
+    Using y=mx+b for responsive element width/height at a given ratio
+    pt = portrait , viewport width  depended
+    ls = landscape, viewport height depended
+*/
+[data-ratio]        { --ratioHigh: 1      ; --ratioLow: 1       } /* All [data-ratio] are square, unless... */
+[data-ratio*=".16"] { --ratioHigh: 1.77778; --ratioLow: 0.5625  } /* high: 16/9, low 9/16 */
+[data-ratio*=".17"] { --ratioHigh: 1.7    ; --ratioLow: 0.58824 } /* 17:10 */
+[data-ratio*=".gr"] { --ratioHigh: 1.618  ; --ratioLow: 0.618   } /* Golden Ratio */
+
+/* Using REM by default for variable sizes when the user zooms in or out */
+[data-math][data-ratio^="pt."]  { width : calc(var(--y) * 1rem); height: calc(var(--y) * var(--ratioHigh) * 1rem) }
+[data-math][data-ratio^="ls."]  { height: calc(var(--y) * 1rem); width : calc(var(--y) * var(--ratioHigh) * 1rem) }
+
+/* Override REM with PX to maintain fixed sizes when the user zooms in or out */
+[data-math*=".px"][data-ratio^="pt."] { width : calc(var(--y) * var(--factorP2R) * 1px);
+                                        height: calc(var(--y) * var(--ratioHigh) * var(--factorP2R) * 1px) }
+
+[data-math*=".px"][data-ratio^="ls."] { height: calc(var(--y) * var(--factorP2R) * 1px);
+                                        width : calc(var(--y) * var(--ratioHigh) * var(--factorP2R) * 1px) }
+
+[data-ratio*=".box"]    { padding: calc(1.5625vmin); margin: calc(1.5625vmin * .5) } /* 5>20 and half 5>20 */
+[data-ratio*=".box1"]   { --x: var(--js-vw); --y1: 32; --y2:  96 }
+[data-ratio*=".box2"]   { --x: var(--js-vh); --y1: 64; --y2: 192 }
+</style>
+
+<style id="ers-demo-js-viewport-size-usage-CP">
+/*************************************************************/
+/* [OPTIONAL][EXTRA] Reference to internal JS viewport sizes */
+/*************************************************************/
+/*
+    NOTE: Here for demo purposes only as in the below cases it makes
+          more sense to use the regular CSS vmin/vmax/vw/vh values.
+
+          However, the values are here, so why not show how to use them...
+
+    - They are a workaround for VMIN/VW/VH/VMAX not being updated when using custom props
+    - And enable to choose which VP size --x depends on
+
+    Use VMIN/VMAX for responsive font sizes     => width or height INDEPENDED value
+    Use VH/VW for spacing, element sizes, etc.  => width or height DEPENDED value
+*/
+
+/* Definition */
+:root {
+    --vmin: var(--js-vmin); /* modified by JS */
+    --vmax: var(--js-vmax);
+    --vh  : var(--js-vh);
+    --vw  : var(--js-vw);
+    
+    --ratioHigh: 1;         /* Initial values */
+    --ratioLow : 1;
+}
+/* Example classes: set [--size] to required vp (in)dependency,
+                    always 100(vmin/vmax/vh/vw) expressed in px (without px unit) */
+.vmin  { --size: var(--js-vmin) }
+.vmax  { --size: var(--js-vmax) }
+.vh    { --size: var(--js-vh)   }
+.vw    { --size: var(--js-vw)   }
+
+
+/* Some example definitions */
+[myCard*="eight."] { --size: calc(var(--js-vmin) * 0.125) } /* eight of vp minimum size */
+[myCard*="quart."] { --size: calc(var(--js-vmin) * 0.25 ) } /* quarter */
+[myCard*="half." ] { --size: calc(var(--js-vmin) * 0.5  ) } /* half */
+[myCard*="three."] { --size: calc(var(--js-vmin) * 0.75 ) } /* three-quarters */
+
+/* final use */
+[myCard], /* default for all 'myCard's */
+[myCard*=".portrait"] {
+    width : calc(var(--size) * 1rem);
+    height: calc(var(--size) * var(--ratioHigh) * 1rem)
+}
+[myCard*=".landscape"] {
+    width : calc(var(--size) * var(--ratioHigh) * 1rem);
+    height: calc(var(--size) * 1rem)
+}
+</style>
+
+<style id="ers-global-default">
+/******************************/
+/* Just a few preferred rules */
+/******************************/
+html,body           { box-sizing: border-box; margin: 0 }
+body                { min-height: 100vh }
+
+*::before,
+*::after, *         { box-sizing: inherit; outline: none }
+
+tr,ul,li            { margin: 0; padding: 0; list-style-type: none }
+a,q                 { color: currentColor; font-style: italic }
+p                   { margin: 0; padding-bottom: 1rem }
+th,td               { padding: 0 .5rem }
+</style>
+<style id="ers-utility-default">
+/**************************************************/
+/* Utility rules, first so they can be overridden */
+/**************************************************/
+body      { cursor: default } /* Plain arrow for everything, but... */
+pre,input { cursor: auto    } /* ...use HTML default cursor on inputs, unless it is an: */
+
+input[list="datalist"],input[type="button"],input[type="checkbox"],input[type="radio"],
+input[type="color"],input[type="range"],input[type="reset"],input[type="file"],input[type="submit"],
+label:not([for=""]),
+a,button,select,keygen   { cursor: pointer } 
+[contenteditable="true"] { cursor: text    }
+
+/* Darker/more contrast text (put in <body>)
+   => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+/* prohibit user from selecting text (put in <body>) */
+.noselect,[select="0"],[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+.select  ,[select="1"],[select]   { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
+
+[push*="R"] { margin-left  : auto } /* push elements Right/Left/Top/Bottom */
+[push*="L"] { margin-right : auto }
+[push*="T"] { margin-top   : auto }
+[push*="B"] { margin-bottom: auto }
+
+[align*="L"] { text-align: left   }
+[align*="C"] { text-align: center }
+[align*="R"] { text-align: right  }
+
+[hide], [data-hide="1"] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+</style>
+
+<style id="ers-typography-default">
+/*************************************************/
+/* easy RESPONSIVE|TYPOGRAPHY|NESS [STABLE][WIP] */
+/*************************************************/
+html             { font-size: calc(0.625vmin + 0.859375rem) } /* (360,16)(1320,22) GMC */
+
+/* constrain font-size, if so required
+@media screen and (max-width: 360px) { html { font-size: 1rem } }
+@media screen and (min-width:1320px) { html { font-size: 1.375rem } }
+*/
+
+body             { font-size: 1rem }
+</style>
+
+<style id="ers-typography-gmc">
+/****************************************************************/
+/* easy RESPONSIVE|TYPOGRAPHY|NESS [GMC][OPTIONAL][STABLE][WIP] */
+/****************************************************************/
+/* Default font-sizes, based on Google Material Components for Web 4.0.0 (Nov 2019) */
+
+body { font-family: "Work Sans",sans-serif }
+
+[data-typo^="headline1"]  { font-weight: 300; font-size: calc(6.25vmin + 2.5rem) /*60>120, originally: 6rem (fs: 96sp lh: 96sp) */;
+                            line-height: 1; letter-spacing: -0.015625em } 
+
+[data-typo^="headline2"]  { font-weight: 600; font-size: 3.75rem ; line-height: 1       ; letter-spacing: -0.008333333em } /* 60sp/60sp */
+[data-typo^="headline3"]  { font-weight: 400; font-size: 3rem    ; line-height: 3.125rem; letter-spacing: normal         } /* 48sp/50sp */
+[data-typo^="headline4"]  { font-weight: 600; font-size: 2.125rem; line-height: 2.5rem  ; letter-spacing: 0.0073529412em } /* 34sp/40sp */
+[data-typo^="headline5"]  { font-weight: 700; font-size: 1.5rem  ; line-height: 2rem    ; letter-spacing: normal         } /* 24sp/32sp */
+[data-typo^="headline6"]  { font-weight: 500; font-size: 1.25rem ; line-height: 2rem    ; letter-spacing: 0.0125em       } /* 20sp/32sp */
+[data-typo^="subtitle1"]  { font-weight: 400; font-size: 1rem    ; line-height: 1.75rem ; letter-spacing: 0.009375em     } /* 16sp/28sp */
+[data-typo^="subtitle2"]  { font-weight: 500; font-size: 0.875rem; line-height: 1.375rem; letter-spacing: 0.0071428571em } /* 14sp/22sp */
+[data-typo^="body1"]      { font-weight: 400; font-size: 1rem    ; line-height: 1.5rem  ; letter-spacing: 0.03125em      } /* 16sp/24sp */
+[data-typo^="body2"]      { font-weight: 400; font-size: 0.875rem; line-height: 1.25rem ; letter-spacing: 0.0178571429em } /* 14sp/20sp */
+[data-typo^="caption1"]   { font-weight: 400; font-size: 0.75rem ; line-height: 1.25rem ; letter-spacing: 0.0333333333em } /* 12sp/20sp */
+[data-typo^="button1"]    { font-weight: 500; font-size: 0.875rem; line-height: 2.25rem ; letter-spacing: 0.0892857143em } /* 14sp/36sp */
+[data-typo^="overline1"]  { font-weight: 600; font-size: 0.625rem; line-height: 2rem    ; letter-spacing: 0.1666666667em } /* 10sp/32sp */
+
+[data-typo^="headline"],[data-typo^="subtitle"],[data-typo^="body"],
+[data-typo="caption1"]    { text-decoration: inherit; text-transform: inherit }
+
+[data-typo="button1"],
+[data-typo="overline1"]   { text-decoration: none; text-transform: uppercase }
+</style>
+
+<style id="ers-layout-default">
+/********************************************/
+/* easy RESPONSIVE|LAYOUT|NESS (STABLE WIP) */
+/********************************************/
+/*****************/
+/* generic bands */
+/*****************/
+[data-band],
+[data-block]            { display: flex; width: 100%; position: relative;
+                          justify-content: center; align-content: center }
+[data-band],
+[data-band*="cols"]     { flex-flow: row wrap }     /* a row of columns */
+[data-band*="rows"]     { flex-flow: column wrap }  /* a column of rows */
+
+[data-band*="outer"]    { padding: 0 }
+[data-band*="inner"]    { padding: calc(5vh + 48px) calc(20vw - 64px) }
+/*
+    (320,32)(1920, 72) => 0.025x + 24
+    (320,64)(1920,144) => 0.05x + 48
+    (320, 0)(1920,320) => 0.2x - 64
+*/
+[padded],
+[padded*=".band"]       { padding: calc(5vh + 48px) calc(20vw - 64px) }
+
+
+[data-band]>div         { flex-flow: row wrap }     /* direct descendants of [data-band] only */
+[data-band]>item        { flex-flow: column wrap }
+[data-band]>*           { width: 100%; display: flex }
+
+/******************/
+/* specific bands */
+/******************/
+[data-band*="main"]         { height: 100%; flex-wrap: nowrap }
+[data-band*="hero"] header  { flex-flow: column wrap; justify-content: center; text-align: center }
+
+/******************/
+/* generic blocks */
+/******************/
+[data-block]>*          { display: flex }
+[data-block],
+[data-block]>*          { flex-wrap: wrap }
+
+[data-block],
+[data-block*="rows"]    { flex-flow: column wrap }
+[data-block*="cols"]    { flex-flow: row wrap }
+
+/*****************/
+/* generic cards */
+/*****************/
+[card],[card]>* { display: flex }
+
+/* (320,240)(1280,480) => 0.25x + 160 */
+[card]          { flex-basis: calc(0.9375vw + 297px); width: 100%; justify-content: space-between; }
+[card*="outer"] { padding: .5rem; background-color: transparent }
+[card*="inner"] { flex-direction: column; }
+
+[card] header,
+[card] footer   { width: 100% }
+
+[card] item     { flex-flow: column wrap; flex-grow: 1 }
+[card] footer   { text-align: right }
+
+/*******************/
+/* generic flexbox */
+/*******************/
+[start]         { justify-content: flex-start; text-align: left   } /* 'text-align' for non-flexbox tags */
+[centered]      { justify-content: center    ; text-align: center }
+[end]           { justify-content: flex-end  ; text-align: right  }
+</style>
+
+<style id="ers-typography-themed">
+header[data-typo*="headline5"] { padding: 1.5rem 0 .5rem }
+</style>
+
+<style id="ers-rotated-hero">
+[hero] { 
+/* https://codepen.io/knyttneve/pen/OqdQZN */
+/* https://codepen.io/ig_design/pen/MRbJWW */
+/* https://codepen.io/ig_design/pen/OrLBqO */
+
+    position: absolute; top: 0; z-index: 999; width: auto; overflow: hidden;
+
+    height   : calc(12.5vmin - 1rem); /* 24>144 => 0.125x - 16 */
+    font-size: calc(12.5vmin - 1rem);
+
+    font-family: 'Poppins', sans-serif; line-height: 1; font-weight: 900;
+}
+[hero*="L"] { justify-content: flex-start; padding-left : 1rem  } /* TODO: convert paddingto y=mx+b */
+[hero*="R"] { justify-content: flex-end  ; padding-right: 1rem }
+
+/* Acting upon document direction, using regular 'transform' as 'text-transform' sucks... */
+[dir="ltr"] [hero*="L"] { left : calc(12.5vmin - 0.95rem); transform-origin:   0% 0%; transform: rotate( 90deg) }
+[dir="ltr"] [hero*="R"] { right: calc(12.5vmin - 0.95rem); transform-origin: 100% 0%; transform: rotate(-90deg) }
+[dir="rtl"] [hero*="L"] { right: calc(12.5vmin - 0.95rem); transform-origin: 100% 0%; transform: rotate(-90deg) }
+[dir="rtl"] [hero*="R"] { left : calc(12.5vmin - 0.95rem); transform-origin:   0% 0%; transform: rotate( 90deg) }
+</style>
+
+<style id="ers-theming-default">
+:root   {
+    --bg-op-faint: .1;    /* background opacity set to faint */
+    --bg-op-dark : .5;    /* dark colors  */
+    --bg-op-light: .8;    /* light colors */
+}
+body        { line-height: 1.5 }
+
+pre         { padding: 1rem .5rem }
+
+pre[margin] {
+    position: absolute; z-index: 99; font-style: italic;
+    bottom: 0; right: calc(20vw - 64px); width: auto;
+    padding: 0
+}
+
+pre,code    { font-size: calc(1.5625vmin); /*5>20*/
+              font-family: Consolas, monospace; font-weight: normal; white-space: pre-wrap; letter-spacing: .02em }
+</style>
+
+<style id="ers-theming-gmc-REPLY">
+/**************************************/
+/* Google Material Components theming */
+/**************************************/
+body {
+    background-color: rgba(74,101,114,.3);  /* IE11 */
+    background-color: rgba(74,101,114,var(--bg-op-faint))
+}
+
+[card*="inner"] {
+    /* GMC Web default card elevation */
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12); /* elevation 1dp */
+
+    background-color: white; border-radius: 3px;
+}
+[card*="inner"]:hover {
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 5px  8px  0px rgba(0,0,0,.14),
+                0px 1px 14px  0px rgba(0,0,0,.12); /* elevation 5dp */
+}
+
+/* Base rotated HERO text color */
+[hero] { color: rgba(249,170,51,.3) }
+
+/* Just to tinker with color variations depending on document directions */
+[dir="ltr"] [hero*="L"] { color: rgba(249,170,51,.35) }
+[dir="ltr"] [hero*="R"] { color: rgba( 52, 73,85,.2) }
+[dir="rtl"] [hero*="L"] { color: rgba( 52, 73,85,.2) }
+[dir="rtl"] [hero*="R"] { color: rgba(249,170,51,.35) }
+</style>
+
+<style id="ers-colors-default">
+/*******************************************/
+/* easy RESPONSIVE|COLOR|NESS (STABLE WIP) */
+/*******************************************/
+.black      { background-color: black; color: white }
+.grey       { background-color: gray ; color: white }
+.white      { background-color: white; color: black }
+
+.red        { background-color: #ff0000; color: white } /* Primary colors */
+.lime       { background-color: #00ff00; color: black }
+.blue       { background-color: #0000ff; color: white }
+.cyan       { background-color: #00ffff; color: black } /* Secondary colors / complementary */
+.magenta    { background-color: #ff00ff; color: white } /* also: hue rotated 180deg */
+.yellow     { background-color: #ffff00; color: black }
+
+.red30      { background-color: #ff8000; color: black } /* hue rotated +30deg */
+.lime30     { background-color: #00ff80; color: black }
+.blue30     { background-color: #8000ff; color: white }
+
+.red30cmp   { background-color: #007fff; color: black } /* hue rotated +30deg complmentary */
+.lime30cmp  { background-color: #ff007f; color: black }
+.blue30cmp  { background-color: #7fff00; color: white }
+
+
+[fg="black"    ] { color: black   } [bg="black"    ] { background-color: black   }
+[fg="gray"     ] { color: gray    } [bg="gray"     ] { background-color: #7f7f7f }
+[fg="white"    ] { color: white   } [bg="white"    ] { background-color: white   }
+[fg="red"      ] { color: #ff0000 } [bg="red"      ] { background-color: #ff0000 }
+[fg="lime"     ] { color: #00ff00 } [bg="lime"     ] { background-color: #00ff00 }
+[fg="blue"     ] { color: #0000ff } [bg="blue"     ] { background-color: #0000ff }
+[fg="cyan"     ] { color: #00ffff } [bg="cyan"     ] { background-color: #00ffff }
+[fg="magenta"  ] { color: #ff00ff } [bg="magenta"  ] { background-color: #ff00ff }
+[fg="yellow"   ] { color: #ffff00 } [bg="yellow"   ] { background-color: #ffff00 }
+[fg="red30"    ] { color: #ff8000 } [bg="red30"    ] { background-color: #ff8000 }
+[fg="lime30"   ] { color: #00ff80 } [bg="lime30"   ] { background-color: #00ff80 }
+[fg="blue30"   ] { color: #8000ff } [bg="blue30"   ] { background-color: #8000ff }
+[fg="red30cmp" ] { color: #007fff } [bg="red30cmp" ] { background-color: #007fff }
+[fg="lime30cmp"] { color: #ff007f } [bg="lime30cmp"] { background-color: #ff007f }
+[fg="blue30cmp"] { color: #7fff00 } [bg="blue30cmp"] { background-color: #7fff00 }
+</style>
+
+<style id="ers-theming-base-colors">
+/*******************************************/
+/* easy RESPONSIVE|THEME|NESS (STABLE WIP) */
+/*******************************************/
+/* BASE colors */
+[data-clr^="b."]    { color: black }
+[data-clr^="g."]    { color: gray }
+[data-clr^="w."]    { color: white }
+[data-clr$=".b"]    { background-color: black }
+[data-clr$=".g"]    { background-color: gray }
+[data-clr$=".w"]    { background-color: white }
+
+[data-clr^="c."]    { color: currentColor }
+[data-clr^="t."]    { color: transparent  }
+[data-clr$=".c"]    { background-color: currentColor }
+[data-clr$=".t"]    { background-color: transparent  }
+
+[data-clr^="0."]    { color: rgba(35,47,52,.9) } /* #232f34 800 */
+[data-clr^="F."]    { color: rgba(255,255,255,.9) }
+[data-clr$=".0"]    { background-color: rgba(35,47,52,.9) }
+[data-clr$=".F"]    { background-color: rgba(255,255,255,1) }
+
+/* BASE foreground colors */
+[data-clr^="P."]    { color: rgba( 52, 73,85,.87) } /* #344955 700 primary   Reply Blue   */
+[data-clr^="S."]    { color: rgba(249,170,51,.87) } /* #f9aa33 500 secondary Reply Orange */
+
+[data-clr^="1."]    { color: rgba(134,191,227,.87) }
+[data-clr^="2."]    { color: rgba(213, 72, 87,.87) }
+
+[data-clr^="3."]    { color: rgba(166, 52, 70,.87) }
+[data-clr^="4."]    { color: rgba(138,113,106,.87) }
+[data-clr^="5."]    { color: rgba(194,184,178,.87) }
+
+[data-clr^="cold."] { color: rgba(113,180,223,.9) }
+[data-clr^="hot."]  { color: rgba(223,156,113,.9) }
+
+/* BASE background colors */
+[data-clr$=".0D"]   { background-color: rgba(11, 11, 11,var(--bg-op-dark)) }
+[data-clr$=".0M"]   { background-color: rgba(22, 22, 22,var(--bg-op-dark)) }
+[data-clr$=".0L"]   { background-color: rgba(33, 33, 33,var(--bg-op-dark)) }
+
+[data-clr$=".P"]    { background-color: rgba( 52, 73,85,.9) } /* #344955 700 primary   Reply Blue   */
+[data-clr$=".S"]    { background-color: rgba(249,170,51,.9) } /* #f9aa33 500 secondary Reply Orange */
+
+[data-clr$=".1"]    { background-color: rgba(134,191,227,.9) } /**/
+[data-clr$=".2"]    { background-color: rgba(213, 72, 87,.9) }
+
+[data-clr$=".3"]    { background-color: rgba(166, 52, 70,var(--bg-op-dark)) }
+[data-clr$=".4"]    { background-color: rgba(138,113,106,var(--bg-op-dark)) }
+[data-clr$=".5"]    { background-color: rgba(194,184,178,var(--bg-op-light)) }
+
+[data-clr$=".cold"] { background-color: rgba(113,180,223,.9) }
+[data-clr$=".hot"]  { background-color: rgba(223,156,113,.9) }
+</style>
+
+<style id="ers-theming-gmc-colors">
+/* BASE background colors */
+[data-clr$=".0D"]   { background-color: rgba(35, 47, 52,var(--bg-op-dark)) } /* #1f1f24 dark   #232f34 800 */
+[data-clr$=".0M"]   { background-color: rgba(52, 73 ,85,var(--bg-op-dark)) } /* #24242a medium #344955 700 */
+[data-clr$=".0L"]   { background-color: rgba(74,101,114,var(--bg-op-dark)) } /* #2e2e35 light  #4a6572 600 */
+
+[data-clr$=".P"]    { background-color: rgba( 52, 73,85,var(--bg-op-dark)) } /* #344955 700 primary   Reply Blue   */
+[data-clr$=".S"]    { background-color: rgba(249,170,51,var(--bg-op-dark)) } /* #f9aa33 500 secondary Reply Orange */
+
+</style>
+
+<style id="ers-landing-page">
+/************************/
+/* page specific styles */
+/************************/
+/*************************************/
+#main                   { margin-bottom: 6rem }
+
+#math-examples header   { padding-top: 1.5rem }
+#mmath-examples code     { color: rgba(166, 52, 70,1); background-color: white }
+
+[card]>header,
+[card]>footer           { padding: .25rem .5rem }
+[card]>item             { padding: 0 1.5rem }
+</style>
+
+<style id="ers-demo-equation-tables">
+.table,.tbody   { display: flex; flex-flow: column wrap;width: 100% }
+.tr             { display: flex; flex-flow: row wrap }
+
+.tbody          { padding-bottom: 1.5rem }
+.tr,.multi      { margin-bottom: .5rem; padding: 1rem; background-color: white }
+
+.table .tr>:nth-child(1)           { min-width:  2rem; font-weight: bold }
+.table .tr>:nth-child(2)           { min-width: 12rem }
+.table .tr>:nth-child(3)           { min-width:  9rem; font-weight: bold }
+.table .tr>:nth-child(2)::before   { content: ' = ' }
+
+[id^="ggbApplet"]{ align-self: center }
+
+</style>
+
+<style id="ers-debug-default">
+/* show all elements with outlines (put in <body>) */
+[data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
+[data-debug="1"] *                  { outline: 1px dashed purple }
+
+[data-debug] #debug,
+[data-debug] #debug *               { outline: none }
+#debug                              { position: fixed; z-index: 999; bottom: 0; right: 0; width: 6rem; padding: .5rem }
+
+</style>
+</head>
+
+
+<body dir="ltr" data-debug="0" data-clr="0.">
+
+<div id="main" data-band="outer.rows.main">
+
+    <section data-band="outer">
+        <item data-band="inner.hero" data-clr="0D.5">
+            <header data-typo="headline1">responsive sizing<br>without<br>media queries</header>
+        </item>
+    </section>
+
+    <section data-band="outer">
+        <div hero="L">info</div>
+        <item data-band="inner">
+            <p>When this Pen is finally done I don't want it to be right, I want it to be correct.</p>
+        </item>
+    </section>
+
+    <section id="ers-algebra" data-band="outer" data-clr="F.0L">
+        <item data-band="inner.hero">
+            <header data-typo="headline1">algebra</header>
+        </item>
+    </section>
+
+    <section data-band="outer">
+        <div hero="R">equations</div>
+        <item data-band="inner">
+            <header data-typo="headline5">use y = mx + b</header>
+            <div class="table">
+                <div class="tbody">
+                    <div class="multi">
+                        <div>Visit <q><a target="_blank" href="https://www.mathsisfun.com/equation_of_line.html" title="mathisfun.com (new tab)">Equation of a straight line</a></q>&nbsp;for an easy theory,</div>
+                        <div>or <q><a target="_blank" href="http://www.webmath.com/cgi-bin/equline.cgi?answer=y&cgiCall=equline&getPost=get&x1=320&y1=14&x2=1280&y2=20&type=1&back=equline1.html">WebMath</a></q>&nbsp;to learn from an example.</div>
+                    </div>
+                </div>
+            </div>
+
+            <header data-typo="headline5">where</header>
+            <div class="table">
+                <div class="tbody">
+                    <div class="tr"><div>y</div><div>calculated result    </div><div>f(x)       </div><div>how far up the line</div></div>
+                    <div class="tr"><div>m</div><div>(y2 - y1) / (x2 - x1)</div><div>Slope      </div><div>steepness of the line =&gt; Rise/Run =&gt; &Delta;Y/&Delta;X</div></div>
+                    <div class="tr"><div>x</div><div>given                </div><div>X-Intercept</div><div>how far along the line</div></div>
+                    <div class="tr"><div>b</div><div>y1 - (m * x1)        </div><div>Y-Intercept</div><div>where the line crosses the Y-axis</div></div>
+                </div>
+            </div>
+
+            <header data-typo="headline5">remarks</header>
+            <div class="table">
+                <div class="tbody">
+                    <div class="tr"><div>x</div><div>fixed value of either 100 vmin, vmax, vw or vh units (unit depends on <b>y</b>'s viewport dependency)</div></div>
+                    <div class="tr"><div>y</div><div> result of equation divided by 16 to get <b>rem</b> value</div></div>
+                    <div class="multi">
+                        <div><b>intercept-slope: y = mx + b</b></div>
+                        <div>substituted: y = (y2 - y1) / (x2 - x1) * x + (y1 - (y2 - y1) / (x2 - x1) * x1)</div>
+                        <div><b>point-slope: y = y1 + m(x - x1)</b></div>
+                        <div>substituted: y = y1 + (y2 - y1) / (x2 - x1) * (x - x1) <b>preferred equation, shortest</b></div>
+                    </div>
+                    <div class="multi">
+                        <div><b>x-scale</b>: viewport size</div>
+                        <div><b>y-scale</b>: required size</div>
+                    </div>
+
+                    <div class="tr"><div>rem&nbsp;</div><div>y / 16</div></div>
+                    <div class="tr"><div>px</div><div>y</div></div>
+
+                </div>
+            </div>
+
+            <header data-typo="headline5">Tools</header>
+            <div class="table">
+                <div class="tbody">
+                    <div class="multi">
+                        <div>- Visit <a target="_blank" href="http://www.webmath.com/equline1.html">WebMath</a> to obtain <i>the equation</i> by entering point data</div>
+                        <div>- Use my GeoGebra <a target="_blank" href="https://www.geogebra.org/m/rqqmbr4r">ERS LE Tool v1.x</a> and visually drag 2 points to obtain <i>the equation</i></div>
+                        <div>- <a target="_blank" href="https://www.geogebra.org/m/pxbq6sx4">ERS sizing example 1</a> simple GeoGebra example obtaining <i>the equations</i> of &lt;html&gt; and &lt;code&gt; 'font-size'</div>
+                        <div>- <a target="_blank" href="https://www.geogebra.org/m/avewtwqj">ERS sizing example 2</a> ditto for responsive &lt;body&gt; 'padding', or as used on this page: [data-band*="inner"]</div>
+                        <div>&nbsp;&nbsp;(Both examples are also embeded at the end of this page)</div>
+                    </div>
+                </div>
+            </div>
+        </item>
+    </section>
+
+    <section id="ers-the-code" data-band="outer" data-clr="0L.S">
+        <item data-band="inner.hero">
+            <header data-typo="headline1">the code</header>
+            <div data-band="code" dir="ltr">
+                <pre block end><code>
+       <b>Points</b> p1(320,64) p2(1920,144) => <b>&#x1D466; = 0.05&#x1D465; + 48</b>
+       <b>   and</b> p1(320, 0) p2(1920,320) => <b>&#x1D466; = 0.20&#x1D465; - 64</b>
+                
+                <b>values</b>
+              <b>VMIN       T/B    L/R</b>
+                 320px      32px    0px
+                 360px      40px    8px
+                 960px      48px  128px
+                1280px      56px  192px
+                1920px  104.25px  320px
+                </code></pre>
+            </div>
+        </item>
+        <pre block margin>
+            <span fg=gray>[data-band*="inner"] { padding: calc(5vh + 48px) calc(20vw - 64px) }</span>
+        </pre>
+    </section>
+
+    <section data-band="outer">
+        <div hero="L">custom props</div>
+        <item data-band="inner">
+            <header data-typo="headline5">the code,&nbsp;<a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties">using CSS custom properties (MDN)</a></header>
+            <div data-band="code" class="white" dir="ltr">
+
+    <pre><code><b fg=black>
+    <b>&lt;style id="ers-linear-equation-default"&gt;</b>
+    <i fg=gray>/***********************************************************/
+    /* [MANDATORY] Using Custom Properties to calculate y=mx+b */
+    /***********************************************************/</i>
+    <b fg=blue>:root</b> {
+        <i fg=gray>/* NOTE: All values in this block hold pixel values (px),
+                 but without the px unit attached. */
+
+        /* 
+            Initialize 'internal' custom properties. These properties will hold
+            the current value of 100vmin/vmax/vw/vh respectively and are being
+            kept up to date with by Javascript (Here for demo only as they will 
+            be defined by JS either way).
+        */</i>
+        <i fg=red>--js-vmin</i>: 0;
+        <i fg=red>--js-vmax</i>: 0;
+        <i fg=red>--js-vw  </i>: 0;
+        <i fg=red>--js-vh  </i>: 0;
+
+        <i fg=gray>/*
+            Initial values are two points on a straight line
+            p1(x1,y1) and p2(x2,y2) => p1(320,14) and p2(1280,20)
+
+            NOTE: Setting these to 0 will work just as well, but giving them a meaningfull
+                  initial value makes more sense as it may save writing CSS code later as
+                  [--x1] and [--x2] will hardly/not change (in this document anyway).
+
+                  In this case the variables hold the values for [html:font-size]...
+        */</i>
+
+        <i fg=gray>/*
+            GeoGebra online examples 
+
+                ERS sizing example 1 (font-size): <b fg=black><a target="_blank" href="https://www.geogebra.org/m/pxbq6sx4">ERS sizing example 1</a></b>
+                ERS sizing example 2 (padding)  : <b fg=black><a target="_blank" href="https://www.geogebra.org/m/avewtwqj">ERS sizing example 2</a></b>
+        */</i>
+        <i fg=red>--x1</i>:  320; <i fg=red>--y1</i>: 14;<i fg=gray> /* p1 => 14px at  320px (100vmin = 320px)  */</i>
+        <i fg=red>--x2</i>: 1280; <i fg=red>--y2</i>: 20;<i fg=gray> /* p2 => 20px at 1280px (100vmin = 1280px) */</i>
+
+        <i fg=gray>/* Initially assume that [--x] is minimum viewport size dependend */</i>
+        <i fg=red>--x</i>: var(--js-vmin);<i fg=gray> /* current 100vmin JS value */</i>
+
+        <i fg=gray>/* Some initial value. May be 0 too, but now you have a value you can already use */</i>
+        <i fg=red>--y</i>: calc(0.625vmin + 0.75rem);<i fg=gray> /* p1(320,14) p2(1280,20) where b=12/16 to get REM */</i>
+        <i fg=gray>/* BEWARE: [--y] now holds some pixel value (unless 'px' is stripped by browser, not sure),
+                   but will be reassigned and then hold a regular decimal!
+                   (Maybe just assign 0 after all, to prevent use as 'hidden feature'...) */
+
+        /* NOTE: I always use REM instead of PX with all pros and cons considered,
+                 therefore all values of [--y] will be divided by 16 converting
+                 PX to REM using below [--factorP2R]. */
+
+        /* Division factor PX to REM */</i>
+        <i fg=red>--factorP2R</i>: 16;
+    }
+    <i fg=gray>/*
+    Legend: <b fg=white bg=red30cmp>   m   </b>
+            <b fg=lime30cmp bg=yellow>   x   </b>
+            <b fg=white bg=blue30>   b   </b>
+    */</i>
+    <i fg=gray>/* (1) [DEFAULT] Main Equation for use as all-purpose y=mx+b calculation.
+
+        Point-Slope variation: y = y1 + m(x-x1), converted to REM with [--factorP2R]
+        Made default as it is the shortest, saving CPU time.
+
+        NOTE: When in doubt, use this one.
+    */</i>
+    <b fg=blue>[data-math],
+    [data-math="p-slope"]</b> {
+        <i fg=red>--y</i>: calc((var(--y1) + <b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b> *
+                  (<b fg=lime30cmp bg=yellow>var(--x)</b> - var(--x1))) / <b fg=red30>var(--factorP2R)</b>)
+    }
+    <i fg=gray>/*
+        All you need to do now is assign the value of [--y] to an element's...
+
+        - font-size
+        - width and/or height
+        - padding and/or margin (or -top, -right, -bottom, -left versions)
+        - box-shadow, text-shadow (TODO test browser calc() support)
+        - border (TODO test browser calc() support)
+        - etc.
+
+        ...with a usage selector (see below examples).
+    */</i>
+
+    <i fg=gray>/*********************************************************/
+    /* [OPTIONAL][EXTRA] Alternative ways to calculate [--y] */
+    /*********************************************************/
+    /* (2) Fully substituted version, converted to REM.
+           Slower than (1), use it for learning purposes only */</i>
+    <b fg=blue>[data-math="y=mx+b"]</b> {
+        <i fg=red>--y</i>: calc(
+                  (
+                    <b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b> *
+                    <b fg=lime30cmp bg=yellow>var(--x)</b> +
+                    <b fg=blue30>(var(--y1) - <b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b> * var(--x1))</b>
+                  ) / <b fg=red30>var(--factorP2R)</b>)
+    }
+    <i fg=gray>/* (3) Split into main variables, Intercept-Slope of y=mx+b.
+           Likely slower than (1) and (2) as it uses 3 calc()'s,
+           only use it when you need to access [--m] and/or [--b] */</i>
+    <b fg=blue>[data-math="i-slope"]</b> {
+        <i fg=red>--m</i>: calc(<b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b>);   <i fg=gray>/* m = (y2 - y1)/(x2 - x1)           */</i>
+        <i fg=red>--b</i>: calc(<b fg=blue30>var(--y1) - var(--m) * var(--x1)</b>);                    <i fg=gray>/* b = y1 - (y2 - y1)/(x2 - x1) * x1 */</i>
+        <i fg=red>--y</i>: calc((<b fg=red30cmp>var(--m)</b> * <b fg=lime30cmp bg=yellow>var(--x)</b> + <b fg=blue30>var(--b)</b>) / <b fg=red30>var(--factorP2R)</b>); <i fg=gray>/* y = mx + b, converted to REM      */</i>
+    }
+    <b>&lt;/style&gt;</b></b></code></pre>
+
+            </div>
+        </item>
+    </section>
+
+    <section id="ers-example-boxes" data-band="outer" data-clr="F.4">
+        <item data-band="inner.hero">
+            <header data-typo="headline1">example boxes</header>
+        </item>
+    </section>
+
+    <section data-band="outer" id="math-ratio">
+        <div hero="R">boxes</div>
+        <item data-band="inner">
+
+            <header data-typo="headline6">portrait boxes</header>
+            <div data-block>
+            <div data-math=".px" data-ratio="pt.gr.box1" class="black">1w</div>
+            <div data-math=".px" data-ratio="pt.gr.box2" class="blue" >2h</div>
+            </div>
+            <header data-typo="headline6">landscape boxes, viewport <q>height</q> dependend</header>
+            <div data-block>
+            <div data-math data-ratio="ls.gr.box1" class="blue" >1w</div>
+            <div data-math data-ratio="ls.gr.box2" class="black">2h</div>
+            </div>
+        </item>
+    </section>
+
+    <section id="ers-example-fonts" data-band="outer" data-clr="F.0L">
+        <item data-band="inner.hero">
+            <header data-typo="headline1">example font use</header>
+        </item>
+    </section>
+
+    <section data-band="outer" id="math-examples">
+        <div hero="L">fontsizes</div>
+        <item data-band="inner">
+
+            <header data-typo="headline6">tag with default assigned font-size</header>
+            <div><code>&lt;code&gt;</code> resizes from (320,5)&gt;(1280,20) with hardcoded <q>font-size: calc(1.5625vmin)</q></div>
+
+            <header data-typo="headline6">specific typography selector using default equation</header>
+            <div><code data-math data-typo="default">&lt;code data-typo="default" data-math&gt;</code></div>
+            <div><code data-math data-typo="subhead">&lt;code data-typo="subhead" data-math&gt;</code></div>
+            <div><code data-math data-typo="header" >&lt;code data-typo="header" data-math&gt; </code></div>
+
+            <header data-typo="headline6">equal typography selector using alternative equation selectors</header>
+            <div><code data-math="p-slope" data-typo="default">&lt;code data-typo="default" data-math="p-slope"&gt;</code></div>
+            <div><code data-math="i-slope" data-typo="default">&lt;code data-typo="default" data-math="i-slope"&gt;</code></div>
+            <div><code data-math="y=mx+b"  data-typo="default">&lt;code data-typo="default" data-math="y=mx+b"&gt; </code></div>
+
+            <header data-typo="headline6">equal typography selector using 1280 equation selector</header>
+            <div><code data-math="1280" data-typo="default">&lt;code data-typo="default" data-math="1280"&gt;</code></div>
+            <div><code data-math="1600" data-typo="default">&lt;code data-typo="default" data-math="1600"&gt;</code></div>
+            <div><code data-math="1920" data-typo="default">&lt;code data-typo="default" data-math="1920"&gt;</code></div>
+
+            <header data-typo="headline6">equal typography selector using 1600 equation selector</header>
+            <div><code data-math="1280" data-typo="subhead">&lt;code data-typo="subhead" data-math="1280"&gt;</code></div>
+            <div><code data-math="1600" data-typo="subhead">&lt;code data-typo="subhead" data-math="1600"&gt;</code></div>
+            <div><code data-math="1920" data-typo="subhead">&lt;code data-typo="subhead" data-math="1920"&gt;</code></div>
+
+            <header data-typo="headline6">equal typography selector using 1920 equation selector</header>
+            <div><code data-math="1280" data-typo="header" >&lt;code data-typo="header" data-math="1280"&gt;</code></div>
+            <div><code data-math="1600" data-typo="header" >&lt;code data-typo="header" data-math="1600"&gt;</code></div>
+            <div><code data-math="1920" data-typo="header" >&lt;code data-typo="header" data-math="1920"&gt;</code></div>
+        </item>
+    </section>
+
+    <section id="ers-ggb-examples" data-band="outer" data-clr="F.0L">
+        <item data-band="inner.hero">
+            <header data-typo="headline1">GeoGebra</header>
+        </item>
+    </section>
+
+    <section data-band="outer">
+        <div hero="L">examples</div>
+    </section>
+
+    <section style="display: block" padded>
+        <header data-typo="headline5">ERS sizing example 1</header>
+        <div id="ggbApplet1" style="margin: 0 auto"></div>
+        <header data-typo="headline5">ERS sizing example 2</header>
+        <div id="ggbApplet2" style="margin: 0 auto"></div>
+    </section>
+
+    <section id="debug" data-band="outer" dir="ltr">
+        <div data-typo="overline1">toggles</div>
+        <button onclick="toggleStateB('data-debug')" push="R">outlines</button>
+        <button onclick="toggleDocDir()">direction</button>
+        <button onclick="toggleStyle('typo-work-sans')">Work Sans</button>
+    </section>
+
+
+</div>
+
+
+
+
+<style id="comment-01" hide>
+/*
+    EQUATION
+    --------
+    y = mx + b  "Definition of a straight line"
+
+    WHERE
+    -----
+    y = the result we need    - Rise        => how far up the line
+    m = (y2 - y1) / (x2 - x1) - Slope       => steepness of the line (change in Y / change in X) or (Rise / Run)
+    x = 1                     - Run         => how far along the line (always 1 expressed in vh,vw,vmin or vmax making it variable)
+    b = y1 - m * x1           - Y-Intercept => where the line crosses the Y-axis
+
+
+    using y = mx + b for P1(320,16) and P2(1280,22) (alternatively P2(1920,22))
+
+
+                     (y2 - y1)   100         (y2 - y1)   100/100         (y2 - y1)
+    for 1280:  mx = ---------- * --- * x =>  --------- * ------- * x =>  --------- * x
+                    1280 - 320    1           960/100       1               9.6
+
+
+                          (y2 - y1)    320      (y2 - y1)   320/320                   (y2 - y1)
+                b = y1 - ---------- *  ---  =>  --------- * -------  simplified: y1 - ---------
+                         1280 - 320     1        960/320       1                          3
+
+
+                y = ((y2 - y1) / 9.6) * x + (y1 - (y2 - y1) / 3)
+
+
+
+    for P1(320,16) and P2(1280,22):  y = (22 - 16) / 9.6 + (16 - (22 - 16) / 3) => ( 6/9.6)x + 16 -  2 =>  0.625 + 14
+    for P1(320,22) and P2(1280,16):  y = (16 - 22) / 9.6 + (22 - (16 - 22) / 3) => (-6/9.6)x + 22 - -2 => -0.625 + 24
+
+
+
+                     (y2 - y1)   100      (y2 - y1)   100/100              (y2 - y1)
+    for 1920:  mx = ---------- * ---  =>  --------- * -------  simplified: ---------
+                    1920 - 320    1        1600/100      1                    16
+
+
+                          (y2 - y1)    320      (y2 - y1)   320/320                   (y2 - y1)
+                b = y1 - ---------- *  ---  =>  --------- * -------  simplified: y1 - ---------
+                         1920 - 320     1       1600/320       1                          5
+
+                y = ((y2 - y1) / 16) * x + (y1 - (y2 - y1) / 5)
+
+
+    for P1(320,16) and P2(1280,22):  y = (22 - 16) / 16 + (16 - (22 - 16) / 5) => (6/16)x + 16 - 1.2 => 0.375x + 14.8
+
+
+    x-scale: minimum viewport size
+    y-scale: fontsize
+
+    In the case of our <html> tag:
+
+    1) At minimum viewport size of  320px we want our font to be 16px tall
+    2) At minimum viewport size of 1280px we want our font to be 22px tall
+    3) We want the fontsize to be to scale at all other minimum viewport sizes
+
+    Variable fontsize 
+    -----------------
+    m = (22 - 16) / (1280 - 320) = 6/960 = 1/160 = 0.00625
+    x = 100vmin                  = fixed value
+    b = 16 - (m * 320)           = 16 - 0.00625 * 320 = 16 - 2 = 14
+
+    y = 0.00625x + 14            = calc(0.00625 * 100vmin + 14px)
+    simplify                     = calc(0.625vmin + 14px)
+    divide 14 by 16 to get REM   = 0.875rem
+
+    resulting CSS code: calc(0.625vmin + 0.875rem)
+
+    Why VMIN: - VMAX yields larger and incorrect results
+              - VH/VW will make the fontsize viewport Height/Width depended, which is incorrect logic
+                (use only when you specifically need it to be)
+
+    Why REM: Users can modify the default font size (ROOT, usually 16px) of their browsers.
+             Using PX on :root/HTML disregards, and therefore overrides, that setting,
+             while REM does not, subsequently scaling the resulting font size to the user's requirement.
+             Think of the vision impaired when setting font sizes.
+
+             => Until W3C comes up with a spec to obtain the correct ROOT font size,
+                always divide PX by 16 to get REM. This will do just fine in most cases.
+
+    FINALLY
+    -------
+    Equation "y=mx+b" can be used for any CSS size value which supports CSS calc().
+    Think of variable padding/margin, (min/max)height/width, etc.
+
+    Some examples (using PX instead of REM => W/H depended not ROOT depended)
+
+    1) Some Card padding:
+       16px at  320vp
+       40px at 1280vp => padding: calc(2.5vmin + 8px);
+
+    2) A nice smartphone/desktop Landing page
+
+      T/B padding (height depended, use VH):
+      32px at 320vp
+      72px at 1920vp => padding: 0 calc(2.5vh + 24px);
+    
+      L/R padding (width depended, use VW):
+        0px at 320vp
+      320px at 1920vp => padding: 0 calc(20vw - 64px);
+
+    In many cases you will no longer need Media Queries to check for Device Size breakpoints,
+    and only have to be concerned about device orientation: landscape or portrait.
+
+    BE AWARE OF THIS
+    ----------------
+    Multiplications and divsions by 16 and 160 (or a mult/div thereof) are your friend.
+    
+    Do the following arithmetic series ring a bell?
+    
+    16,32,64,128,256 or 160,320,640,1280,2560   => think PX
+     8,24,48, 96,192 or  80,240,480, 960,1920
+     4, 8,12, 16, 20 or  40, 80,120, 160, 200
+     
+    1,1.5,2,2.5,3,3.5,4 or 10,15,20,25,30,35,40 => think REM
+
+    All PC/tablet/smartphone calculations are hexadecimal (base 16) related. So, in all your
+    calculations always look for the exact or the nearest lower mult/div of 16 or 160.
+    Manufacturers follow this rule (yes, Apple too), it is a hardware thing.
+    Use it to your advantage.
+
+    EXTRAS
+    ------
+    Tool: ERS linear equations created with GeoGebra by me (René van der Lende)
+          https://www.geogebra.org/m/gct3bvsp
+
+          Simply: drag the blue P1 triangle to set (x1,y1)
+                  drag the blue P2 triangle to set (x2,y2)
+
+                  to get the required equation for CSS: calc(m * 100vmin/vmax/vh/vw + b)
+                  multiply m with 100 to simplify CSS to calc(mvmin/vmax/vh/vw + b)
+                  
+                  example: calc(0.00625 * 100vmin + 14px) becomes calc(0.625vmin + 14px)
+                  (REMARK: the math above already incorporates this simplification!!!)
+
+          Use: keyboard keys and sliders to finetune the values for P1 and P2. 
+
+    GeoGebra: free open-source desktop/smartphone/online mathematical apps (2D/3D math)
+              free account, packed with mathematical goodies from the user base.
+              Well worth your time to investigate!
+
+    Math reference: http://www.mathsisfun.com/equation_of_line.html
+                    http://www.mathsisfun.com/algebra/line-equation-2points.html
+                    http://www.mathsisfun.com/geometry/slope.html
+*/
+</style>
+
+<noscript>
+<style>
+#debug { /* The same as [hide], uses JS so hide buttons from user */
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+</style>
+</noscript>
+
+<script id="ers-oneliners-scr">
+'use-strict';
+
+/* Shortcuts to both the html and body element */
+var root = document.documentElement;
+var body = document.body;
+
+// Traverse an array and execute the passed callback function for each array element found
+var forEachEntryIn = function (array, callback, scope) {
+for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
+
+/*****************************/
+/* Oneliner toggle functions */
+/*****************************/
+
+// No error checking whatsoever, so the elements better exist...
+
+//Get reference to HTML element by its ID
+function elem(e) { return document.getElementById(e); }; 
+
+function toggleStateB(d) { if (body.getAttribute(d)=='1') body.setAttribute(d,'0'); else body.setAttribute(d,'1'); }
+function toggleStateR(d) { if (root.getAttribute(d)=='1') root.setAttribute(d,'0'); else root.setAttribute(d,'1'); }
+
+// Toggle the use of a specific style element
+function toggleStyle(id) { var el = elem(id); el.disabled = !el.disabled }
+
+// Toggle/Disable/Enable an array of style elements (by ID)
+function stylesToggle(array) { forEachEntryIn( array, function (i,e,s) { toggleStyle(e); }); }
+function stylesOff(array)    { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = true;  }); }
+function stylesOn(array)     { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = false; }); }
+
+// Toggles the document direction from LTR to RTL and v.v.
+function toggleDocDir() { if  (body.getAttribute('dir')=='rtl') body.setAttribute('dir','ltr');
+                          else body.setAttribute('dir','rtl'); }
+
+/*****************/
+/* Webpage setup */
+/*****************/
+function intialize() { /* nothing to do yet */ };
+
+/******************************************************/
+window.addEventListener("DOMContentLoaded",intialize);  // General initialization
+window.addEventListener("DOMContentLoaded",setVPSizes); // first run
+window.addEventListener('resize', setVPSizes);          // on resize of browser window
+/******************************************************/
+
+// For use of relative viewport sizes in JS 
+function vh(v)   { return (v * Math.max(root.clientHeight, window.innerHeight || 0)) / 100; };
+function vw(v)   { return (v * Math.max(root.clientWidth , window.innerWidth  || 0)) / 100; };
+function vmin(v) { return Math.min(vh(v), vw(v)); };
+function vmax(v) { return Math.max(vh(v), vw(v)); };
+
+function setVPSizes() {
+    // Set custom CSS properties of viewport sizes for use with CSS var(). Workaround.
+    root.style.setProperty('--js-vmin', vmin(100));
+    root.style.setProperty('--js-vmax', vmax(100));
+    root.style.setProperty('--js-vw'  ,   vw(100));
+    root.style.setProperty('--js-vh'  ,   vh(100));
+}
+</script>
+
+<script id="ers-geogebra-examples-scr">
+var params = [ {
+    "id": "ggbApplet1",
+    "width":1260,
+    "height":560,
+    "showMenuBar":true,
+    "showAlgebraInput":true,
+    "showToolBar":true,
+    "customToolBar":"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
+    "showToolBarHelp":true,
+    "showResetIcon":false,
+    "enableLabelDrags":false,
+    "enableShiftDragZoom":true,
+    "enableRightClick":false,
+    "errorDialogsActive":false,
+    "useBrowserForJS":false,
+    "allowStyleBar":false,
+    "preventFocus":false,
+    "showZoomButtons":true,
+    "capturingThreshold":3,
+    // add code here to run when the applet starts
+    "appletOnLoad":function(api){ /* api.evalCommand('Segment((1,2),(3,4))');*/ },
+    "showFullscreenButton":true,
+    "scale":0.8,
+    "disableAutoScale":false,
+    "allowUpscale":false,
+    "clickToLoad":false,
+    "appName":"classic",
+    "showSuggestionButtons":true,
+    "buttonRounding":0.7,
+    "buttonShadows":false,
+    "language":"en",
+    // use this instead of ggbBase64 to load a material from geogebra.org
+    // "material_id":"pxbq6sx4",
+    // use this instead of ggbBase64 to load a .ggb file
+    // "filename":"myfile.ggb",
+    "ggbBase64":"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",
+},
+{
+    "id": "ggbApplet2",
+    "width":1260,
+    "height":800,
+    "showMenuBar":true,
+    "showAlgebraInput":true,
+    "showToolBar":true,
+    "customToolBar":"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
+    "showToolBarHelp":true,
+    "showResetIcon":false,
+    "enableLabelDrags":false,
+    "enableShiftDragZoom":true,
+    "enableRightClick":false,
+    "errorDialogsActive":false,
+    "useBrowserForJS":false,
+    "allowStyleBar":false,
+    "preventFocus":false,
+    "showZoomButtons":true,
+    "capturingThreshold":3,
+    // add code here to run when the applet starts
+    "appletOnLoad":function(api){ /* api.evalCommand('Segment((1,2),(3,4))');*/ },
+    "showFullscreenButton":true,
+    "scale":0.8,
+    "disableAutoScale":false,
+    "allowUpscale":false,
+    "clickToLoad":false,
+    "appName":"classic",
+    "showSuggestionButtons":true,
+    "buttonRounding":0.7,
+    "buttonShadows":false,
+    "language":"en",
+    // use this instead of ggbBase64 to load a material from geogebra.org
+    // "material_id":"RHYH3UQ8",
+    // use this instead of ggbBase64 to load a .ggb file
+    // "filename":"myfile.ggb",
+    "ggbBase64":"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",
+}];
+
+// is3D=is 3D applet using 3D view, AV=Algebra View, SV=Spreadsheet View, CV=CAS View, EV2=Graphics View 2, CP=Construction Protocol, PC=Probability Calculator DA=Data Analysis, FI=Function Inspector, macro=Macros
+var views = {'is3D': 0,'AV': 1,'SV': 0,'CV': 0,'EV2': 0,'CP': 0,'PC': 0,'DA': 0,'FI': 0,'macro': 0};
+
+var applet1 = new GGBApplet(params[0], '5.0', views);
+var applet2 = new GGBApplet(params[1], '5.0', views);
+
+window.addEventListener('load', injectGGB);
+//window.addEventListener('resize', appletResize);
+
+function injectGGB() {
+    applet1.inject('ggbApplet1');
+    applet2.inject('ggbApplet2');
+};
+
+function appletResize() {
+    applet1.resize();
+    applet2.resize();
+};
+
+var prv =['data:image/gif;base64,R0lGODlhAQABAAAAADs=','https://www.geogebra.org/images/GeoGebra_loading.png','https://www.geogebra.org/images/applet_play.png'];
+applet1.setPreviewImage(prv[0],prv[1],prv[2]);
+applet2.setPreviewImage(prv[0],prv[1],prv[2]);
+</script>
+
+</body>
+</html>

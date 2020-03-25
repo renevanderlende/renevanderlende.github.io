@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+
+<html lang="en" style-view="0" main-padding="1" design="0" dir="ltr">
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>Style Manipulation</title>
+
+<style id="stl-globals-default">
+/****************************************/
+/* some preferred generic global styles */
+/****************************************/
+html,body   { box-sizing: border-box; width: 100%; max-width: 100% }
+
+*::before,
+*::after, * { box-sizing: inherit }
+
+body    { overflow-y: scroll; overflow-x: auto; line-height: 1.5; margin: 0; padding: 8px }
+/* Using padding instead of margin will prevent 'overflow-x' with 'body.width: 100%' */
+
+/* Used in conjunction with en/disabling '#lnk-font' */
+body,*  { font-family: Poppins,Arial,Helvetica,sans-serif }
+
+/* personal prefs, also affects colors of :visited and :link */
+a       { color: currentColor; text-decoration-style: dotted; font-style: italic }
+a:hover { color: #1c2f2f }
+
+/* plain arrow for everything except when editable */
+body,style               { cursor: default }
+[contenteditable="true"] { cursor: text    }
+</style>
+
+<style id="stl-banding-default">
+/***************************************/
+/* responsive FLEXBOX bands and blocks */
+/***************************************/
+/*
+    For use as easy 'landingpage' content containers
+    [band]  - horizontal content like a strip
+    [block] - vertical content like a list
+
+    - Can both be used interchangeably and nested
+      (band of blocks, block of bands, band of blocks holding bands...)
+    - Invert orientation with 'rows'/'cols' parameter ( *= means: contains )
+
+    Note: only works from IE11 and up (huh? up?)
+*/
+[band]                  { position: relative }
+
+[band],[block]          { display: flex;
+                          justify-content: center; align-content: center }
+
+[band],[band*="cols"]   { flex-flow: row wrap    }  /* a row of columns, default */
+       [band*="rows"]   { flex-flow: column wrap }  /* a column of rows */
+
+[block],[block*="rows"] { flex-flow: column wrap }  /* inverse default of [band] */
+        [block*="cols"] { flex-flow: row wrap    }
+/*
+    responsive band padding (same as responsive page padding, but now at band level)
+    Inversely active with [main-padding]
+*/
+[main-padding="0"] [band*="padded"] { padding: calc(5vh + 48px) calc( 19.5vw - 54.4px) }
+[main-padding="1"] [band*="padded"] { padding: 0 } /* already padded, no use to pad some more */
+/* 
+'Introduction' is a [band] with padding ([band*="padded"]).
+'Band padding' is only active when 'main padding' ([main-padding]) is off.
+
+Show 'MintCream' background color when 'main padding' is off
+*/
+[main-padding="0"] [band*="mint"] { background-color: MintCream }
+</style>
+
+<style id="stl-style-editor-default">
+/************************************/
+/* Inline style viewing and editing */
+/************************************/
+#btn-styles { position: fixed; z-index: 99999; bottom: 1rem; right: 1.5rem }
+#btn-edit   { position: fixed; z-index: 99999; bottom: 3rem; right: 1.5rem }
+
+[style-view*="0"] #btn-edit          { display: none }
+[style-view*="0"] #btn-styles:before { content: 'show ' }
+[style-view*="1"] #btn-styles:before { content: 'hide ' }
+
+link,style,script {
+    font-family: 'Cutive Mono',Consolas, monospace; 
+    font-weight: normal; letter-spacing: .02em;
+    font-size: calc(1.25vmin + .125rem); /* (320,6)(1280,18) */
+
+    white-space: pre;                    /* act as a <pre> */
+    text-decoration: none;               /* removes 'underline' from <link> */
+    overflow: auto;                      /* shows scrollbar on overflow */
+    padding: .5rem;                      /* inner spacing */
+    margin: 0; margin-bottom: .25rem;   /* outer spacing between styles */
+
+    border: 1px solid rgba(0,0,0,.3);
+    background-color: white;
+ }
+
+/* When custom attribute [style-view] is '1' all styles/links wil be visible */
+/* To be able to show <style> and <link>, <head> need to be visible too */
+[style-view*="1"] head,
+[style-view*="1"] link,
+[style-view*="1"] script,
+[style-view*="1"] style { display: block }
+
+[style-view*="0"] head,
+[style-view*="0"] link,
+[style-view*="0"] script,
+[style-view*="0"] style { display: none  }
+
+/*******************************/
+/* style editor eye-candy only */
+/*******************************/
+style:before  ,style:after  { font-weight: bold; font-size: 1.1em; color: Blue }
+script:before, script:after { font-weight: bold; font-size: 1.1em; color: Red }
+
+style:before                { content: '<style id="'attr(id)'" class="'attr(class)'">' }
+style:not([class]):before   { content: '<style id="'attr(id)'">' }
+style:not([id]):before      { content: '<style class="'attr(class)'">'; color: DodgerBlue }
+style[media]:before         { content: '<style media="'attr(media)'">'; color: RoyalBlue }
+style:after                 { content: '<\/style>' }
+
+link:before                 { content: '<link class="'attr(class)'" rel="'attr(rel)'" href="' attr(href)'">';
+                              font-weight: bold; font-size: 1.1em; color: green }
+
+script:before               { content: '<script id="'attr(id)'" class="'attr(class)'" href="' attr(href)'">' }
+script:after                { content: '<\/script>' }
+</style>
+
+
+</head>
+
+<body debug="1">
+    <div id="intro" band="padded.mint">
+        <h3>Introduction</h3>
+        <p>Here is a tutorial on something you will not come across very often, in fact, I bet not many developers know
+           they can change an entire webpages' layout with the least amount of Javascript. No Media Queries,
+           no external libraries like JQuery, React, Angular and without the help of Bootstrap, Sass, Less, etc.
+        </p>
+        <p>All simply by enabling and disabling &lt;style&gt; elements using a small series of one-liner functions in vanilla javascript.
+        <p>This pen will demonstrate the power of .</p>
+        <p>I have been using this technique for quite some time now and thought it was time to share it with
+           the Codepen community. 
+        </p>
+        <p>Getting confused? Simple reload the page and start over...</p>
+
+        <div id="intro-wrapper" block="rows">
+            <div class="boxes" onmouseover="toggleStyleById('stl-some-switch1')" title="using: onmouseover=toggleStyleById('stl-some-switch1')">
+                <div class="style-default" ></div>
+                <div class="style-override"></div>
+                <div class="style-override"></div>
+                <div class="style-default" ></div>
+            </div>
+
+            <div class="buttons">
+                <button id="btn-intro" onclick="toggleStyleById('stl-some-switch2')" title="using: onclick=toggleStyleById('stl-some-switch2')">hover</button>
+            </div>
+        </div>
+    </div>
+    <style id="stl-some-default">
+    #intro div          { display: flex }
+
+    #intro-wrapper,
+    #intro-wrapper div  { flex-wrap: wrap; }
+
+    #intro .boxes       { width: 15rem; height: 15rem;
+                          border: 1px solid rgba(0,0,0,.3) }
+
+    #intro .boxes>*     { flex-basis: 50%; padding: 1rem }
+
+    #intro .buttons     { flex-direction: column }
+    #intro .buttons>*   { margin: 0; margin-bottom: .5rem }
+    #btn-intro:before   { content: 'mono ' }
+
+    .style-default      { background-color: silver; color: black }
+    .style-override     { background-color: DimGrey; color: white }
+</style>
+    <style id="stl-some-switch2">
+    .style-default      { background-color: CornSilk; color: CornFlowerBlue }
+    .style-override     { background-color: CornFlowerBlue; color: CornSilk }
+    #btn-intro:before   { content: 'color ' }
+</style>
+    <style id="stl-some-switch1">
+    .style-default      { background-color: CornFlowerBlue; color: CornSilk }
+    .style-override     { background-color: CornSilk; color: CornFlowerBlue }
+</style>
+    <div id="reference">
+        <p>
+            <span>Reference</span>
+            <br><a target="_blank" rel="noopener" title="opens in new tab" href="https://www.w3.org/TR/DOM-Level-2-Style/stylesheets.html#StyleSheets-StyleSheet-disabled">W3C: 1.2. Style Sheet Interfaces 'disabled'</a>
+            <br><a target="_blank" rel="noopener" title="opens in new tab" href="https://www.w3schools.com/tags/ref_standardattributes.asp">w3schools: HTML Global Attributes</a>
+            <br><a target="_blank" rel="noopener" title="opens in new tab" href="https://www.w3schools.com/tags/att_link_media.asp">w3schools: HTML &lt;link&gt; media Attribute</a>
+            <br><a target="_blank" rel="noopener" title="opens in new tab" href="https://www.w3schools.com/cssref/css_selectors.asp">w3schools: CSS Selector Reference</a>
+        </p>
+    </div>
+
+    <style media="all and (max-width: 720px)">
+    /***********************************************/
+    /* Showing the use of a <style> Media Selector */
+    /***********************************************/
+    /* 'media' also works on <link> */
+
+    body   { background-color: rgba(152,251,152, .3) }
+    #intro { background-color: transparent }
+</style>
+
+    <div id="tutorial">
+        <h3>Hands on</h3>
+        <p>If it works in IE11, it works in anywhere (actually most toggles work from IE11 in design mode IE9 and up...)</p>
+        <button onclick="toggleStyleById('stl-text-override')" id="btn-text">text</button>&nbsp;&nbsp;<span>hides/shows all explanatory text and their headers</span>
+
+    <style id="stl-text-default">
+    /*
+        onclick: toggleStyleById('stl-text-override')
+
+        If   style '#stl-text-override.disabled' is true or false,
+        then style '#stl-text-default' will be either active or overridden
+    */
+    /**************************/
+    /* Explanatory text rules */
+    /**************************/
+    /* hidden by default, overridden by '#stl-intro-override' below */
+    #intro,p,h3,span { display: none    }
+    #btn-text:before { content: 'show ' }
+</style>
+    <style id="stl-text-override">
+    /******************************/
+    /* Explanatory text overrides */
+    /******************************/
+    /* invert above default rules */
+    #intro,p,h3      { display: block   }
+    span             { display: inline  }
+    #btn-text:before { content: 'hide ' }
+</style>
+
+        <br><button onclick="toggleHtmlAttrib('main-padding')">main padding</button>&nbsp;&nbsp;<span>hide/show this pages' main padding</span>
+    <style id="stl-main-padding-default">
+    body>* { padding: 0 } /* disables padding set in "stl-globals-default" */
+
+    /* responsive page padding, meant for <body>, now in <html> for demo */
+    [main-padding="1"] { padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
+    /*
+        Equation 'y=mx+b' for points:
+        T/B: p1(320,64) p2(1920,144) => y = 0.5x   + 48
+        L/R: p3(320, 8) p4(1920,320) => y = 0.195x - 54.4
+    */
+</style>
+        <br><button onclick="switchAbilities('style[id*=eye-candy]')">eye-candy</button>&nbsp;&nbsp;<span>hide/show everything that makes this page more pleasing to the eye</span>
+    <style id="stl-tutorial-eye-candy">
+    /**********************/
+    /* all just eye-candy */
+    /**********************/
+    html { background-color: rgba(230, 230, 230,.5) }
+
+    #lnk-font body  { font-size: 0.875rem }
+
+    #reference>*    { text-align: right }
+    #reference a    { font-size: 0.8125em }
+
+    #tutorial span  { width: 8rem }
+    button          { min-width: 10rem;
+                      margin: .25rem 0; padding: 0.25rem 0.5rem;
+                      border: 1px solid rgba(0,0,0,.3); cursor: pointer }
+
+    #table          { width: 100%; border-collapse: collapse }
+
+    #table caption  { padding: 2rem 0 }
+    #table th,
+    #table td       { text-align: center }
+    #table tfoot td { padding: 0.75rem .5rem; font-size: 0.75em; text-align: right }
+
+    #table thead                    { background-color: rgba(229,217,156,.7) } /* Coolers 'Tuscan' */
+    #table tbody tr:nth-child(even) { background-color: rgba( 56,117, 97,.4) } /*         'Amazon' */
+    #table tbody tr:hover           { background-color: rgba( 75, 84,104,.7);  /*         'Independence'*/
+                                                 color: rgba(234,234,242,1)  } /*         'Glitter' */
+</style>
+        <br><button onclick="switchAbilities('.lnk-font')">change font</button>&nbsp;&nbsp;<span>switch between 'Google Fonts' and 'Default', adjust &lt;html&gt; 'font-size'</span>
+    <style id="ers-font-demo-default">
+    /*********************/
+    /* Font Manipulation */
+    /*********************/
+    /* responsive main fontsize (assumes plain 'Arial,Helvetica,sans-serif' ) */
+    html { font-size: calc(0.625vmin + 0.875rem) } /* (320,16)(1280,22) */
+
+    /* Setting the default font for use with '.lnk-font' */
+    body { font-family: Arial,Helvetica,sans-serif }
+    span { font-family: 'Anonymous Pro',Consolas,monospace }
+
+    /* Below: odd location for a <link> (usually high up in <head>), perfectly legal though */
+    </style>
+
+    <link class="lnk-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <link class="lnk-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anonymous+Pro">
+
+    <style class="lnk-font">
+    /*
+        Font selection is handled by en/disabling <link> through class 'lnk-font',
+        but, as 'Poppins' is slightly larger than 'Arial', lets also modify the main fontsize
+    */
+    html { font-size: calc(0.625vmin + 0.8125rem) } /* (320,13)(1280,19) */
+    /*
+        Beware: As many default CSS attribute values are in EM,
+                sizing and spacing attributes will be affected too
+    */
+</style>
+
+        <br><button onclick="toggleDocDirection('L')">direction</button>&nbsp;&nbsp;<span>switches document reading direction (except styles)</span>
+    <style id="stl-direction-comment">
+    /*
+        No specific styling required simply uses: toggleDocDirection('L')
+        This function modifies the [dir] attribute in <html>, favouring 'left-to-right' reading regions.
+        Pass 'R' if you live in a 'right-to-left' reading favouring region.
+    */
+
+    /* favouring 'left-to-right' reading regions, change to 'rtl' if so required */
+    link,style,script { direction: ltr } /* forces 'left aligned' */
+</style>
+
+
+        <br><button onclick="toggleBodyAttrib('outlines')">outlines</button>&nbsp;&nbsp;<span>shows/hides element outlines</span>
+    <style id="stl-ers-outlines-default">
+    body[outlines="1"] * { outline: 1px dashed purple }
+</style>
+
+        <br><button onclick="toggleHtmlAttrib('design')">design grid</button>&nbsp;&nbsp;<span>shows/hides designer SVG background grid, document center and element outlines</span>
+    <style id="stl-ers-design-default">
+    /* show viewport grid with rulers */
+    [design*="1"] {
+        background-origin    : border-box;
+        background-position  : 0 0;
+        background-size      : cover;
+        background-repeat    : no-repeat;
+        background-attachment: fixed;
+        /* Quite large SVG, multi-purpose grid (8px,10px,16px) with rulers and center viewport dot. So you know...;) */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpattern id='pattern8' width='8' height='8' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 8 0 L 0 0 0 8' fill='none' stroke='gray' stroke-width='0.5' /%3E%3C/pattern%3E%3Cpattern id='pattern80' width='80' height='80' patternUnits='userSpaceOnUse'%3E%3Crect width='80' height='80' fill='url(%23pattern8)' /%3E%3Cpath d='M 80 0 L 0 0 0 80' fill='none' stroke='gray' stroke-width='1' /%3E%3C/pattern%3E%3Cpattern id='pattern10' width='10' height='10' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 10 0 L 0 0 0 10' fill='none' stroke='gray' stroke-width='0.5' /%3E%3C/pattern%3E%3Cpattern id='pattern100' width='100' height='100' patternUnits='userSpaceOnUse'%3E%3Crect width='100' height='100' fill='url(%23pattern10)' /%3E%3Cpath d='M 100 0 L 0 0 0 100' fill='none' stroke='gray' stroke-width='1' /%3E%3C/pattern%3E%3Cpattern id='pattern16' width='16' height='16' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 16 0 L 0 0 0 16' fill='none' stroke='gray' stroke-width='0.5' /%3E%3C/pattern%3E%3Cpattern id='pattern160' width='160' height='160' patternUnits='userSpaceOnUse'%3E%3Crect width='160' height='160' fill='url(%23pattern16)' /%3E%3Cpath d='M 160 0 L 0 0 0 160' fill='none' stroke='gray' stroke-width='1' /%3E%3C/pattern%3E%3C!-- horizontal ruler --%3E%3Cg id='ruler-h' style=' fill: none; fill-opacity: 1; fill-rule: nonzero; stroke: RoyalBlue; stroke-width: 1; stroke-opacity: 1; stroke-linecap:butt; stroke-linejoin: miter; stroke-miterlimit: 4; stroke-dasharray: none; stroke-dashoffset: 0'%3E%3Cline x1= '0' y1='0' x2='100%25' y2='0'/%3E%3C!-- transform() only used for a little optic correction (tested Firefox 68+, zoom in 300%25) --%3E%3Cpath transform='translate(0.15 0)' d='M 10,0 10, 5 M 20,0 20,10 M 30,0 30,10 M 40,0 40,10 M 50,0 50,20 M 60,0 60,10 M 70,0 70,10 M 80,0 80,10 M 90,0 90,10 M 100,0 100,30 M 110,0 110,10 M 120,0 120,10 M 130,0 130,10 M 140,0 140,10 M 150,0 150,20 M 160,0 160,10 M 170,0 170,10 M 180,0 180,10 M 190,0 190,10 M 200,0 200,30 M 210,0 210,10 M 220,0 220,10 M 230,0 230,10 M 240,0 240,10 M 250,0 250,20 M 260,0 260,10 M 270,0 270,10 M 280,0 280,10 M 290,0 290,10 M 300,0 300,30 M 310,0 310,10 M 320,0 320,10 M 330,0 330,10 M 340,0 340,10 M 350,0 350,20 M 360,0 360,10 M 370,0 370,10 M 380,0 380,10 M 390,0 390,10 M 400,0 400,30 M 410,0 410,10 M 420,0 420,10 M 430,0 430,10 M 440,0 440,10 M 450,0 450,20 M 460,0 460,10 M 470,0 470,10 M 480,0 480,10 M 490,0 490,10 M 500,0 500,30 M 510,0 510,10 M 520,0 520,10 M 530,0 530,10 M 540,0 540,10 M 550,0 550,20 M 560,0 560,10 M 570,0 570,10 M 580,0 580,10 M 590,0 590,10 M 600,0 600,30 M 610,0 610,10 M 620,0 620,10 M 630,0 630,10 M 640,0 640,10 M 650,0 650,20 M 660,0 660,10 M 670,0 670,10 M 680,0 680,10 M 690,0 690,10 M 700,0 700,30 M 710,0 710,10 M 720,0 720,10 M 730,0 730,10 M 740,0 740,10 M 750,0 750,20 M 760,0 760,10 M 770,0 770,10 M 780,0 780,10 M 790,0 790,10 M 800,0 800,30 M 810,0 810,10 M 820,0 820,10 M 830,0 830,10 M 840,0 840,10 M 850,0 850,20 M 860,0 860,10 M 870,0 870,10 M 880,0 880,10 M 890,0 890,10 M 900,0 900,30 M 910,0 910,10 M 920,0 920,10 M 930,0 930,10 M 940,0 940,10 M 950,0 950,20 M 960,0 960,10 M 970,0 970,10 M 980,0 980,10 M 990,0 990,10 M 1000,0 1000,30 M 1010,0 1010,10 M 1020,0 1020,10 M 1030,0 1030,10 M 1040,0 1040,10 M 1050,0 1050,20 M 1060,0 1060,10 M 1070,0 1070,10 M 1080,0 1080,10 M 1090,0 1090,10 M 1100,0 1100,30 M 1110,0 1110,10 M 1120,0 1120,10 M 1130,0 1130,10 M 1140,0 1140,10 M 1150,0 1150,20 M 1160,0 1160,10 M 1170,0 1170,10 M 1180,0 1180,10 M 1190,0 1190,10 M 1200,0 1200,30 M 1210,0 1210,10 M 1220,0 1220,10 M 1230,0 1230,10 M 1240,0 1240,10 M 1250,0 1250,20 M 1260,0 1260,10 M 1270,0 1270,10 M 1280,0 1280,10 M 1290,0 1290,10 M 1300,0 1300,30 M 1310,0 1310,10 M 1320,0 1320,10 M 1330,0 1330,10 M 1340,0 1340,10 M 1350,0 1350,20 M 1360,0 1360,10 M 1370,0 1370,10 M 1380,0 1380,10 M 1390,0 1390,10 M 1400,0 1400,30 M 1410,0 1410,10 M 1420,0 1420,10 M 1430,0 1430,10 M 1440,0 1440,10 M 1450,0 1450,20 M 1460,0 1460,10 M 1470,0 1470,10 M 1480,0 1480,10 M 1490,0 1490,10 M 1500,0 1500,30 M 1510,0 1510,10 M 1520,0 1520,10 M 1530,0 1530,10 M 1540,0 1540,10 M 1550,0 1550,20 M 1560,0 1560,10 M 1570,0 1570,10 M 1580,0 1580,10 M 1590,0 1590,10 M 1600,0 1600,30 M 1610,0 1610,10 M 1620,0 1620,10 M 1630,0 1630,10 M 1640,0 1640,10 M 1650,0 1650,20 M 1660,0 1660,10 M 1670,0 1670,10 M 1680,0 1680,10 M 1690,0 1690,10 M 1700,0 1700,30 M 1710,0 1710,10 M 1720,0 1720,10 M 1730,0 1730,10 M 1740,0 1740,10 M 1750,0 1750,20 M 1760,0 1760,10 M 1770,0 1770,10 M 1780,0 1780,10 M 1790,0 1790,10 M 1800,0 1800,30 M 1810,0 1810,10 M 1820,0 1820,10 M 1830,0 1830,10 M 1840,0 1840,10 M 1850,0 1850,20 M 1860,0 1860,10 M 1870,0 1870,10 M 1880,0 1880,10 M 1890,0 1890,10 M 1900,0 1900,30 M 1910,0 1910,10 M 1920,0 1920,10 M 1930,0 1930,10 M 1940,0 1940,10 M 1950,0 1950,20 M 1960,0 1960,10 M 1970,0 1970,10 M 1980,0 1980,10 M 1990,0 1990,10 M 2000,0 2000,30 M 2010,0 2010,10 M 2020,0 2020,10 M 2030,0 2030,10 M 2040,0 2040,10 M 2050,0 2050,20 M 2060,0 2060,10 M 2070,0 2070,10 M 2080,0 2080,10 M 2090,0 2090,10 M 2100,0 2100,30 M 2110,0 2110,10 M 2120,0 2120,10 M 2130,0 2130,10 M 2140,0 2140,10 M 2150,0 2150,20 M 2160,0 2160,10 M 2170,0 2170,10 M 2180,0 2180,10 M 2190,0 2190,10 M 2200,0 2200,30 M 2210,0 2210,10 M 2220,0 2220,10 M 2230,0 2230,10 M 2240,0 2240,10 M 2250,0 2250,20 M 2260,0 2260,10 M 2270,0 2270,10 M 2280,0 2280,10 M 2290,0 2290,10 M 2300,0 2300,30 M 2310,0 2310,10 M 2320,0 2320,10 M 2330,0 2330,10 M 2340,0 2340,10 M 2350,0 2350,20 M 2360,0 2360,10 M 2370,0 2370,10 M 2380,0 2380,10 M 2390,0 2390,10 M 2400,0 2400,30 M 2410,0 2410,10 M 2420,0 2420,10 M 2430,0 2430,10 M 2440,0 2440,10 M 2450,0 2450,20 M 2460,0 2460,10 M 2470,0 2470,10 M 2480,0 2480,10 M 2490,0 2490,10 M 2500,0 2500,30 M 2510,0 2510,10 M 2520,0 2520,10 M 2530,0 2530,10 M 2540,0 2540,10 M 2550,0 2550,20 M 2560,0 2560,10 M 2570,0 2570,10 M 2580,0 2580,10 M 2590,0 2590,10 M 2600,0 2600,30 M 2610,0 2610,10 M 2620,0 2620,10 M 2630,0 2630,10 M 2640,0 2640,10 M 2650,0 2650,20 M 2660,0 2660,10 M 2670,0 2670,10 M 2680,0 2680,10 M 2690,0 2690,10 M 2700,0 2700,30 M 2710,0 2710,10 M 2720,0 2720,10 M 2730,0 2730,10 M 2740,0 2740,10 M 2750,0 2750,20 M 2760,0 2760,10 M 2770,0 2770,10 M 2780,0 2780,10 M 2790,0 2790,10 M 2800,0 2800,30 M 2810,0 2810,10 M 2820,0 2820,10 M 2830,0 2830,10 M 2840,0 2840,10 M 2850,0 2850,20 M 2860,0 2860,10 M 2870,0 2870,10 M 2880,0 2880,10 M 2890,0 2890,10 M 2900,0 2900,30 M 2910,0 2910,10 M 2920,0 2920,10 M 2930,0 2930,10 M 2940,0 2940,10 M 2950,0 2950,20 M 2960,0 2960,10 M 2970,0 2970,10 M 2980,0 2980,10 M 2990,0 2990,10 M 3000,0 3000,30 M 3010,0 3010,10 M 3020,0 3020,10 M 3030,0 3030,10 M 3040,0 3040,10 M 3050,0 3050,20 M 3060,0 3060,10 M 3070,0 3070,10 M 3080,0 3080,10 M 3090,0 3090,10 M 3100,0 3100,30' /%3E%3C!-- todo: upto 6500 --%3E%3C/g%3E%3C!-- vertical ruler --%3E%3Cg id='ruler-v' style=' fill: none; fill-opacity: 1; fill-rule: nonzero; stroke: RoyalBlue; stroke-width: 1; stroke-opacity: 1; stroke-linecap:butt; stroke-linejoin: miter; stroke-miterlimit: 4; stroke-dasharray: none; stroke-dashoffset: 0'%3E%3Cline x1= '0' y1='0' x2='0' y2='100%25'/%3E%3Cpath transform='translate(0 0.2)' d='M 0, 10 5, 10 M 0, 20 10, 20 M 0, 30 10, 30 M 0, 40 10, 40 M 0, 50 20, 50 M 0, 60 10, 60 M 0, 70 10, 70 M 0, 80 10, 80 M 0, 90 10, 90 M 0, 100 30, 100 M 0, 110 10,110 M 0, 120 10, 120 M 0, 130 10, 130 M 0, 140 10, 140 M 0, 150 20, 150 M 0, 160 10, 160 M 0, 170 10, 170 M 0, 180 10,180 M 0, 190 10, 190 M 0, 200 30, 200 M 0, 210 10,210 M 0, 220 10, 220 M 0, 230 10, 230 M 0, 240 10, 240 M 0, 250 20, 250 M 0, 260 10, 260 M 0, 270 10, 270 M 0, 280 10,280 M 0, 290 10, 290 M 0, 300 30, 300 M 0, 310 10,310 M 0, 320 10, 320 M 0, 330 10, 330 M 0, 340 10, 340 M 0, 350 20, 350 M 0, 360 10, 360 M 0, 370 10, 370 M 0, 380 10,380 M 0, 390 10, 390 M 0, 400 30, 400 M 0, 410 10,410 M 0, 420 10, 420 M 0, 430 10, 430 M 0, 440 10, 440 M 0, 450 20, 450 M 0, 460 10, 460 M 0, 470 10, 470 M 0, 480 10,480 M 0, 490 10, 490 M 0, 500 30, 500 M 0, 510 10,510 M 0, 520 10, 520 M 0, 530 10, 530 M 0, 540 10, 540 M 0, 550 20, 550 M 0, 560 10, 560 M 0, 570 10, 570 M 0, 580 10,580 M 0, 590 10, 590 M 0, 600 30, 600 M 0, 610 10,610 M 0, 620 10, 620 M 0, 630 10, 630 M 0, 640 10, 640 M 0, 650 20, 650 M 0, 660 10, 660 M 0, 670 10, 670 M 0, 680 10,680 M 0, 690 10, 690 M 0, 700 30, 700 M 0, 710 10,710 M 0, 720 10, 720 M 0, 730 10, 730 M 0, 740 10, 740 M 0, 750 20, 750 M 0, 760 10, 760 M 0, 770 10, 770 M 0, 780 10,780 M 0, 790 10, 790 M 0, 800 30, 800 M 0, 810 10,810 M 0, 820 10, 820 M 0, 830 10, 830 M 0, 840 10, 840 M 0, 850 20, 850 M 0, 860 10, 860 M 0, 870 10, 870 M 0, 880 10,880 M 0, 890 10, 890 M 0, 900 30, 900 M 0, 910 10,910 M 0, 920 10, 920 M 0, 930 10, 930 M 0, 940 10, 940 M 0, 950 20, 950 M 0, 960 10, 960 M 0, 970 10, 970 M 0, 980 10,980 M 0, 990 10, 990 M 0,1000 30,1000 M 0,1010 10,1010 M 0,1020 10,1020 M 0,1030 10,1030 M 0,1040 10,1040 M 0,1050 20,1050 M 0,1060 10,1060 M 0,1070 10,1070 M 0,1080 10,1080 M 0,1090 10,1090 M 0,1100 30,1100 M 0,1110 10,1110 M 0,1120 10,1120 M 0,1130 10,1130 M 0,1140 10,1140 M 0,1150 20,1150 M 0,1160 10,1160 M 0,1170 10,1170 M 0,1180 10,1180 M 0,1190 10,1190 M 0,1200 30,1200 M 0,1210 10,1210 M 0,1220 10,1220 M 0,1230 10,1230 M 0,1240 10,1240 M 0,1250 20,1250 M 0,1260 10,1260 M 0,1270 10,1270 M 0,1280 10,1280 M 0,1290 10,1290 M 0,1300 30,1300 M 0,1310 10,1310 M 0,1320 10,1320 M 0,1330 10,1330 M 0,1340 10,1340 M 0,1350 20,1350 M 0,1360 10,1360 M 0,1370 10,1370 M 0,1380 10,1380 M 0,1390 10,1390 M 0,1400 30,1400 M 0,1410 10,1410 M 0,1420 10,1420 M 0,1430 10,1430 M 0,1440 10,1440 M 0,1450 20,1450 M 0,1460 10,1460 M 0,1470 10,1470 M 0,1480 10,1480 M 0,1490 10,1490 M 0,1500 30,1500 M 0,1510 10,1510 M 0,1520 10,1520 M 0,1530 10,1530 M 0,1540 10,1540 M 0,1550 20,1550 M 0,1560 10,1560 M 0,1570 10,1570 M 0,1580 10,1580 M 0,1590 10,1590 M 0,1600 30,1600 M 0,1610 10,1610 M 0,1620 10,1620 M 0,1630 10,1630 M 0,1640 10,1640 M 0,1650 20,1650 M 0,1660 10,1660 M 0,1670 10,1670 M 0,1680 10,1680 M 0,1690 10,1690 M 0,1700 30,1700 M 0,1710 10,1710 M 0,1720 10,1720 M 0,1730 10,1730 M 0,1740 10,1740 M 0,1750 20,1750 M 0,1760 10,1760 M 0,1770 10,1770 M 0,1780 10,1780 M 0,1790 10,1790 M 0,1800 30,1800 M 0,1810 10,1810 M 0,1820 10,1820 M 0,1830 10,1830 M 0,1840 10,1840 M 0,1850 20,1850 M 0,1860 10,1860 M 0,1870 10,1870 M 0,1880 10,1880 M 0,1890 10,1890 M 0,1900 30,1900 M 0,1910 10,1910 M 0,1920 10,1920 M 0,1930 10,1930 M 0,1940 10,1940 M 0,1950 20,1950 M 0,1960 10,1960 M 0,1970 10,1970 M 0,1980 10,1980 M 0,1990 10,1990 M 0,2000 30,2000 M 0,2010 10,2010 M 0,2020 10,2020 M 0,2030 10,2030 M 0,2040 10,2040 M 0,2050 20,2050 M 0,2060 10,2060 M 0,2070 10,2070 M 0,2080 10,2080 M 0,2090 10,2090 M 0,2100 30,2100 M 0,2110 10,2110 M 0,2120 10,2120 M 0,2130 10,2130 M 0,2140 10,2140 M 0,2150 20,2150 M 0,2160 10,2160 M 0,2170 10,2170 M 0,2180 10,2180 M 0,2190 10,2190 M 0,2200 30,2200 M 0,2210 10,2210 M 0,2220 10,2220 M 0,2230 10,2230 M 0,2240 10,2240 M 0,2250 20,2250 M 0,2260 10,2260 M 0,2270 10,2270 M 0,2280 10,2280 M 0,2290 10,2290 M 0,2300 30,2300 M 0,2310 10,2310 M 0,2320 10,2320 M 0,2330 10,2330 M 0,2340 10,2340 M 0,2350 20,2350 M 0,2360 10,2360 M 0,2370 10,2370 M 0,2380 10,2380 M 0,2390 10,2390 M 0,2400 30,2400 M 0,2410 10,2410 M 0,2420 10,2420 M 0,2430 10,2430 M 0,2440 10,2440 M 0,2450 20,2450 M 0,2460 10,2460 M 0,2470 10,2470 M 0,2480 10,2480 M 0,2490 10,2490 M 0,2500 30,2500 M 0,2510 10,2510 M 0,2520 10,2520 M 0,2530 10,2530 M 0,2540 10,2540 M 0,2550 20,2550 M 0,2560 10,2560 M 0,2570 10,2570 M 0,2580 10,2580 M 0,2590 10,2590 M 0,2600 30,2600 M 0,2610 10,2610 M 0,2620 10,2620 M 0,2630 10,2630 M 0,2640 10,2640 M 0,2650 20,2650 M 0,2660 10,2660 M 0,2670 10,2670 M 0,2680 10,2680 M 0,2690 10,2690 M 0,2700 30,2700 M 0,2710 10,2710 M 0,2720 10,2720 M 0,2730 10,2730 M 0,2740 10,2740 M 0,2750 20,2750 M 0,2760 10,2760 M 0,2770 10,2770 M 0,2780 10,2780 M 0,2790 10,2790 M 0,2800 30,2800 M 0,2810 10,2810 M 0,2820 10,2820 M 0,2830 10,2830 M 0,2840 10,2840 M 0,2850 20,2850 M 0,2860 10,2860 M 0,2870 10,2870 M 0,2880 10,2880 M 0,2890 10,2890 M 0,2900 30,2900 M 0,2910 10,2910 M 0,2920 10,2920 M 0,2930 10,2930 M 0,2940 10,2940 M 0,2950 20,2950 M 0,2960 10,2960 M 0,2970 10,2970 M 0,2980 10,2980 M 0,2990 10,2990 M 0,3000 30,3000 M 0,3010 10,3010 M 0,3020 10,3020 M 0,3030 10,3030 M 0,3040 10,3040 M 0,3050 20,3050 M 0,3060 10,3060 M 0,3070 10,3070 M 0,3080 10,3080 M 0,2990 10,3090 M 0,3100 30,3100' /%3E%3C!-- todo: upto 4000 --%3E%3C/g%3E%3Cg id='ruler-text-h' style='fill-rule:nonzero; fill-opacity:1; fill: RoyalBlue; stroke:none; stroke-width:1; stroke-linecap:butt; stroke-linejoin:miter; stroke-miterlimit:4; stroke-dasharray:none; stroke-dashoffset:0; stroke-opacity:1; text-anchor: middle; font-family: Consolas,Arial,monospace; font-weight: normal; font-size : calc(0.625vmin + 0.5rem); text-shadow: .1px .1px .2px hsla(0,0%25,15%25,.35), -.1px -.1px .2px hsla(0,0%25,15%25,.25);'%3E%3C!-- horizontal text --%3E%3Ctext x= '122' y='30'%3E100%3C/text%3E%3Ctext x= '222' y='30'%3E200%3C/text%3E%3Ctext x= '322' y='30'%3E300%3C/text%3E%3Ctext x= '422' y='30'%3E400%3C/text%3E%3Ctext x= '522' y='30'%3E500%3C/text%3E%3Ctext x= '622' y='30'%3E600%3C/text%3E%3Ctext x= '722' y='30'%3E700%3C/text%3E%3Ctext x= '822' y='30'%3E800%3C/text%3E%3Ctext x= '922' y='30'%3E900%3C/text%3E%3Ctext x='1022' y='30'%3E1000%3C/text%3E%3Ctext x='1122' y='30'%3E1100%3C/text%3E%3Ctext x='1222' y='30'%3E1200%3C/text%3E%3Ctext x='1322' y='30'%3E1300%3C/text%3E%3Ctext x='1422' y='30'%3E1400%3C/text%3E%3Ctext x='1522' y='30'%3E1500%3C/text%3E%3Ctext x='1622' y='30'%3E1600%3C/text%3E%3Ctext x='1722' y='30'%3E1700%3C/text%3E%3Ctext x='1822' y='30'%3E1800%3C/text%3E%3Ctext x='1922' y='30'%3E1900%3C/text%3E%3Ctext x='2022' y='30'%3E2000%3C/text%3E%3Ctext x='2122' y='30'%3E2100%3C/text%3E%3Ctext x='2222' y='30'%3E2200%3C/text%3E%3Ctext x='2322' y='30'%3E2300%3C/text%3E%3Ctext x='2422' y='30'%3E2400%3C/text%3E%3Ctext x='2522' y='30'%3E2500%3C/text%3E%3Ctext x='2622' y='30'%3E2600%3C/text%3E%3Ctext x='2722' y='30'%3E2700%3C/text%3E%3Ctext x='2822' y='30'%3E2800%3C/text%3E%3Ctext x='2922' y='30'%3E2900%3C/text%3E%3Ctext x='3022' y='30'%3E3000%3C/text%3E%3Ctext x='3122' y='30'%3E3100%3C/text%3E%3Ctext x='3222' y='30'%3E3200%3C/text%3E%3Ctext x='3322' y='30'%3E3300%3C/text%3E%3Ctext x='3422' y='30'%3E3400%3C/text%3E%3Ctext x='3522' y='30'%3E3500%3C/text%3E%3Ctext x='3622' y='30'%3E3600%3C/text%3E%3Ctext x='3722' y='30'%3E3700%3C/text%3E%3Ctext x='3822' y='30'%3E3800%3C/text%3E%3Ctext x='3922' y='30'%3E3900%3C/text%3E%3Ctext x='4022' y='30'%3E4000%3C/text%3E%3Ctext x='4122' y='30'%3E4100%3C/text%3E%3Ctext x='4222' y='30'%3E4200%3C/text%3E%3Ctext x='4322' y='30'%3E4300%3C/text%3E%3Ctext x='4422' y='30'%3E4400%3C/text%3E%3Ctext x='4522' y='30'%3E4500%3C/text%3E%3Ctext x='4622' y='30'%3E4600%3C/text%3E%3Ctext x='4722' y='30'%3E4700%3C/text%3E%3Ctext x='4822' y='30'%3E4800%3C/text%3E%3Ctext x='4922' y='30'%3E4900%3C/text%3E%3Ctext x='5022' y='30'%3E5000%3C/text%3E%3Ctext x='5122' y='30'%3E5100%3C/text%3E%3Ctext x='5222' y='30'%3E5200%3C/text%3E%3Ctext x='5322' y='30'%3E5300%3C/text%3E%3Ctext x='5422' y='30'%3E5400%3C/text%3E%3Ctext x='5522' y='30'%3E5500%3C/text%3E%3Ctext x='5622' y='30'%3E5600%3C/text%3E%3Ctext x='5722' y='30'%3E5700%3C/text%3E%3Ctext x='5822' y='30'%3E5800%3C/text%3E%3Ctext x='5922' y='30'%3E5900%3C/text%3E%3Ctext x='6022' y='30'%3E6000%3C/text%3E%3Ctext x='6122' y='30'%3E6100%3C/text%3E%3Ctext x='6222' y='30'%3E6200%3C/text%3E%3Ctext x='6322' y='30'%3E6300%3C/text%3E%3Ctext x='6422' y='30'%3E6400%3C/text%3E%3Ctext x='6522' y='30'%3E6500%3C/text%3E%3C/g%3E%3Cg id='ruler-text-v' style='fill-rule:nonzero; fill-opacity:1; fill: RoyalBlue; stroke:none; stroke-width:1; stroke-linecap:butt; stroke-linejoin:miter; stroke-miterlimit:4; stroke-dasharray:none; stroke-dashoffset:0; stroke-opacity:1; text-anchor: middle; font-family: Consolas,Arial,monospace; font-weight: normal; font-size : calc(0.625vmin + 0.5rem); text-shadow: .1px .1px .2px hsla(0,0%25,15%25,.35), -.1px -.1px .2px hsla(0,0%25,15%25,.25);'%3E%3C!-- vertical text --%3E%3Ctext x='32' y= '120' %3E100%3C/text%3E%3Ctext x='32' y= '220' %3E200%3C/text%3E%3Ctext x='32' y= '320' %3E300%3C/text%3E%3Ctext x='32' y= '420' %3E400%3C/text%3E%3Ctext x='32' y= '520' %3E500%3C/text%3E%3Ctext x='32' y= '620' %3E600%3C/text%3E%3Ctext x='32' y= '720' %3E700%3C/text%3E%3Ctext x='32' y= '820' %3E800%3C/text%3E%3Ctext x='32' y= '920' %3E900%3C/text%3E%3Ctext x='32' y='1020' %3E1000%3C/text%3E%3Ctext x='32' y='1120' %3E1100%3C/text%3E%3Ctext x='32' y='1220' %3E1200%3C/text%3E%3Ctext x='32' y='1320' %3E1300%3C/text%3E%3Ctext x='32' y='1420' %3E1400%3C/text%3E%3Ctext x='32' y='1520' %3E1500%3C/text%3E%3Ctext x='32' y='1620' %3E1600%3C/text%3E%3Ctext x='32' y='1720' %3E1700%3C/text%3E%3Ctext x='32' y='1820' %3E1800%3C/text%3E%3Ctext x='32' y='1920' %3E1900%3C/text%3E%3Ctext x='32' y='2020' %3E2000%3C/text%3E%3Ctext x='32' y='2120' %3E2100%3C/text%3E%3Ctext x='32' y='2220' %3E2200%3C/text%3E%3Ctext x='32' y='2320' %3E2300%3C/text%3E%3Ctext x='32' y='2420' %3E2400%3C/text%3E%3Ctext x='32' y='2520' %3E2500%3C/text%3E%3Ctext x='32' y='2620' %3E2600%3C/text%3E%3Ctext x='32' y='2720' %3E2700%3C/text%3E%3Ctext x='32' y='2820' %3E2800%3C/text%3E%3Ctext x='32' y='2920' %3E2900%3C/text%3E%3Ctext x='32' y='3020' %3E3000%3C/text%3E%3Ctext x='32' y='3120' %3E3100%3C/text%3E%3Ctext x='32' y='3220' %3E3200%3C/text%3E%3Ctext x='32' y='3320' %3E3300%3C/text%3E%3Ctext x='32' y='3420' %3E3400%3C/text%3E%3Ctext x='32' y='3520' %3E3500%3C/text%3E%3Ctext x='32' y='3620' %3E3600%3C/text%3E%3Ctext x='32' y='3720' %3E3700%3C/text%3E%3Ctext x='32' y='3820' %3E3800%3C/text%3E%3Ctext x='32' y='3920' %3E3900%3C/text%3E%3Ctext x='32' y='4020' %3E4000%3C/text%3E%3C/g%3E%3C!-- screen centers --%3E%3Cg id='doc-crosshair' style='stroke: RoyalBlue; stroke-width: 1; stroke-opacity: 1'%3E%3Cline x1= '0%25' y1='50%25' x2='100%25' y2= '50%25'/%3E%3Cline x1='50%25' y1= '0' x2= '50%25' y2='100%25'/%3E%3C/g%3E%3Cg id='doc-center'%3E%3Ccircle cx='50%25' cy='50%25' r='3' style='stroke: RoyalBlue; fill: Red'/%3E%3C/g%3E%3C/defs%3E%3Csymbol id='svg-grid8'%3E%3Crect width='100%25' height='100%25' fill='url(%23pattern80)'/%3E%3C/symbol%3E%3Csymbol id='svg-grid10'%3E%3Crect width='100%25' height='100%25' fill='url(%23pattern100)'/%3E%3C/symbol%3E%3Csymbol id='svg-grid16'%3E%3Crect width='100%25' height='100%25' fill='url(%23pattern160)'/%3E%3C/symbol%3E%3Csymbol id='svg-ruler-h'%3E%3Cuse xlink:href='%23ruler-h'/%3E%3Cuse xlink:href='%23ruler-text-h'/%3E%3C/symbol%3E%3Csymbol id='svg-ruler-v'%3E%3Cuse xlink:href='%23ruler-v'/%3E%3Cuse xlink:href='%23ruler-text-v'/%3E%3C/symbol%3E%3Csymbol id='svg-ruler-full'%3E%3Cuse xlink:href='%23ruler-h'/%3E%3Cuse xlink:href='%23ruler-text-h'/%3E%3Cuse xlink:href='%23ruler-v'/%3E%3Cuse xlink:href='%23ruler-text-v'/%3E%3C/symbol%3E%3Csymbol id='svg-ruler-grid8-full'%3E%3Cuse xlink:href='%23svg-grid8'/%3E%3Cuse xlink:href='%23svg-ruler-full'/%3E%3C/symbol%3E%3Csymbol id='svg-ruler-grid10-full'%3E%3Cuse xlink:href='%23svg-grid10'/%3E%3Cuse xlink:href='%23svg-ruler-full'/%3E%3C/symbol%3E%3Csymbol id='svg-ruler-grid16-full'%3E%3Cuse xlink:href='%23svg-grid16'/%3E%3Cuse xlink:href='%23svg-ruler-full'/%3E%3C/symbol%3E%3Csymbol id='svg-element-center'%3E%3Cuse xlink:href='%23doc-crosshair'/%3E%3Cuse xlink:href='%23doc-center'/%3E%3C/symbol%3E%3C!-- default for use as 'background-image' --%3E%3Cuse xlink:href='%23svg-ruler-grid10-full'/%3E%3Cuse xlink:href='%23svg-element-center'/%3E%3C/svg%3E%0A");
+    }
+</style>
+
+        <!-- tutorial column visibility toggles -->
+        <br><br><span>Column toggles</span><br>
+
+    <style id="stl-columns-demo-default">
+    /****************************/
+    /* Main tutorial column CSS */
+    /****************************/
+    /*
+        Various column classes, some hidden by default.
+        They will be overridden by column specific <style> elements below.
+    
+        Extend this style element with your own 'default' column rules.
+    */
+    #table * { font-family: 'Anonymous Pro',Arial,Helvetica,sans-serif }
+
+    /* Define some column properties when visible */
+    .c3,.c4,.c5,.c7     { display: table-cell }
+    #b1,#b3,#b5         { background-color: LightCoral }
+    
+    /* Properties for hidden columns, essentially invert the above logic */
+    .c1,.c2,.c6,.c8,.c9 { display: none }
+    #b2,#b4             { background-color: LightGreen }
+</style>
+
+        <button id="b1" onclick="toggleStyleById('stl-col-12' )"    >#b1 - columns 1-2</button>
+        <button id="b2" onclick="toggleStyleById('stl-col-345')"    >#b2 - columns 3-5</button>
+        <button id="b3" onclick="toggleStyleById('stl-col-6'  )"    >#b3 - column 6   </button>
+        <button id="b4" onclick="toggleStyleById('stl-col-7'  )"    >#b4 - column 7   </button>
+        <button id="b5" onclick="toggleStyleById('stl-col-89' )"    >#b5 - columns 8-9</button>
+
+    <style id="stl-columns-demo-comment">
+    /***************************/
+    /* Column Selection Styles */
+    /***************************/
+    /*
+        All below <style> elements are used to toggle visibility of selected table columns.
+        Extend these style elements with CSS that overrides '#stl-columns-default' defaults.
+    
+        In this case only default visiblity and colors have been overridden (read: inverted).
+    */
+</style>
+    <style id="stl-col-12" class="column-style">
+    .c1,.c2 { display: table-cell } #b1 { background-color: LightGreen }
+</style>
+    <style id="stl-col-345" class="column-style">
+    .c3,.c4,.c5 { display: none } #b2 { background-color: LightCoral }
+</style>
+    <style id="stl-col-6" class="column-style">
+    .c6 { display: table-cell } #b3 { background-color: LightGreen }
+</style>
+    <style id="stl-col-7" class="column-style">
+    .c7 { display: none } #b4 { background-color: LightCoral }
+</style>
+    <style id="stl-col-89" class="column-style">
+    .c8,.c9 { display: table-cell } #b5 { background-color: LightGreen }
+</style>
+
+        <button onclick="switchAbilities('.column-style')">invert visible</button>
+
+
+        <table id="table">
+            <caption>a very important table</caption>
+            <thead>
+                <tr>
+                    <th class='c1'>col 1</th>
+                    <th class='c2'>col 2</th>
+                    <th class='c3'>col 3</th>
+                    <th class='c4'>col 4</th>
+                    <th class='c5'>col 5</th>
+                    <th class='c6'>col 6</th>
+                    <th class='c7'>col 7</th>
+                    <th class='c8'>col 8</th>
+                    <th class='c9'>col 9</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+                <tr><td class='c1'>1</td><td class='c2'>2</td><td class='c3'>3</td><td class='c4'>4</td><td class='c5'>5</td><td class='c6'>6</td><td class='c7'>7</td><td class='c8'>8</td><td class='c9'>9</td></tr>
+            </tbody>
+            <tfoot>
+                <tr><td colspan=9><sup>*</sup>showing off some table footer</td></tr>
+            </foot>
+        </table>
+
+        <br><br><span>Caution</span><br>
+        <!-- open/reload browser developer tools: no CSS rules available when clicked! -->
+        <button onclick="switchAbilities('style,button:not(#finale)')">disable all styles</button>
+
+        <p>The above button will <b>disable all &lt;style&gt; elements</b> of this page and, as all buttons (except one) will be disabled as well,
+        <br>a page reload will be required.
+        </p>
+        <p>After pressing the button, examine the 'inspector' tab of the browser developer tools [F12] (if already opened, close it first).
+           The window will show <b>'no CSS properties found'</b> for this page. The default browser styles will still be accessible.
+        </p>
+        <button id="finale" onclick="switchAbilities('style'); BYE()">bye</button>
+    </div>
+
+    <div>
+        <button id="btn-styles" onclick="toggleHtmlAttrib('style-view')">styles</button>
+        <button id="btn-edit"   onclick="toggleStylesEdit('link,style,script')"
+                title="Runtime Style Editing&#13;Beware: modifications will not be saved!">toggle edit</button>
+    </div>
+
+<div class="script-wrapper">
+    <script id="ers-oneliners-JS">
+    'use-strict';
+    /****************************************/
+    /* Style Manipulation Utility functions */
+    /****************************************/
+    /*
+        Global (custom) CSS attributes can be used on <style> elements.
+        Below a series of simple one-liner JS functions to manipulate
+        the 'disabled' attribute of (an array of) style elements.
+    
+        Too small for copyright stuff,
+        but be nice and reference this pen if you think others may learn from it.    
+    */
+    // Shortcuts to <html>, <body> and <head> elements
+    var html = document.documentElement;
+    var body = document.body;
+    var head = document.head;
+
+    // Traverse an array and execute the passed callback function for each array element found
+    var forEachEntryInArrayCall = function (array, callback, scope) {
+        for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
+
+    // Get reference to an element by its ID (param: id string )
+    function elemId(s)  { return document.getElementById(s); }
+    //Get an array of references to selected elements (param: string of selectors)
+    function elemAll(s) { return document.querySelectorAll(s); }
+
+    // Toggle the use of a specific style element by ID (param: id string )
+    function toggleStyleById(s) { switchAbility(elemId(s)); }
+
+    // Toggle abilities of an array of elements (param: string of CSS selectors)
+    function switchAbilities(s) { forEachEntryInArrayCall( elemAll(s), function (idx,el,sc) { switchAbility(el) }); }
+
+    // Toggle ability of a single element (en/disabled) (param: element)
+    function switchAbility(e) { e.disabled = !e.disabled; }
+
+    // Toggle custom <html>, <body> or <head> attributes ON or OFF (param: attribute string)
+    function toggleHtmlAttrib(a) { if (html.getAttribute(a)=='1') html.setAttribute(a,'0'); else html.setAttribute(a,'1'); }
+    function toggleBodyAttrib(a) { if (body.getAttribute(a)=='1') body.setAttribute(a,'0'); else body.setAttribute(a,'1'); }
+    function toggleHeadAttrib(a) { if (head.getAttribute(a)=='1') head.setAttribute(a,'0'); else head.setAttribute(a,'1'); }
+
+    // Toggle any custom attribute ON or OFF (param: element, attribute string, on string, off string)
+    function toggleAnyAttrib(e,a,on,off) { if (e.getAttribute(a)==on) e.setAttribute(a,off); else e.setAttribute(a,on); }
+
+    // Toggles the document <html> direction given passed param, where L = 'ltr' anything else = 'rtl'
+    function toggleDocDirection(s) { if  (s.toUpperCase()=='L') toggleHtmlLtr();
+                                     else toggleHtmlRtl(); }
+
+    // Toggles the document <html> direction from LTR to RTL, use in 'left-to-right' reading favouring regions
+    function toggleHtmlLtr() { if  (html.getAttribute('dir')=='rtl') html.setAttribute('dir','ltr');
+                               else html.setAttribute('dir','rtl'); }
+
+    // Inverse logic for 'right-to-left' reading favouring regions (I am NL, so, not tested. Please report errors)
+    function toggleHtmlRtl() { if  (html.getAttribute('dir')=='ltr') html.setAttribute('dir','rtl');
+                               else html.setAttribute('dir','ltr'); }
+
+    // (Yes, quotes! Initially a string with value 'inherit'. To toggle, however, use booleans. Nasty....)
+    function toggleStylesEdit(s) { forEachEntryInArrayCall( elemAll(s), function (idx,el,sc) { toggleEdit(el) }); }
+    function toggleEdit(e)       { if (e.contentEditable == "true") e.contentEditable = false; else e.contentEditable = true; }
+
+    function stylesOff(array)    { forEachEntryInArrayCall( array, function (i,e,s) { elem(e).disabled = true;  }); }
+    function stylesOn(array)     { forEachEntryInArrayCall( array, function (i,e,s) { elem(e).disabled = false; }); }
+
+    // Guess...
+    function BYE() { forEachEntryInArrayCall( elemAll('html *'),
+                         function (idx,el,sc) { el.style.setProperty('display','none','important') }); }
+</script>
+</div>
+
+</body>
+</html>

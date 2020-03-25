@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>SO 60281232</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,700|PT+Sans+Narrow|Open+Sans:300,400,600,700,800&display=swap&subset=latin-ext">
+
+<style id="stl-globals-default">
+/**************************/
+/* preferred global rules */
+/**************************/
+/* Include padding and border in width/height calculations */
+html,body             { box-sizing: border-box }
+*::before,*::after, * { box-sizing: inherit    }
+
+/* show all elements with outlines (preferred location <body>) */
+[debug*="1"] * { outline: 1px dashed purple }
+
+body { /* [OPTIONAL] */
+    margin: 0;          /* remove default body spacing */
+    max-width : 100%;   /* prevent unwanted scroll-x */
+    width     : 100%;   /* prevent going off-screen and */
+}
+
+html { font-size: calc(0.625vmin + 0.75rem) }
+/*
+    responsive base fontsize using y=mx+b
+
+    14px at 320px viewport minimum, 20px at 1280 vp min
+    
+    - viewport minimum dependend
+    - use only VMIN for fontsizes, never VMAX (yields faulty results)
+    - unconstraint at 320/1280
+
+    p1(320,14) p2(1280,20) => 0.00625x + 12
+    0.75rem = b/16
+*/
+
+h1  { font-size: 2rem } /* overrides Firefox nesting <H1> behaviour */
+
+img { 
+    display: block;     /* default is inline-block with some bottom whitespace, this removes it */
+    width: 100%;        /* stretch to fill parent width, */
+    object-fit: cover;  /* keep ratio and when viewport becomes too small, clip the image */
+}
+
+</style>
+<style id="stl-banding-default">
+/***************************************/
+/* responsive FLEXBOX bands and blocks */
+/***************************************/
+/*
+    For use as easy 'landingpage' content containers
+
+    [band]  - horizontal content (like a strip)
+    [block] - vertical content   (like a list)
+
+    - Can both be used interchangeably and nested
+      (band of blocks, block of bands, band of blocks holding bands of...)
+    - Invert orientation with 'rows'/'cols'
+
+    Note: Flexbox only works from IE10 and up...
+*/
+section,[band],[band]>*,[block]  {
+    display: flex; /* Invoke Flexbox layout */
+}
+
+/* defaults for all bands */
+/* generic  */ section>*,
+/* specific */ [band] {
+    flex-flow: row wrap;
+    justify-content: space-between; /* evenly distribute all content */
+    position: relative;             /* create new stacking context per band */
+}
+
+/* ditto for all blocks, inverse default of [band] */
+/* generic  */ section>*>*,[band]>*,
+/* specific */ [block] {
+    flex-flow: column wrap;
+    flex-grow: 1;            /* allow to fill available space */
+
+    justify-content: center; /* center all content   */
+    align-content  : center;
+    align-items    : center;
+}
+
+/* helper classes to invert above band/block rules */
+.rows { flex-flow: column wrap } /* a column of rows */
+.cols { flex-flow: row wrap    } /* a row of columns */
+
+/*
+    responsive page padding using y=mx+b
+
+    Top       : 64px at 320px viewport height, 144px at 1920 vp height
+    Left/Right:  8px at 320px viewport width,  320px at 1920 vp width
+ 
+     - use in <body>
+     - viewport width/height dependend so use VW/VH
+     - [OPTIONAL] use VMIN instead of VW/VH
+     - [OPTIONAL] constraint at 320/1920
+
+    T/B: p1(320,64) p2(1920,144) => 0.5x + 48
+    L/R: p1(320, 8) p2(1920,320) => 0.195x - 54.4
+
+    Includes responsive band padding (same as responsive page padding, but at band level)
+    Inversely active with [padded] (as in: if <body> padding, then no [band] padding )
+*/
+[padded="1"],
+[padded="0"] section[padded], /* TODO: needs work */
+[padded="0"] [band*="padded"] { padding: calc(5vh + 48px) calc( 19.5vw - 54.4px) } /* T/R/L/B */
+
+[padded="1"] section[padded],
+[padded="1"] [band*="padded"] { padding: 0 } /* already padded, no use to pad some more */
+
+/* uncomment to constraint padding below 320 and/or above 1920 *//*
+@media screen and (max-width: 319px) {[padded="0"] section[padded],[padded="0"] [band*="padded"],[padded="1"] { padding:  64px   8px }}
+@media screen and (min-width:1921px) {[padded="0"] section[padded],[padded="0"] [band*="padded"],[padded="1"] { padding: 144px 320px }}
+/**/
+</style>
+
+
+<style id="stl-demo-rules">
+/******************/
+/* DEMO eye-candy */
+/******************/
+body {
+    background-color: rgba(112, 112, 112, 0.15);
+    font-family: 'PT Sans',sans-serif; font-weight: 400;
+}
+h1,h2,h3 { font-family: 'Open Sans', sans-serif; font-weight: 500 }
+
+a:hover { text-decoration: none; color: currentColor; box-shadow: 0 1px 0 #00bcf1 } /* just for fun */
+
+/* generic ID rule */
+/* All IDs starting with 'demo-' */
+[id^="demo-"]   { min-height: 50vh }
+[id^="demo-"]>* { flex-basis: 33.3333% } /* assuming left/center/right construction */
+/* Distribute evenly, in this for case 3 child elements. Disable to see difference  */
+
+/* ID exceptions */
+#demo-4>*       { flex-basis: 25% }
+
+#demo-2         { background-color: AliceBlue }
+#demo-3         { background-color: CornSilk  }
+#demo-4         { background-color: HoneyDew  }
+
+section>*>*,
+[band]>*,
+[block] { min-width : 300px } /**/
+/* forces flexbox 'wrap' when viewport gets too narrow */
+
+[band*="hero"] {
+    min-height: 94vh;
+    /* some minimal height to show off introducing eye-candy,
+       leaving a tiny space as to show 'there is more...'
+    */
+    opacity: .5;        /* medium 'see-thru' */
+
+    /* a resizing background image */
+    background-image   : url(https://picsum.photos/1120/640?random=1);
+    background-origin  : border-box; /* compliance with this doc 'html' global rule */
+    background-position: center;     /* keep image centered in view at all times */
+    background-size    : cover;      /* stretch with ratio intact */
+    background-repeat  : no-repeat;  /* only once, no tiling the joint */
+/*    background-attachment: fixed;  /* [OPTIONAL], disables bg to scroll off page */
+}
+[band]>header,
+[block*="header"] {
+    font-size: calc(12.5vmin - 1rem); /* 24>144 => 0.125x - 16 */
+    text-transform: capitalize;
+    font-weight: 300;
+}
+
+/* overriding some band/block defaults for footers */
+footer,
+[band*="info"] { padding: 2rem; min-height: 0 }
+[band*="info"] { background-color: SlateGrey; color: White }
+
+.border { border: 3px solid rgba(0,0,0,.2) }
+</style>
+
+</head>
+
+<body debug="1" padded="0" dir="">
+<div id="demo-1">
+    <div band="hero"></div>
+</div>
+
+<section id="demo-2" band class="rows">
+    <header>header</header>
+    <div band class="cols">
+        <div><h1>left</h1></div>
+        <div><h1>center</h1></div>
+        <div><h1>right</h1></div>
+    </div>
+    <footer>footer</footer>
+</section>
+
+<section id="demo-3" band>
+    <div><h1>left  </h1></div>
+    <div class="border"><h1>center</h1></div>
+    <div><h1>right </h1></div>
+</section>
+
+<section id="demo-4" band="padded" class="rows">
+    <div band class="cols">
+        <div><h1>left</h1></div>
+        <div class="cols border">
+            <div><h1>middle left </h1></div>
+            <div><h1>middle right</h1></div>
+        </div>
+       <div><h1>right</h1></div>
+    </div>
+
+    <div band="footer" class="cols">
+        <div>foot left</div>
+        <div>foot right</div>
+    </div>
+</section>
+
+<section band="info">
+    <div>site links  </div>
+    <div>social links</div>
+</section>
+</body>
+</html>

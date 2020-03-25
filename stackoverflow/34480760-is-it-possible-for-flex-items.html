@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>SO 34480760</title>
+
+<style id="stl-tut-description-and-logic">
+/*
+    SPECIFICATIONS:
+
+    Assuming 'portrait' layout (i.e. smartphone):
+
+    Attribute settings
+    - Combining Flexbox and CSS columns is not possible, therefore the parent container must be set to
+      'display: block' [MANDATORY]. 
+    - Instead of using attribute 'column-gap', the column spacing will be maintained by 'padding' per column,
+      parent container is set to use 'column-gap: 0' [MANDATORY].
+    - As 'padding' is used in column calculations, both parent container and child column elements are
+      set to use 'box-sizing : border-box' [MANDATORY].
+
+    Calculations
+
+    In this document preferred min/max values:
+    - minimum viewport size: 360x740    (my Samsung Galaxy J4+ smartphone)
+    - maximum viewport size: 1920x1200  (my desktop PC)
+
+
+    1) Lower limits
+    - Choose the nearest lower multiplication of 160 or 320 of the most common devices' width pixels
+      as 'minimum viewport width'.
+      As many smartphones have a W/H pixel value of 360x720px (regardless of their DPI)
+      a smart choice seems 320px, leaving 40px 'slack' space.
+
+    - Determine the number of columns required at that width, which is 1 in this document
+      making 320px our initial 'lower base width'.
+
+    - Assume the scrollbar (SB) width to be 15-17px (smartphone/desktop, varies depending on browser, often 17px).
+      In this document the SB-width is rounded to 20px for the least amount of decimals in calculations.
+    - Assume the SB is always visible, taking off 20px of the 'slack' space.
+
+    - When the required LEFT/RIGHT spacing at 'minimum viewport width'
+
+
+      a) This makes the new 'lower base width': 320 - 20 = 300px.
+      b) The remaining 20px 'slack' space will be distributed around the main parent container
+         and between adjacent columns.
+
+    2) Upper limits
+    - Determine the the number of columns required at a given 'maximum viewport width',
+      using the calculated 'lower base width' to check if this number of columns will fit
+      in the available total parent space. While not obligatory, the CSS column mechanism will work 
+      things out, but for better control make sure the columns fit...................
+
+
+    3) Column gap and spacing (borrowed from GMC Web https://material.io/components/cards/#specs)
+    
+
+    Notes
+    - The element 'margin' attribute will NOT be used for column LEFT/RIGHT spacing,
+      only for TOP/LEFT spacing (and only if absolutely required). While the use of 'margin' is fully
+      legitimate, 'padding' .................
+
+      Motivation: parent containers will only have a specific amount of space available for child elements
+      (whether the parents' size is relative or fixed is irrelevant). All 'border-box' calculations use
+      sizes up to and including the 'border-width/height' of an element, but WITHOUT its 'margin' values.
+
+      As child elements have no knowledge of the available parent space, assigning a value to a child's 'margin'
+      would be 'stealing' space from the parent and/or adjacent child elements without knowing the consequences.
+      While using 'margin' has its purpose in certain cases ................
+
+
+*/
+/*
+    W3C spec: CSS Multi-column Layout Module Level 1
+    https://www.w3.org/TR/css-multicol-1/
+
+    CSS Fragmentation Module Level 3
+    https://www.w3.org/TR/css-break-3/
+
+    Excerpts
+    par. 3
+    ... column-width: <length>
+        describes the optimal column width. The actual column width may be wider
+        (to fill the available space), or narrower (only if the available space is
+        smaller than the specified column width). Negative values are not allowed.
+        Used values will be clamped to a minimum of 1px.  
+
+    ... column-count: <integer>
+        describes the optimal number of columns into which the content of the element
+        will be flowed. Values must be greater than 0. If both column-width and
+        column-count have non-auto values, the integer value describes the maximum number of columns. 
+
+    par. 4
+    ...Column gaps take up space. That is, column gaps will push apart content in
+       adjacent columns (within the same multicol container).
+
+    ...In a multi-column formatting context the used value of 'normal' for the 
+       column-gap property is '1em'.
+
+    ...Column rules do not take up space. That is, the presence or thickness of a
+       column rule will not alter the placement of anything else... 
+*/
+/*
+    THE MAIN LOGIC
+
+    Main formula: 'equation for a straight line'
+    (https://www.mathsisfun.com/algebra/linear-equations.html)
+    
+        y = mx + b 
+        
+        (or ax + b, or mx + c, or mx + d, or mx + q or...
+        country dependend, all the same though)
+
+    Using
+        'Point-Slope' variation
+        y = y1 + m(x-x1) for points p1(x1,y1) and p2(x2,y2)
+
+    where
+        m = (y2 - y1) / (x2 - x1)
+        x = given (always fixed 100vmin/vh/vw/vmax => current viewport MIN/W/H/MAX size)**
+        b = y1 - m * x1
+
+    ** Depending on a device's orientation VMIN/VMAX are only correct half of the time.
+       (My) logic is to only use VMIN/VW/VH, because when a device's orientation changes
+       from portrait to landscape I want to see more text, not larger text,
+       VMIN also defines the lower limit. I consistently ignore VMAX...
+
+    fully substituted
+        y = y1 + (y2 - y1) / (x2 - x1) * (x - x1)
+
+    LOGIC FOR THE COLUMNS
+    p1: y1 @  320px => ( 320 - (sb_width=>20) ) / colcount@ 320px - (2 * LR-padding @ 320px / colcount@ 320px) 
+    p2: y2 @ 1920px => (1920 - (sb_width=>20) ) / colcount@1920px - (2 * LR-padding @1920px / colcount@1920px) 
+
+    example: p1: ( 320 - 20) / 1 - (2 *   8 / 1) = 
+             p2: (1920 - 20) / 4 - (2 * 320 / 4) =  
+
+    Note: the vertical scrollbar is 17px wide in most browsers, but here we round that up to 20px cutting
+          off an extra 1.5px of either side of the viewport. This is a personal preference which yields more
+          friendly looking decimals. FYI...
+*/
+</style>
+
+<style>
+/*****************************/
+/* primary column definition */
+/*****************************/
+/*
+    NOTE: '!important' only used in this document to express importance, can be removed safely,
+          unless you are unsure about external settings, injected code, E.L.E. Just saying.....
+*/
+[columnList] {
+    display   : block      !important;  /* [MANDATORY] flexbox can't handle CSS 'columns' or v.v. */
+    box-sizing: border-box !important;  /* [MANDATORY] calculations MUST include padding! */
+    column-gap: 0          !important;  /* [MANDATORY] handled by column-width math and padding */
+}
+[columnList]>* { /* Assumes some boxed container holding child content */
+    box-sizing: border-box !important;  /* [MANDATORY] same as parent 'columnList'  */
+    break-inside: avoid    !important;  /* [MANDATORY] Avoid orphaned child content (don't spread over columns) */
+}
+[columnList]>:first-child { margin-top   : 0 } /* [OPTIONAL], but otherwise unbalanced column tops/bottoms */
+[columnList]>:last-child  { margin-bottom: 0 }
+
+/*******************************/
+/* column spacing alternatives */
+/*******************************/
+[columnList] { /* All use column outer spacing only (generic), default */
+/*
+    GMC inspired gutter-widths: 16,16,24 -> smartphone,tablet,desktop
+*/
+    /* y=mx+b for p1(320,16) p2(960,24) divided by 2 */
+/*    column-gap: calc((1.25vmin + 12px) / 2); /**/
+}
+[columnList]>* {
+/*
+    Pro: will make all possible parent space per child element available to child element
+    Con: generally requires child elements to be inside a containing element to enable 
+         creation of space around child elements (as we are NOT using margins for that!).
+*/
+    margin : 0;
+    padding: calc((1.25vmin + 12px) / 2);
+    padding: calc((0.25vmin + 7.2px) / 2);
+}
+/**/
+/******************************/
+/* column layout construction */
+/******************************/
+/*
+    (smartphone/desktop most popular vp size: 1920x1080, ratio 16:9,
+     tablet: 2732x2048 and 1024x768, ratio 4:3, http://screensiz.es)
+*/
+[columnList] {
+/*    padding: 3rem 2px;      /* [OPTIONAL] some container inner spacing: TB and main LR-padding */
+    margin : 0 auto;        /* [OPTIONAL] center in parent, only in effect when 'max-width' < 100% */
+}
+/*
+
+    I've applied a little algebra.  You have y = 0.1x + 48 and also number of columns = x/y
+
+    Let's say you want 7 columns.
+    x/y = 7  =>    x = 7y
+
+    Replace x in the equation
+
+    y = 0.1 times 7y + 48 = 0.7y + 48  =>  0.3y = 48   => y = 48/0.3 = 480/3 = 160
+
+    So the column width is 160 and x = 7 x 160 = 1120
+
+    Test to see if this works
+    If x = 1120 then y = 0.1x + 48 = 112 + 48 = 160.  And the number of columns = x/y = 1120/160 = 7 as required.
+
+    column-width = 0.1 * 100vw + 48    -> calc(10vw + 48px)
+    column-count = 100vw / (10vw + 48) -> can't use calc() for this as 'column-count' is a unitless integer
+
+    0.1 * 1920 + 48   = 240
+    1920 / (192 + 48) = 8
+*/
+[columnList],
+[columnList="5"] {
+/*    column-count: 5;        /* [MANDATORY] number required at chosen maximum viewport width */
+
+/*    column-width: 272px;    /* [MANDATORY] preferred minimal width, calculated */ 
+
+                            /* (320px - scrollbarW - main-LR-padding@320vp - main-LR-margin@320vp) / colcount@320vp -
+                               (colcount@320 - 1) * colgap@320 */
+
+                            /* (320 - 20 - 2*8 - 0) / 1 - 0 * 16 => 320 - 48 = 272  */
+
+/*    max-width   : 1456px;   /* [MANDATORY] for centering in parent */ 
+                            /* colcount@320vp * colwidth * colcount + (colcount - 1) * colgap@960 */
+                            /* 1 * 272 * 5 + 4 * 24 = 1456 */
+
+/*    max-width: calc(100vw - (19.5vw - 54.4px)); /**/
+
+/*
+    calculate colwidth 300/2 and 1900/8 (subtracted 20 for SB, officially 17, but hey, it's my tut)
+    and use 320 and 1920 in linear equation, bit confusing, but it works
+*/
+
+
+    column-width: calc(10vw +  48px);           /* (320, 80)(1920,240)   => 4 and 8 columns */
+    column-width: calc( 5.46875vw + 132.5px);   /* (320,150)(1920,237.5) => ditto, subtracted 20px for SB */
+/*    column-count: 8; /* using the max column count, CSS 'column mechanism' will calculate the proper value */
+}
+
+/**************************/
+/* column content theming */
+/**************************/
+[columnList]>*>*  {
+
+    border-radius: 3px; /* pinterest = 16px, GMC = 4px */
+
+    opacity: .85; /* for a subtle color diffence on :hover */
+
+    /* Google Material Components Web default card elevation */
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12); /* elevation 1dp */
+}
+[columnList]>*>:hover {
+    opacity: 1; /* ditto */
+
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.20),
+                0px 5px  8px  0px rgba(0,0,0,.14),
+                0px 1px 14px  0px rgba(0,0,0,.12); /* elevation 5dp */
+}
+[columnList]>*>:active,
+[columnList]>*>:focus { transform: scale(0.995) }
+
+[columnList] [card] {
+    background-color: #fff;
+    padding: calc(1.25vmin + 12px); /* GMC 16>24 */
+}
+
+/**********************************/
+/* [OPTIONAL] global preferences  */
+/**********************************/
+html,body               { box-sizing: border-box } /* size calculations up to and including border */
+*::before,*::after, *   { box-sizing: inherit    } /* use parent's calculation preference */
+
+html,body               { width: 100%; margin: 0 }
+body                    { min-height: 100%; cursor: default; overflow-y: scroll }
+
+/* Default is 'inline-block', 'block' removes extra whitespace below the image */
+img                     { display: block; width: 100% }
+
+/******************************/
+/* [OPTIONAL] theme specific  */
+/******************************/
+/* main typography */
+html { font-size: calc(0.625vmin + 0.75rem) } /* (320,14)(1280,20) */
+body { font-size: 1rem }
+
+/* main colors */
+/*
+    COOLORS scheme 'codepen intro' used: https://coolors.co/595959-eaeaf2-e5d99c-4b5468-387561
+    (additional colorhexa.com description)
+
+    COOLERS       CODES                         COLORHEXA
+    Davy's Grey : #595959 rgba( 89, 89, 89,1)   Very dark gray
+    Glitter     : #eaeaf2 rgba(234,234,242,1)   Light grayish blue
+    Tuscan      : #e5d99c rgba(229,217,156,1)   Very soft yellow
+    Independence: #4b5468 rgba( 75, 84,104,1)   Very dark grayish blue
+    Amazon      : #387561 rgba( 56,117, 97,1)   Dark moderate cyan - lime green
+*/
+body { background-color: rgba(75,84,104,.2) } /* Independence */
+
+/* [OPTIONAL] */ /* REM: 14/16 and 20/16 *//*
+@media screen and (max-width: 319px) { html { font-size: 0.875rem } }
+@media screen and (min-width:1281px) { html { font-size: 1.250rem } }
+/**/
+
+
+/**********************/
+/* responsive padding */
+/**********************/
+/*
+    T/B p1(320,64) p2(1920,144) => y = 0.5x + 48
+    L/R p1(320, 8) p2(1920,320) => y = 0.195x - 54.4 (ex. SB)
+
+    Notice the use of VH/VW in T/R/B/L, they are height/width depended
+*/
+.padded, /* class for use when higher selector preference is required */
+[padded]        { padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
+[padded="pin"]  { padding: 1.5rem 4.375rem } /* pinterest style */
+
+[padded="0"]    { padding: 0; padding-top: 3rem }
+
+/* [OPTIONAL] constraint padding to values at p1 and p2 *//*
+@media screen and (max-width: 319px) { [padded] { padding:  64px   8px } }
+@media screen and (min-width:1921px) { [padded] { padding: 144px 320px } }
+/**/
+
+#btn-content:before { content: 'hide ' }
+</style>
+
+<style id="stl-column-content-override">
+[columnList]>*>* { /*visibility: hidden*/ opacity: .1 }
+[columnList]>*   { outline: 1px dotted black; text-align: center }
+
+#btn-content:before { content: 'show ' }
+</style>
+
+<style id="stl-debug-default">
+/* show all elements with outlines (preferred location <body>) */
+[data-debug*="1"] *  { outline: 1px dashed purple }
+
+#systemTray { position: fixed; top: 0; left: 0; z-index: 9999; padding: .5rem }
+#systemTray button { min-width: 7rem }
+</style>
+
+</head>
+<body data-debug="0" padded="1">
+
+<div id="systemTray">
+    <button id="btn-content" onclick="toggleStyle('stl-column-content-override')">content</button>
+    <button id="btn-padding" onclick="toggleStateB('padded')">padding</button>
+</div>
+
+<div>
+    <div columnList>
+        <div>
+            <div card>
+                <h3>some text</h3>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+            </div>
+        </div>
+        <div>
+            <div card>
+                <h3>some text</h3>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+            </div>
+        </div>
+        <div><img src="https://placehold.it/300x200/4b5468/eee"></div>
+        <div><img src="https://placehold.it/200x300/eaeaf2/333"></div>
+        <div><img src="https://placehold.it/200x110/595959/eee"></div>
+        <div><img src="https://placehold.it/200x266/e5d99c/333"></div>
+        <div>
+            <div card>
+                <h3>some text</h3>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+           </div>
+        </div>
+        <div><img src="https://placehold.it/200x197/387561/eee"></div>
+        <div><img src="https://placehold.it/200x237/eaeaf2/333"></div>
+        <div>
+            <div card>
+                <h3>some text</h3>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+            </div>
+        </div>
+        <div><img src="https://placehold.it/200x287/595959/eee"></div>
+        <div><img src="https://placehold.it/200x100/e5d99c/333"></div>
+        <div>
+            <div card>
+                <h3>some text</h3>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+            </div>
+        </div>
+        <div><img src="https://placehold.it/200x356/387561/eee"></div>
+        <div><img src="https://placehold.it/200x287/eaeaf2/333"></div>
+        <div>
+            <div card>
+                <h3>some text</h3>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+            </div>
+        </div>
+        <div><img src="https://placehold.it/200x158/4b5468/eee"></div>
+        <div><img src="https://placehold.it/200x289/e5d99c/333"></div>
+        <div>
+            <div card>
+                <h3>some text</h3>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+           </div>
+        </div>
+        <div>
+            <div card>
+                <h3>some text</h3>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+                <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed.
+                   Ex ius quem accusamus, pri et deleniti copiosae.</p>
+           </div>
+        </div>
+        <div><img src="https://placehold.it/200x190/595959/eee"></div>
+    </div>
+</div>
+
+
+<script id="ers-oneliners-scr">
+'use-strict';
+
+/* Shortcuts to both the html and body element */
+var root = document.documentElement;
+var body = document.body;
+
+// Traverse an array and execute the passed callback function for each array element found
+var forEachEntryIn = function (array, callback, scope) {
+for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
+
+/*****************************/
+/* Oneliner toggle functions */
+/*****************************/
+
+// No error checking whatsoever, so the elements better exist...
+
+//Get reference to HTML element by its ID
+function elem(e) { return document.getElementById(e); }; 
+
+function toggleState(id,a) { var e=elem(id); if (e) { if (e.getAttribute(a)=='1') e.setAttribute(a,'0'); else e.setAttribute(a,'1');}; }
+function toggleStateB(a)   { if (body.getAttribute(a)=='1') body.setAttribute(a,'0'); else body.setAttribute(a,'1'); }
+function toggleStateR(a)   { if (root.getAttribute(a)=='1') root.setAttribute(a,'0'); else root.setAttribute(a,'1'); }
+
+// Toggle the use of a specific style block
+function toggleStyle(id) { var el = elem(id); el.disabled = !el.disabled }
+
+// Toggle/Disable/Enable an array of style blocks (by ID)
+function stylesToggle(array) { forEachEntryIn( array, function (i,e,s) { toggleStyle(e); }); }
+function stylesOff(array)    { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = true;  }); }
+function stylesOn(array)     { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = false; }); }
+
+// Toggles the document direction from LTR to RTL and v.v.
+function toggleDocDir() { if  (body.getAttribute('dir')=='rtl') body.setAttribute('dir','ltr');
+                          else body.setAttribute('dir','rtl'); }
+
+/*****************/
+/* Webpage setup */
+/*****************/
+function intialize() {
+    logBodyInfo("intialize"); 
+    windowResize();
+};
+function windowResize() {
+    logBodyInfo("windowResize"); 
+};
+
+function logBodyInfo(fnc="") {
+    console.log(fnc,"width" ,"b",body.clientWidth ,"h",root.clientWidth ,"w",window.innerWidth ); 
+    console.log(fnc,"height","b",body.clientHeight,"h",root.clientHeight,"w",window.innerHeight); 
+};
+
+
+/******************************************************/
+window.addEventListener("DOMContentLoaded",intialize);  // General initialization
+//window.addEventListener("resize",windowResize);
+/******************************************************/
+
+// For use of relative viewport sizes in JS 
+function vh(v)   { return (v * Math.max(root.clientHeight, window.innerHeight || 0)) / 100; };
+function vw(v)   { return (v * Math.max(root.clientWidth , window.innerWidth  || 0)) / 100; };
+function vmin(v) { return Math.min(vh(v), vw(v)); };
+function vmax(v) { return Math.max(vh(v), vw(v)); };
+</script>
+
+</body>
+</html>

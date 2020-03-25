@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>Codrops Doc Test</title>
+<!-- just a few fonts to toy with -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Work+Sans:100,200,300,400,500,600,700,800,900&display=swap">
+
+<style id="ers-global-default">
+/******************************/
+/* Just a few preferred rules */
+/******************************/
+html,body           { box-sizing: border-box; margin: 0 }
+body                { min-height: 100vh }
+
+*::before,
+*::after, *         { box-sizing: inherit; outline: none }
+
+tr,ul,li            { margin: 0; padding: 0; list-style-type: none }
+th,td               { padding: 0 .5rem }
+a,q                 { color: currentColor; font-style: italic }
+p                   { margin: 0; padding-bottom: 1rem }
+
+pre,code            { font-size: calc(1.5625vmin); /*5>20*/
+                      font-family: Consolas, monospace; font-weight: normal; white-space: pre-wrap; letter-spacing: .02em }
+
+pre code            { overflow-x: auto }
+</style>
+
+<style id="ers-typography-global">
+/*************************************************/
+/* easy RESPONSIVE|TYPOGRAPHY|NESS [STABLE][WIP] */
+/*************************************************/
+html             { font-size: calc(0.625vmin + 0.75rem)   } /* 14>20, REM to incorporate user's browser font settings */
+html [lang="ar"] { font-size: calc(0.625vmin + 0.9375rem) } /* 17>23 (Demo only, Arabic just looks small at 14>20) */
+body             { font-size: 1rem }
+</style>
+
+<style id="ers-typography-gmc">
+/****************************************************************/
+/* easy RESPONSIVE|TYPOGRAPHY|NESS [GMC][OPTIONAL][STABLE][WIP] */
+/****************************************************************/
+/* Default font-sizes, based on Google Material Components for Web 4.0.0 (Nov 2019) */
+
+body { font-family: "Work Sans",sans-serif }
+
+[data-typo^="headline1"]  { font-weight: 300; font-size: 6rem    ; line-height: 6rem    ; letter-spacing: -0.015625em    } /* 96sp/96sp */
+[data-typo^="headline2"]  { font-weight: 600; font-size: 3.75rem ; line-height: 3.75rem ; letter-spacing: -0.008333333em } /* 60sp/60sp */
+[data-typo^="headline3"]  { font-weight: 400; font-size: 3rem    ; line-height: 3.125rem; letter-spacing: normal         } /* 48sp/50sp */
+[data-typo^="headline4"]  { font-weight: 600; font-size: 2.125rem; line-height: 2.5rem  ; letter-spacing: 0.0073529412em } /* 34sp/40sp */
+[data-typo^="headline5"]  { font-weight: 700; font-size: 1.5rem  ; line-height: 2rem    ; letter-spacing: normal         } /* 24sp/32sp */
+[data-typo^="headline6"]  { font-weight: 500; font-size: 1.25rem ; line-height: 2rem    ; letter-spacing: 0.0125em       } /* 20sp/32sp */
+[data-typo^="subtitle1"]  { font-weight: 400; font-size: 1rem    ; line-height: 1.75rem ; letter-spacing: 0.009375em     } /* 16sp/28sp */
+[data-typo^="subtitle2"]  { font-weight: 500; font-size: 0.875rem; line-height: 1.375rem; letter-spacing: 0.0071428571em } /* 14sp/22sp */
+[data-typo^="body1"]      { font-weight: 400; font-size: 1rem    ; line-height: 1.5rem  ; letter-spacing: 0.03125em      } /* 16sp/24sp */
+[data-typo^="body2"]      { font-weight: 400; font-size: 0.875rem; line-height: 1.25rem ; letter-spacing: 0.0178571429em } /* 14sp/20sp */
+[data-typo^="caption1"]   { font-weight: 400; font-size: 0.75rem ; line-height: 1.25rem ; letter-spacing: 0.0333333333em } /* 12sp/20sp */
+[data-typo^="button1"]    { font-weight: 500; font-size: 0.875rem; line-height: 2.25rem ; letter-spacing: 0.0892857143em } /* 14sp/36sp */
+[data-typo^="overline1"]  { font-weight: 600; font-size: 0.625rem; line-height: 2rem    ; letter-spacing: 0.1666666667em } /* 10sp/32sp */
+
+[data-typo^="headline"],[data-typo^="subtitle"],[data-typo^="body"],
+[data-typo="caption1"]    { text-decoration: inherit; text-transform: inherit }
+
+[data-typo="button1"],
+[data-typo="overline1"]   { text-decoration: none; text-transform: uppercase }
+</style>
+
+<style id="ers-utility-default">
+/**************************************************/
+/* Utility rules, first so they can be overridden */
+/**************************************************/
+body      { cursor: default } /* Plain arrow for everything, but... */
+pre,input { cursor: auto    } /* ...use HTML default cursor on inputs, unless it is an: */
+
+input[list="datalist"],input[type="button"],input[type="checkbox"],input[type="radio"],
+input[type="color"],input[type="range"],input[type="reset"],input[type="file"],input[type="submit"],
+label:not([for=""]),
+a,button,select,keygen   { cursor: pointer } 
+[contenteditable="true"] { cursor: text    }
+
+/* Darker/more contrast text (put in <body>)
+   => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+/* prohibit user from selecting text (put in <body>) */
+.noselect,[select="0"],[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+.select  ,[select="1"],[select]   { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
+
+[push*="R"] { margin-left  : auto } /* push elements Right/Left/Top/Bottom */
+[push*="L"] { margin-right : auto }
+[push*="T"] { margin-top   : auto }
+[push*="B"] { margin-bottom: auto }
+
+[hide], [data-hide="1"] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+</style>
+
+<style id="ers-layout-default">
+/********************************************/
+/* easy RESPONSIVE|LAYOUT|NESS (STABLE WIP) */
+/********************************************/
+/*****************/
+/* generic bands */
+/*****************/
+[data-band],
+[data-block]            { display: flex; width: 100%; position: relative;
+                          justify-content: center; align-content: center }
+[data-band] ,
+[data-band*="cols"]     { flex-flow: row wrap }     /* a row of columns */
+[data-band*="rows"]     { flex-flow: column wrap }  /* a column of rows */
+
+[data-band*="outer"]    { padding: 0 }
+[data-band*="inner"]    { padding: calc(2.5vh + 24px) calc(20vw - 64px) }
+/* 
+    (320,32)(1920, 72) => 0.025x + 24
+    (320, 0)(1920,320) => 0.2x - 64
+*/
+
+[data-band*="main"]     { height: 100%; flex-wrap: nowrap }
+
+[data-band]>div         { flex-flow: row wrap }     /* direct descendants of [data-band] only */
+[data-band]>item        { flex-flow: column wrap }
+[data-band]>*           { width: 100% }
+
+/******************/
+/* generic blocks */
+/******************/
+[data-block]>*          { display: flex }
+[data-block],
+[data-block]>*          { flex-wrap: wrap }
+
+[data-block],
+[data-block*="rows"]    { flex-flow: column wrap }
+[data-block*="cols"]    { flex-flow: row wrap }
+
+/*****************/
+/* generic cards */
+/*****************/
+[card],[card]>* { display: flex }
+
+/* (320,240)(1280,480) => 0.25x + 160 */
+[card]          { flex-basis: calc(0.9375vw + 297px); width: 100%; justify-content: space-between; }
+[card*="outer"] { padding: .5rem; background-color: transparent }
+[card*="inner"] { flex-direction: column; }
+
+[card] header,
+[card] footer   { width: 100% }
+
+[card] item     { flex-flow: column wrap; flex-grow: 1 }
+[card] footer   { text-align: right }
+
+/*******************/
+/* generic flexbox */
+/*******************/
+[start]         { justify-content: flex-start; text-align: left   } /* 'text-align' for non-flexbox tags */
+[centered]      { justify-content: center    ; text-align: center }
+[end]           { justify-content: flex-end  ; text-align: right  }
+</style>
+
+<style id="ers-theming-gmc-REPLY">
+/**************************************/
+/* Google Material Components theming */
+/**************************************/
+body { background-color: #edf0f2; line-height: 1.5 }
+
+[data-band*="code"] pre { padding-top: 1rem; padding-bottom: 1rem }
+
+[card*="inner"] {
+    /* GMC Web default card elevation */
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12); /* elevation 1dp */
+
+    background-color: white; border-radius: 3px;
+}
+[card*="inner"]:hover {
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 5px  8px  0px rgba(0,0,0,.14),
+                0px 1px 14px  0px rgba(0,0,0,.12); /* elevation 5dp */
+}
+</style>
+
+<style id="ers-colors-default">
+/*******************************************/
+/* easy RESPONSIVE|COLOR|NESS (STABLE WIP) */
+/*******************************************/
+.black      { background-color: black  ; color: white }
+.grey       { background-color: #7f7f7f; color: white } /* (NOT 'gray' #808080) */
+.white      { background-color: white  ; color: black }
+
+.red        { background-color: #ff0000; color: white } /* Primary colors */
+.lime       { background-color: #00ff00; color: black }
+.blue       { background-color: #0000ff; color: white }
+.cyan       { background-color: #00ffff; color: black } /* Secondary colors / complementary */
+.magenta    { background-color: #ff00ff; color: white } /* also: hue rotated 180deg */
+.yellow     { background-color: #ffff00; color: black }
+
+.red30      { background-color: #ff8000; color: black } /* hue rotated +30deg */
+.lime30     { background-color: #00ff80; color: black }
+.blue30     { background-color: #8000ff; color: white }
+
+.red30cmp   { background-color: #007fff; color: black } /* hue rotated +30deg complmentary */
+.lime30cmp  { background-color: #ff007f; color: black }
+.blue30cmp  { background-color: #7fff00; color: white }
+
+
+[fg="black"    ] { color: black   } [bg="black"    ] { background-color: black   }
+[fg="grey"     ] { color: #7f7f7f } [bg="grey"     ] { background-color: #7f7f7f }
+[fg="white"    ] { color: white   } [bg="white"    ] { background-color: white   }
+[fg="red"      ] { color: #ff0000 } [bg="red"      ] { background-color: #ff0000 }
+[fg="lime"     ] { color: #00ff00 } [bg="lime"     ] { background-color: #00ff00 }
+[fg="blue"     ] { color: #0000ff } [bg="blue"     ] { background-color: #0000ff }
+[fg="cyan"     ] { color: #00ffff } [bg="cyan"     ] { background-color: #00ffff }
+[fg="magenta"  ] { color: #ff00ff } [bg="magenta"  ] { background-color: #ff00ff }
+[fg="yellow"   ] { color: #ffff00 } [bg="yellow"   ] { background-color: #ffff00 }
+[fg="red30"    ] { color: #ff8000 } [bg="red30"    ] { background-color: #ff8000 }
+[fg="lime30"   ] { color: #00ff80 } [bg="lime30"   ] { background-color: #00ff80 }
+[fg="blue30"   ] { color: #8000ff } [bg="blue30"   ] { background-color: #8000ff }
+[fg="red30cmp" ] { color: #007fff } [bg="red30cmp" ] { background-color: #007fff }
+[fg="lime30cmp"] { color: #ff007f } [bg="lime30cmp"] { background-color: #ff007f }
+[fg="blue30cmp"] { color: #7fff00 } [bg="blue30cmp"] { background-color: #7fff00 }
+</style>
+
+<style id="ers-theming-base-colors">
+/*******************************************/
+/* easy RESPONSIVE|THEME|NESS (STABLE WIP) */
+/*******************************************/
+/* BASE colors */
+[data-clr^="b."]    { color: black }
+[data-clr^="w."]    { color: white }
+[data-clr$=".b"]    { background-color: black }
+[data-clr$=".w"]    { background-color: white }
+
+[data-clr^="c."]    { color: currentColor }
+[data-clr^="t."]    { color: transparent  }
+[data-clr$=".c"]    { background-color: currentColor }
+[data-clr$=".t"]    { background-color: transparent  }
+
+[data-clr^="0."]    { color: rgba(35,47,52,.9) } /* #232f34 800 */
+[data-clr^="F."]    { color: rgba(255,255,255,.9) }
+[data-clr$=".0"]    { background-color: rgba(35,47,52,.9) }
+[data-clr$=".F"]    { background-color: rgba(255,255,255,1) }
+
+/* BASE foreground colors */
+[data-clr^="1."]    { color: rgba(134,191,227,.87) }
+[data-clr^="2."]    { color: rgba(213, 72, 87,.87) }
+
+[data-clr^="3."]    { color: rgba(166, 52, 70,.87) }
+[data-clr^="4."]    { color: rgba(138,113,106,.87) }
+[data-clr^="5."]    { color: rgba(194,184,178,.87) }
+
+[data-clr^="cold."] { color: rgba(113,180,223,.9) }
+[data-clr^="hot."]  { color: rgba(223,156,113,.9) }
+
+/* BASE background colors */
+[data-clr$=".0D"]   { background-color: rgba(35, 47, 52,.9) } /* #1f1f24 dark   #232f34 800 */
+[data-clr$=".0M"]   { background-color: rgba(52, 73 ,85,.9) } /* #24242a medium #344955 700 */
+[data-clr$=".0L"]   { background-color: rgba(74,101,114,.9) } /* #2e2e35 light  #4a6572 600 */
+
+[data-clr$=".P"]    { background-color: rgba( 52, 73,85,.9) } /* #344955 700 primary   Reply Blue   */
+[data-clr$=".S"]    { background-color: rgba(249,170,51,.9) } /* #f9aa33 500 secondary Reply Orange */
+
+[data-clr$=".1"]    { background-color: rgba(134,191,227,.9) } /**/
+[data-clr$=".2"]    { background-color: rgba(213, 72, 87,.9) }
+
+[data-clr$=".3"]    { background-color: rgba(166, 52, 70,.9) }
+[data-clr$=".4"]    { background-color: rgba(138,113,106,.9) }
+[data-clr$=".5"]    { background-color: rgba(194,184,178,.9) }
+
+[data-clr$=".cold"] { background-color: rgba(113,180,223,.9) }
+[data-clr$=".hot"]  { background-color: rgba(223,156,113,.9) }
+</style>
+
+<style id="ers-landing-page">
+/************************/
+/* page specific styles */
+/************************/
+/*************************************/
+#main                   { margin-bottom: 6rem }
+
+#math-examples header   { padding-top: 1rem }
+#math-examples code     { color: rgba(166, 52, 70,1); background-color: white; padding: .25em .5em }
+
+[card]>header,
+[card]>footer           { padding: .25rem .5rem }
+[card]>item             { padding: 0 1.5rem }
+</style>
+
+
+<style id="comment-01">
+/*
+    EQUATION
+    --------
+    y = mx + b  "Definition of a straight line"
+
+    WHERE
+    -----
+    y = the result we need    - Rise        => how far up the line
+    m = (y2 - y1) / (x2 - x1) - Slope       => steepness of the line (change in Y / change in X) or (Rise / Run)
+    x = 1                     - Run         => how far along the line (always 1 expressed in vh,vw,vmin or vmax making it variable)
+    b = y1 - (m * x1)         - Y-Intercept => where the line crosses the Y-axis
+
+
+    using y = mx + b for P1(320,16) and P2(1280,22) (alternatively P2(1920,22))
+
+
+                     (y2 - y1)   100         (y2 - y1)   100/100         (y2 - y1)
+    for 1280:  mx = ---------- * --- * x =>  --------- * ------- * x =>  --------- * x
+                    1280 - 320    1           960/100       1               9.6
+
+
+                          (y2 - y1)    320      (y2 - y1)   320/320                   (y2 - y1)
+                b = y1 - ---------- *  ---  =>  --------- * -------  simplified: y1 - ---------
+                         1280 - 320     1        960/320       1                          3
+
+
+                y = ((y2 - y1) / 9.6) * x + (y1 - (y2 - y1) / 3)
+
+
+
+    for P1(320,16) and P2(1280,22):  y = (22 - 16) / 9.6 + (16 - (22 - 16) / 3) => ( 6/9.6)x + 16 -  2 =>  0.625 + 14
+    for P1(320,22) and P2(1280,16):  y = (16 - 22) / 9.6 + (22 - (16 - 22) / 3) => (-6/9.6)x + 22 - -2 => -0.625 + 24
+
+
+
+                     (y2 - y1)   100      (y2 - y1)   100/100              (y2 - y1)
+    for 1920:  mx = ---------- * ---  =>  --------- * -------  simplified: ---------
+                    1920 - 320    1        1600/100      1                    16
+
+
+                          (y2 - y1)    320      (y2 - y1)   320/320                   (y2 - y1)
+                b = y1 - ---------- *  ---  =>  --------- * -------  simplified: y1 - ---------
+                         1920 - 320     1       1600/320       1                          5
+
+                y = ((y2 - y1) / 16) * x + (y1 - (y2 - y1) / 5)
+
+
+    for P1(320,16) and P2(1280,22):  y = (22 - 16) / 16 + (16 - (22 - 16) / 5) => (6/16)x + 16 - 1.2 => 0.375x + 14.8
+
+
+    x-scale: minimum viewport size
+    y-scale: fontsize
+
+    In the case of our <html> tag:
+
+    1) At minimum viewport size of  320px we want our font to be 16px tall
+    2) At minimum viewport size of 1280px we want our font to be 22px tall
+    3) We want the fontsize to be to scale at all other minimum viewport sizes
+
+    Variable fontsize 
+    -----------------
+    m = (22 - 16) / (1280 - 320) = 6/960 = 1/160 = 0.00625
+    x = 100vmin                  = fixed value
+    b = 16 - (m * 320)           = 16 - 0.00625 * 320 = 16 - 2 = 14
+
+    y = 0.00625x + 14            = calc(0.00625 * 100vmin + 14px)
+    simplify                     = calc(0.625vmin + 14px)
+    divide 14 by 16 to get REM   = 0.875rem
+
+    resulting CSS code: calc(0.625vmin + 0.875rem)
+
+    Why VMIN: - VMAX yields larger and incorrect results
+              - VH/VW will make the fontsize viewport Height/Width depended, which is incorrect logic
+                (use only when you specifically need it to be)
+
+    Why REM: Users can modify the default font size (ROOT, usually 16px) of their browsers.
+             Using PX on :root/HTML disregards, and therefore overrides, that setting,
+             while REM does not, subsequently scaling the resulting font size to the user's requirement.
+             Think of the vision impaired when setting font sizes.
+
+             => Until W3C comes up with a spec to obtain the correct ROOT font size,
+                always divide PX by 16 to get REM. This will do just fine in most cases.
+
+    FINALLY
+    -------
+    Equation "y=mx+b" can be used for any CSS size value which supports CSS calc().
+    Think of variable padding/margin, (min/max)height/width, etc.
+
+    Some examples (using PX instead of REM => W/H depended not ROOT depended)
+
+    1) Some Card padding:
+       16px at  320vp
+       40px at 1280vp => padding: calc(2.5vmin + 8px);
+
+    2) A nice smartphone/desktop Landing page
+
+      T/B padding (height depended, use VH):
+      32px at 320vp
+      72px at 1920vp => padding: 0 calc(2.5vh + 24px);
+    
+      L/R padding (width depended, use VW):
+        0px at 320vp
+      320px at 1920vp => padding: 0 calc(20vw - 64px);
+
+    In many cases you will no longer need Media Queries to check for Device Size breakpoints,
+    and only have to be concerned about device orientation: landscape or portrait.
+
+    BE AWARE OF THIS
+    ----------------
+    Multiplications and divsions by 16 and 160 (or a mult/div thereof) are your friend.
+    
+    Do the following arithmetic series ring a bell?
+    
+    16,32,64,128,256 or 160,320,640,1280,2560   => think PX
+     8,24,48, 96,192 or  80,240,480, 960,1920
+     4, 8,12, 16, 20 or  40, 80,120, 160, 200
+     
+    1,1.5,2,2.5,3,3.5,4 or 10,15,20,25,30,35,40 => think REM
+
+    All PC/tablet/smartphone calculations are hexadecimal (base 16) related. So, in all your
+    calculations always look for the exact or the nearest lower mult/div of 16 or 160.
+    Manufacturers follow this rule (yes, Apple too), it is a hardware thing.
+    Use it to your advantage.
+
+    EXTRAS
+    ------
+    Tool: ERS FontSizer 3.1b created with GeoGebra by me (René van der Lende)
+          https://www.geogebra.org/m/kdbjqyzs
+
+          Simply: drag the blue P1 triangle to set (x1,y1)
+                  drag the blue P2 triangle to set (x2,y2)
+
+                  to get the required equation for CSS: calc(m * 100vmin/vmax/vh/vw + b)
+                  multiply m with 100 to simplify CSS to calc(mvmin/vmax/vh/vw + b)
+                  
+                  example: calc(0.00625 * 100vmin + 14px) becomes calc(0.625vmin + 14px)
+                  (REMARK: the math above already incorporates this simplification!!!)
+
+          Use: keyboard keys and sliders to finetune the values for P1 and P2. 
+
+    GeoGebra: free open-source desktop/smartphone/online mathematical apps (2D/3D math)
+              free account, packed with mathematical goodies from the user base.
+              Well worth your time to investigate!
+
+    Math reference: http://www.mathsisfun.com/equation_of_line.html
+                    http://www.mathsisfun.com/algebra/line-equation-2points.html
+                    http://www.mathsisfun.com/geometry/slope.html
+*/
+</style>
+
+<style id="ers-linear-functions-default">
+:root {
+    
+    /*
+    */
+
+    /*
+        NOTE: All values in this block hold pixel values (px), but without the px unit attached.
+              [bdiv] and [mdiv] are common decimal values (unit independend).
+    */
+
+    /* 
+        Initialize 'internal' custom properties. These properties will hold
+        the current value of 100vmin/vmax/vw/vh respectively and are being
+        kept up to date with the use of Javascript (Here for demo only as they will 
+        be created by JS).
+    */
+    --js-vmin: 0; --js-vmax: 0; --js-vw: 0; --js-vh: 0;
+
+    /*
+        Some Initial value of 2 points on a straight line: p1(x1,y1) and p2(x2,y2)
+
+        NOTE: Setting these to 0 will work just as well, but giving them a meaningfull
+              initial value makes more sense as it saves writing CSS code later.
+    */
+    --x1:  320; --y1: 14;   /* point p1 => 14px at  320px (100vmin = 320px)  */
+    --x2: 1280; --y2: 20;   /* point p2 => 20px at 1280px (100vmin = 1280px) */
+
+    /* Initially assumes that [--x] is minimum viewport size dependend */
+    --x : var(--js-vmin); /* defaults to current minimum viewport size JS value */
+
+    /* Initial value. Could be 0 too, but now you have a value you can already use */
+    --y: calc(0.625vmin + 0.75rem); /* p1(320,14) p2(1280,20) where b=12/16 to get REM */
+
+    /* Multiplication/Division factor PX to REM */
+    --factorP2R: 16;
+}
+/* (1) Shortest formula, main formula for use as all-purpose y=mx+b. When in doubt, use this one */
+[data-math],
+[data-math="p-slope"] { /* Point-Slope: y = y1 + m(x-x1) => default as it is the shortest (saves CPU time) */
+    --y: calc((var(--y1) + (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * (var(--x) - var(--x1))) / var(--factorP2R)) }
+
+/*
+    All you need to do now is assign the value of --y to element:
+
+    - font-size
+    - width and/or height
+    - padding and/or margin (or -top, -right, -bottom, -left versions)
+    - box-shadow, text-shadow (TODO test browser calc() support)
+    - border (TODO test browser calc() support)
+    - etc.
+
+    with a usage selector.
+*/
+</style>
+
+
+<style id="ers-linear-function-optionals-1">
+/**************************************************************/
+/* [OPTIONAL][EXTRA] Alternative formulas to calculate y=mx+b */
+/**************************************************************/
+
+
+/* (2a) Split into main variables, --x will always be one of 100vmin/vmax/vh/vw, default 100vmin */
+[data-math="i-slope"] { /* Intercept-Slope of y=mx+b */
+    --m: calc((var(--y2) - var(--y1)) / (var(--x2) - var(--x1)));
+    --b: calc(var(--y1) - var(--m) * var(--x1));
+    --y: calc((var(--m) * var(--x) + var(--b)) / var(--factorP2R));
+}
+/* (2b) Fully substituted version. Don't use it, only for learning purposes */
+[data-math="y=mx+b"] { /* fully substituted formula: y = mx + b */
+    --y: calc(((var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * var(--x) +
+               (var(--y1) - (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * var(--x1))) / var(--factorP2R));
+}
+
+:root {
+    /* Shortcut variables for simplyfied use of 'y=mx+b' formula */
+    --bdiv: 3;   /* = 1280/320 - 1 or (x2/x1 - 1)            => (var(--x2) / var(--x1) - 1) */
+    --mdiv: 9.6; /* = --bdiv * 3.2 or (x2/x1 - 1) * (x1/100) => (var(--x2) / var(--x1) - 1) * var(--x1) / 100 */
+}
+
+/*
+    Main/Default simplified 'y=mx+b' formula, always uses --x = 1.
+    Assumes [--x] = --js-vmin/vmax/vw/vh (CSS 100vmin/vmax/vw/vh), so we need to divide --x by 100.
+    Uses either :root predefined [bdiv] and [mdiv] or elsewhere overridden [bdiv] and [mdiv] values
+*/
+/* (3)  */
+[data-math="simplified"] {
+    --y: calc((((var(--y2) - var(--y1)) / var(--mdiv)) * (var(--x)/100) + (var(--y1) - (var(--y2) - var(--y1)) / var(--bdiv))) / var(--factorP2R));
+}
+/*
+    Generic version, calculates [bdiv] and [mdiv] on-the-fly,
+    same as above but uses 2 extra CSS calc()s, hense more CPU intensive.
+    
+    NOTE: swap rules (1) and (2) if you think you can afford a little extra CPU overhead,
+          this way [bdiv] and [mdiv] always get recalculated. 
+*/
+/* (4) More generic RULE */
+[data-math="generic"] {
+    --bdiv: calc(var(--x2) / var(--x1) - 1);
+    --mdiv: calc(var(--bdiv) * var(--x1) / 100);
+    --y   : calc((((var(--y2) - var(--y1)) / var(--mdiv)) * (var(--x)/100) + (var(--y1) - (var(--y2) - var(--y1)) / var(--bdiv))) / var(--factorP2R));
+}
+/* (5) Specific RULES */
+/* When p1 and p2 are fixed (320, y1) and (1280, y2) this is the formula to use */
+[data-math="1280"] { --y: calc((((var(--y2) - var(--y1)) / 9.6) * (var(--x)/100) + (var(--y1) - (var(--y2) - var(--y1)) / 3)) / var(--factorP2R)) }
+
+/* Alternative uses with fixed values: x1 = 320 and x2 = 1600 and 1920 respectively */
+/* in the examples this value will grow a little less fast than the "1280" rule */
+[data-math="1600"] { --y: calc((((var(--y2) - var(--y1)) / 12.8) * (var(--x)/100) + (var(--y1) - (var(--y2) - var(--y1)) / 4)) / var(--factorP2R)) }
+
+/* in the examples this value will grow a little less fast than the "1600" */
+[data-math="1920"] { --y: calc((((var(--y2) - var(--y1)) / 16  ) * (var(--x)/100) + (var(--y1) - (var(--y2) - var(--y1)) / 5)) / var(--factorP2R)) }
+</style>
+
+<style id="ers-linear-function-optionals">
+/*************************************************************/
+/* [OPTIONAL][EXTRA] Reference to internal JS viewport sizes */
+/*************************************************************/
+/*
+    NOTE: Here for demo purposes only as in the below cases it makes
+          more sense to use the regular CSS vmin/vmax/vw/vh values.
+
+          However, the values are here, so why not show how to use them...
+
+    - They are a workaround for VMIN/VW/VH/VMAX not being updated when using custom props
+    - And enable to choose which VP size --x depends on
+
+    Use VMIN/VMAX for responsive font sizes     => width or height INDEPENDED value
+    Use VH/VW for spacing, element sizes, etc.  => width or height DEPENDED value
+*/
+
+/* Definition */
+:root {
+    --vmin: var(--js-vmin); /* modified by JS */
+    --vmax: var(--js-vmax);
+    --vh  : var(--js-vh);
+    --vw  : var(--js-vw);
+    
+    --ratioHigh: 1;         /* Initial values */
+    --ratioLow : 1;
+}
+/* Example classes: set [--size] to required vp (in)dependency,
+                    always 100(vmin/vmax/vh/vw) expressed in px (without px unit) */
+.vmin  { --size: var(--js-vmin) }
+.vmax  { --size: var(--js-vmax) }
+.vh    { --size: var(--js-vh)   }
+.vw    { --size: var(--js-vw)   }
+
+
+/* Some example definitions */
+[myCard*="eight."] { --size: calc(var(--js-vmin) * 0.125) } /* eight of vp minimum size */
+[myCard*="quart."] { --size: calc(var(--js-vmin) * 0.250) } /* quarter */
+[myCard*="half." ] { --size: calc(var(--js-vmin) * 0.500) } /* half */
+[myCard*="three."] { --size: calc(var(--js-vmin) * 0.750) } /* three-quarters */
+
+/* final use */
+[myCard], /* default for all 'myCard's */
+[myCard*=".portrait"] {
+    width : calc(var(--size) * 1rem);
+    height: calc(var(--size) * var(--ratioHigh) * 1rem)
+}
+[myCard*=".landscape"] {
+    width : calc(var(--size) * var(--ratioHigh) * 1rem);
+    height: calc(var(--size) * 1rem)
+}
+</style>
+
+<style id="ers-linear-functions-demo-usage-IE11">
+/*
+    IE11 has no 'CSS custom properties' support, so all the formula fun does not work.
+    We need to 'translate' the result (--y) and formula usage into something does support...
+*/
+[data-math][data-typo] { --x: var(--js-vmin); font-size: calc(var(--y) * 1rem) }
+/* Values are uncertain as the above won't work, falling back to previously defined 'font-size' */
+
+/*
+    To make things work for IE11 (and other browser that don't support 'Custom Properties')
+    we need to manually calculate formula y=mx+b by substituting values for p1(x1,y1) and p2(x2,y2) and (x) into
+    y = (y2 - y1) / (x2 - x1) * x + (y1 - (y2 - y1) / (x2 - x1) * x1),
+    and finish with b/16 to get REM.
+    
+    Bummer, however, this approach will eventually be least CPU intensive (next to hardcoded px sizes)
+*/
+[data-typo],
+[data-typo="default"] { font-size: calc(0.625vmin + 0.75rem)  } /* 14>20, All [data-typo] and [data-typo] designated 'default', unless... */
+[data-typo="header" ] { font-size: calc(1.25vmin  + 1.25rem)  } /* 24>35, [data-typo] is designated 'header'  */
+[data-typo="subhead"] { font-size: calc(1.25vmin  + 0.875rem) } /* 18>30, [data-typo] is designated 'subhead' */
+</style>
+
+<style id="ers-linear-functions-demo-usage-CUSTOM-PROPERTIES">
+/*********************************/
+/* Use of the formula with fonts */
+/*********************************/
+/* Generic selector: all typography selectors [data-typo] use the default math-formula [data-math] */
+[data-math][data-typo] { --x: var(--js-vmin); font-size: calc(var(--y) * 1rem) }
+/* (js-)VMIN because VMAX will yield values that are too large (incorrect) and
+   VW/VH depend on how the browser window is being sized by the user */
+
+/* Specific: some typography selectors use different predefined y1 and y2 values */
+[data-typo],
+[data-typo="default"] { --y1: 14; --y2: 20 } /* All [data-typo] and [data-typo] designated 'default', unless... */
+[data-typo="header" ] { --y1: 24; --y2: 36 } /* [data-typo] is designated 'header'  */
+[data-typo="subhead"] { --y1: 18; --y2: 30 } /* [data-typo] is designated 'subhead' */
+
+/*
+    Using y=mx+b for responsive element width/height at a given ratio
+    pt = portrait , viewport width  depended
+    ls = landscape, viewport height depended
+*/
+[data-ratio]        { --ratioHigh: 1      ; --ratioLow: 1       } /* All [data-ratio] are square, unless... */
+[data-ratio*=".16"] { --ratioHigh: 1.77778; --ratioLow: 0.5625  } /* high: 16/9, low 9/16 */
+[data-ratio*=".17"] { --ratioHigh: 1.7    ; --ratioLow: 0.58824 } /* 17:10 */
+[data-ratio*=".gr"] { --ratioHigh: 1.618  ; --ratioLow: 0.618   } /* Golden Ratio */
+
+/* Using REM by default for variable sizes when the user zooms in or out */
+[data-math][data-ratio^="pt."]  { width : calc(var(--y) * 1rem); height: calc(var(--y) * var(--ratioHigh) * 1rem) }
+[data-math][data-ratio^="ls."]  { height: calc(var(--y) * 1rem); width : calc(var(--y) * var(--ratioHigh) * 1rem) }
+
+/* Override REM with PX to maintain fixed sizes when the user zooms in or out */
+[data-math*=".px"][data-ratio^="pt."] { width : calc(var(--y) * var(--factorP2R) * 1px);
+                                        height: calc(var(--y) * var(--ratioHigh) * var(--factorP2R) * 1px) }
+
+[data-math*=".px"][data-ratio^="ls."] { height: calc(var(--y) * var(--factorP2R) * 1px);
+                                        width : calc(var(--y) * var(--ratioHigh) * var(--factorP2R) * 1px) }
+
+[data-ratio*=".box"]    { padding: calc(1.5625vmin); margin: calc(1.5625vmin * .5) } /* 5>20 and half 5>20 */
+[data-ratio*=".box1"]   { --x: var(--js-vw); --y1: 32; --y2:  96 }
+[data-ratio*=".box2"]   { --x: var(--js-vh); --y1: 64; --y2: 192 }
+</style>
+
+<style id="ers-debug-default">
+/* show all elements with outlines (put in <body>) */
+[data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
+[data-debug="1"] *                  { outline: 1px dashed purple }
+
+[data-debug] #debug,
+[data-debug] #debug *               { outline: none }
+#debug                              { position: fixed; z-index: 999; bottom: 0; right: 0; width: auto; padding: .5rem }
+
+</style>
+</head>
+
+
+<body dir="ltr" data-debug="0" data-clr="0.">
+<div id="main" data-band="outer.rows.main">
+
+    <section data-band="outer" id="math-ratio">
+        <item data-band="inner">
+
+            <header data-typo="headline6">portrait boxes</header>
+            <div data-block>
+            <div data-math=".px" data-ratio="pt.gr.box1" class="black">1w</div>
+            <div data-math=".px" data-ratio="pt.gr.box2" class="blue" >2h</div>
+            </div>
+            <header data-typo="headline6">landscape boxes, viewport <q>height</q> dependend</header>
+            <div data-block>
+            <div data-math data-ratio="ls.gr.box1" class="blue" >1w</div>
+            <div data-math data-ratio="ls.gr.box2" class="black">2h</div>
+            </div>
+        </item>
+    </section>
+
+    <section data-band="outer" id="math-examples">
+        <item data-band="inner">
+
+            <header data-typo="headline6">tag with default assigned font-size</header>
+            <div><code>&lt;code&gt;</code> resizes from (320,5)&gt;(1280,20) with hardcoded <q>font-size: calc(1.5625vmin)</q></div>
+
+            <header data-typo="headline6">specific typography selector using default formula</header>
+            <div><code data-math data-typo="default">&lt;code data-typo="default" data-math&gt;</code></div>
+            <div><code data-math data-typo="subhead">&lt;code data-typo="subhead" data-math&gt;</code></div>
+            <div><code data-math data-typo="header" >&lt;code data-typo="header" data-math&gt; </code></div>
+
+            <header data-typo="headline6">equal typography selector using alternative formula selectors</header>
+            <div><code data-math="p-slope" data-typo="default">&lt;code data-typo="default" data-math="p-slope"&gt;</code></div>
+            <div><code data-math="i-slope" data-typo="default">&lt;code data-typo="default" data-math="i-slope"&gt;</code></div>
+            <div><code data-math="y=mx+b"  data-typo="default">&lt;code data-typo="default" data-math="y=mx+b"&gt; </code></div>
+
+            <header data-typo="headline6">equal typography selector using 1280 formula selector</header>
+            <div><code data-math="1280" data-typo="default">&lt;code data-typo="default" data-math="1280"&gt;</code></div>
+            <div><code data-math="1600" data-typo="default">&lt;code data-typo="default" data-math="1600"&gt;</code></div>
+            <div><code data-math="1920" data-typo="default">&lt;code data-typo="default" data-math="1920"&gt;</code></div>
+
+            <header data-typo="headline6">equal typography selector using 1600 formula selector</header>
+            <div><code data-math="1280" data-typo="subhead">&lt;code data-typo="subhead" data-math="1280"&gt;</code></div>
+            <div><code data-math="1600" data-typo="subhead">&lt;code data-typo="subhead" data-math="1600"&gt;</code></div>
+            <div><code data-math="1920" data-typo="subhead">&lt;code data-typo="subhead" data-math="1920"&gt;</code></div>
+
+            <header data-typo="headline6">equal typography selector using 1920 formula selector</header>
+            <div><code data-math="1280" data-typo="header" >&lt;code data-typo="header" data-math="1280"&gt;</code></div>
+            <div><code data-math="1600" data-typo="header" >&lt;code data-typo="header" data-math="1600"&gt;</code></div>
+            <div><code data-math="1920" data-typo="header" >&lt;code data-typo="header" data-math="1920"&gt;</code></div>
+        </item>
+    </section>
+
+    <section data-band="outer">
+        <item data-band="inner">
+            <style>
+                #table1,.tbody  { display: flex; flex-flow: column wrap }
+                .tr             { display: flex; flex-flow: row wrap }
+                
+                .tbody          { padding-bottom: 1.5rem }
+                .tr             { margin-bottom: .5rem; padding: 1rem; background-color: white }
+                
+                #table1 .tr>:nth-child(1)           { min-width:  1.25rem; font-weight: bold }
+                #table1 .tr>:nth-child(2)           { min-width: 12rem }
+                #table1 .tr>:nth-child(3)           { min-width:  9rem; font-weight: bold }
+                #table1 .tr>:nth-child(2)::before   { content: ' = ' }
+            </style>
+
+            <header data-typo="headline5">equation</header>
+
+            <p class="tr"><b>y = mx + b</b>&nbsp;&nbsp;<q><a target="_blank" href="https://www.mathsisfun.com/equation_of_line.html" title="mathisfun.com (new tab)">Equation of a straight line</a></q></p>
+
+            <header data-typo="headline5">where</header>
+            <div id="table1">
+                <div class="tbody">
+                    <div class="tr"><div>y</div><div>result               </div><div><q>Rise</q>       </div><div>how far up the line</div></div>
+                    <div class="tr"><div>m</div><div>(y2 - y1) / (x2 - x1)</div><div><q>Slope</q>      </div><div>steepness of the line (change in Y / change in X) or (Rise / Run)</div></div>
+                    <div class="tr"><div>x</div><div>100vmin              </div><div><q>Run</q>        </div><div>how far along the line (fixed value, using either vmin, vmax, vw or vh)</div></div>
+                    <div class="tr"><div>b</div><div>y1 - (m * x1)        </div><div><q>Y-Intercept</q></div><div>where the line crosses the Y-axis</div></div>
+                    <div class="tr"><div>y</div><div>(y2 - y1) / (x2 - x1) * x + (y1 - (y2 - y1) / (x2 - x1) * x1)</div></div>
+                    <div class="tr"><b>x-scale</b>: viewport size</div>
+                    <div class="tr"><b>y-scale</b>: font size</div>
+                </div>
+            </div>
+        </item>
+    </section>
+
+    <section data-band="outer">
+        <item data-band="inner">
+            <div data-band="code" class="white" dir="ltr">
+    <pre><code>
+    <b>&lt;style id="ers-linear-functions-default"&gt;</b>
+        <b fg=blue>:root</b> {
+            <b fg=red>--y1</b>: 320; <b fg=red>--y2</b>: 1280; <b fg=grey>/* defaults */</b>
+            <b fg=red>--x1</b>:  16; <b fg=red>--x2</b>:   22;
+            <b fg=red>--x </b>: 100;
+        }
+
+        <span fg=grey><b>/* Point-Slope: y = y1 + m(x-x1). Default as it is the shortest (CPU time) */</b></span>
+        <b fg=blue>[data-math=""]</b>,
+        <b fg=blue>[data-math="p-slope"]</b> {
+            <b fg=red>--y</b>: calc( var(--y1) +
+                       <b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b> *
+                       (<b fg=lime30cmp bg=yellow>var(--x)</b> - var(--x1)) );
+        }
+
+        <span fg=grey><b>/* Intercept-Slope: same result, different setup */</b></span>
+        <b fg=blue>[data-math="i-slope"]</b> {
+            <b fg=red>--m</b>: calc(<b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b>);
+            <b fg=red>--b</b>: calc(<b fg=blue30>var(--y1) - var(--m) * var(--x1)</b>);
+            <b fg=red>--y</b>: calc(<b fg=red30cmp>var(--m)</b> * <b fg=lime30cmp bg=yellow>var(--x)</b> + <b fg=blue30>var(--b)</b>); <b fg=grey>/* must be last, determine m,x,b first */</b>
+        }
+
+        <span fg=grey><b>/* Full, long version (compared to p-slope) */</b></span>
+        <b fg=blue>[data-math="y=mx+b"]</b> { /* fully substituted formula: y = mx + b */
+            <b fg=red>--y</b>: calc(
+                   <b fg=red30cmp>(var(--y2) - var(--y1)) / (var(--x2) - var(--x1))</b> * <b fg=lime30cmp bg=yellow>var(--x)</b> +
+                   <b fg=blue30>(var(--y1) - (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * var(--x1))</b> );
+        }
+    <b>&lt;/style&gt;</b>
+
+    <b>&lt;style id="ers-linear-functions-usage"&gt;</b>
+        <span fg=grey><b>/*
+            Sample use of the formula with fonts
+            The selector does not care which formula is used, as long as <b fg=red>--y</b> has a value
+            As the result is numeric we need to convert it to pixels, hence: <b fg=black>--y * 1px</b>
+        */</b></span>
+        <b fg=blue>[data-math][data-typo]</b>, <b fg=blue>[data-math="y=mx+b"][data-typo]</b>,
+        <b fg=blue>[data-math="i-slope"][data-typo]</b>, <b fg=blue>[data-math="p-slope"][data-typo]</b>
+        { font-size: calc(var(<b fg=red>--y</b>) * 1px) }
+    
+        <b fg=blue>[data-typo="header" ]</b> { --y1: <b>24</b>; --y2: <b>36</b> }
+        <b fg=blue>[data-typo="subhead"]</b> { --y1: <b>18</b>; --y2: <b>30</b> }
+        <b fg=blue>[data-typo="default"]</b> { --y1: <b>14</b>; --y2: <b>20</b> }
+    <b>&lt;/style&gt;</b></code></pre>
+            </div>
+        </item>
+    </section>
+
+    <section id="debug" data-band="outer" dir="ltr">
+        <button onclick="toggleStateB('data-debug')" push="R">outlines</button>
+        <button onclick="toggleDocDir()">direction</button>
+    </section>
+</div>
+
+
+<noscript>
+<style>
+#debug { /* The same as [hide], uses JS so hide buttons from user */
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+</style>
+</noscript>
+
+<script id="ers-oneliners">
+'use-strict';
+
+/* Shortcuts to both the html and body element */
+var root = document.documentElement;
+var body = document.body;
+
+// Traverse an array and execute the passed callback function for each array element found
+var forEachEntryIn = function (array, callback, scope) {
+for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
+
+/*****************************/
+/* Oneliner toggle functions */
+/*****************************/
+
+// No error checking whatsoever, so the elements better exist...
+
+//Get reference to HTML element by its ID
+function elem(e) { return document.getElementById(e); }; 
+
+function toggleStateB(d) { if (body.getAttribute(d)=='1') body.setAttribute(d,'0'); else body.setAttribute(d,'1'); }
+function toggleStateR(d) { if (root.getAttribute(d)=='1') root.setAttribute(d,'0'); else root.setAttribute(d,'1'); }
+
+// Toggle the use of a specific style element
+function toggleStyle(id) { var el = elem(id); el.disabled = !el.disabled }
+
+// Toggle/Disable/Enable an array of style elements (by ID)
+function stylesToggle(array) { forEachEntryIn( array, function (i,e,s) { toggleStyle(e); }); }
+function stylesOff(array)    { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = true;  }); }
+function stylesOn(array)     { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = false; }); }
+
+// Toggles the document direction from LTR to RTL and v.v.
+function toggleDocDir() { if  (body.getAttribute('dir')=='rtl') body.setAttribute('dir','ltr');
+                          else body.setAttribute('dir','rtl'); }
+
+/*****************/
+/* Webpage setup */
+/*****************/
+function intialize() { /* nothing to do yet */ };
+
+/******************************************************/
+window.addEventListener("DOMContentLoaded",intialize);  // General initialization
+window.addEventListener("DOMContentLoaded",setVPSizes); // first run
+window.addEventListener('resize', setVPSizes);          // on resize of browser window
+/******************************************************/
+
+    // For use of relative viewport sizes in JS 
+function vh(v)   { return (v * Math.max(root.clientHeight, window.innerHeight || 0)) / 100; };
+function vw(v)   { return (v * Math.max(root.clientWidth , window.innerWidth  || 0)) / 100; };
+function vmin(v) { return Math.min(vh(v), vw(v)); };
+function vmax(v) { return Math.max(vh(v), vw(v)); };
+
+function setVPSizes() {
+    // Set custom CSS properties of viewport sizes for use with CSS var(). Workaround.
+    root.style.setProperty('--js-vmin', vmin(100));
+    root.style.setProperty('--js-vmax', vmax(100));
+    root.style.setProperty('--js-vw'  ,   vw(100));
+    root.style.setProperty('--js-vh'  ,   vh(100));
+}
+</script>
+
+</body>
+</html>

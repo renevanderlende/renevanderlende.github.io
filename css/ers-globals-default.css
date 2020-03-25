@@ -1,0 +1,80 @@
+/**************************/
+/* Preferred global rules */
+/**************************/
+html,body             { box-sizing: border-box } /* size calculations up to and including border */
+*::before,*::after, * { box-sizing: inherit    } /* use parent's calculation preference */
+
+html,body           { width: 100%; max-width: 100%; margin: 0 } /* personal prefs */
+body                { min-height: 100% }
+
+/* all <a> selectors the same color */
+a                   { color: currentColor; font-style: italic }
+
+/* set default spacing, add div acting as p */
+p, div[p]           { margin-top: 1rem }
+
+/* remove whitespace below and stretch to fill-parent */
+img                 { display: block; width: 100%; height: auto }
+
+/* remove vendor specific outlines */
+::-moz-focus-inner  { padding: 0; border: 0 } /* Firefox */
+:focus              { outline: -webkit-focus-ring-color auto 0; outline-width: 0 } /* Edge 2020 */
+
+/* set default outline style */
+:focus              { outline: dotted rgba(60,69,78,.5) 2px }
+
+/*****************************/
+/* Global cursor preferences */
+/*****************************/
+body  { cursor: default } /* plain arrow cursor for everything, */
+input { cursor: auto    } /* however, use HTML default cursor on inputs, except on: */
+
+input[list="datalist"],
+input[type="button"  ],
+input[type="checkbox"],
+input[type="radio"   ],
+input[type="color"   ],
+input[type="range"   ],
+input[type="reset"   ],
+input[type="file"    ],
+input[type="submit"  ],
+label:not([for=""]),
+a,button,select,keygen   { cursor: pointer } 
+[contenteditable="true"] { cursor: text    }
+
+/******************************/
+/* Global utility preferences */
+/******************************/
+/* Darker/more contrast/bolder text (use per element or put this in <body>)
+   => GPU intensive, set default to "0" if document scroll becomes sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+/* prohibit user from selecting text, esp. for click-happy-users (use per element or put this in <body>) */
+.noselect,[select="0"],[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+.select  ,[select="1"],[select]   { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
+
+/* element positioning (concurrent options possible), read: push to the ... */
+[push*="T"] { margin-bottom: auto } /* TOP    */
+[push*="R"] { margin-left  : auto } /* RIGHT  */
+[push*="B"] { margin-top   : auto } /* BOTTOM */
+[push*="L"] { margin-right : auto } /* LEFT   */
+
+/* element alignment for non FBL (one option only) */
+[just="C"] { text-align: center  }
+[just="J"] { text-align: justify }
+[just="L"] { text-align: left    }
+[just="R"] { text-align: right   }
+
+[hide] { /* completely, utterly vanished (screen readers) */
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+[data-hide="0"] { display: flex } /* Assuming FBL, personal pref. Change this to some pref. */
+[data-hide="1"] { display: none } /* still there (screen readers), but occupies no space */
+/* Using 'data-' for easy JS toggling */
+

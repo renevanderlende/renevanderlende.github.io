@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>SO60723244</title>
+<style>
+a { /* eye-candy only */
+  color: currentColor;
+  text-decoration: none
+}
+
+.picture {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  margin: auto;
+  width: 375px;
+  height: 375px;
+}
+
+.content {
+  /*  display: none;  remove */
+  opacity: 0; /* add */
+  transition: all 150ms ease-in-out; /* add */
+  position: fixed;
+  left: -800px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  margin: auto;
+  width: 0; /* [OPTIONAL] modify from 300px */
+  height: 0; /* ditto */
+  background-color: #7377a8;
+}
+
+.trigger:hover+.content,
+.trigger:focus+.content {
+  /* add, for persistent display of content. click elsewhere to close again */
+  /*  display: block; remove */
+  opacity: 1; /* add */
+  width: 300px; /* [OPTIONAL] add, see above */
+  height: 300px;
+}
+
+.shorttext { /* eye-candy only */
+  width: 100%;
+  text-align: center
+}
+
+.longtext {
+  display: none
+}
+
+.shorttext:hover+.longtext {
+  display: block;
+}
+
+/* little debug helper */
+
+[outlines="1"] * {
+  outline: 1px dashed purple
+}
+</style>
+</head>
+
+<body outlines="0">
+<a class="trigger" href="javascript:void(0)"><img src="https://picsum.photos/300?random=1" alt="Picture" class="picture" /></a>
+<div class="content">
+    <h3 class="shorttext">short intro text, hover me</h3>
+
+    <p class="longtext">Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+        deleniti copiosae.</p>
+</div>
+</body>
+</html>
