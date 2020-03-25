@@ -2,11 +2,151 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Rene van der Lende Github</title>
+
+<style id="ers-globals-default">
+/**************************/
+/* preferred global rules */
+/**************************/
+html,body   { box-sizing: border-box; margin: 0 }
+body        { min-height: 100vh }
+
+*::before,*::after,
+ *          { box-sizing: inherit }
+
+::-moz-focus-inner  { padding: 0; border: 0 } /* Firefox */
+:focus      { outline: dotted rgba(60,69,78,.5) 2px }
+:focus      { outline: -webkit-focus-ring-color auto 0; outline-width: 0 } /* for Edge 2020 */
+
+/* responsive base font size */
+/* y=mx+b => f:y(320,14)(1280,20), VMIN dependend */
+html        { font-size: calc(0.625vmin + 0.75rem) }
+
+/* responsive padding */
+/* p1(320,64)(1920,144) => 0.5x + 48
+   p2(320, 8)(1920,320) => 0.195x - 54.4 */
+[padded="1"]{ padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
+
+/* uncomment to constraint padding below 320, above 1920 *//*
+@media screen and (max-width: 319px) { [padded] { padding:  64px   8px } }
+@media screen and (min-width:1921px) { [padded] { padding: 144px 320px } }
+/**/
+/******************/
+/* simple banding */
+/******************/
+[simple-band] { display: flex; flex-flow: row wrap;
+         justify-content: center; align-content: center;
+         padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
+
+/* [OPTIONAL] */
+@media screen and (max-width: 319px) { [simple-band] { padding: 1.5rem   8px } }
+@media screen and (min-width:1921px) { [simple-band] { padding: 1.5rem 320px } }
+</style>
+<style id="stl-banding-default">
+/***************************************/
+/* responsive FLEXBOX bands and blocks */
+/***************************************/
+/*
+    For use as easy 'landingpage' content containers
+    [band]  - horizontal content like a strip
+    [block] - vertical content like a list
+
+    - Can both be used interchangeably and nested
+      (band of blocks, block of bands, band of blocks holding bands...)
+    - Invert orientation with 'rows'/'cols' parameter ( *= means: contains )
+
+    Note: only works from IE11 and up (huh? up?)
+*/
+[band]                  { position: relative }
+
+[band],[block]          { display: flex;
+                          justify-content: center; align-content: center }
+
+[band],[band*="cols"]   { flex-flow: row wrap    }  /* a row of columns, default */
+       [band*="rows"]   { flex-flow: column wrap }  /* a column of rows */
+
+[block],[block*="rows"] { flex-flow: column wrap }  /* inverse default of [band] */
+        [block*="cols"] { flex-flow: row wrap    }
+/*
+    responsive band padding (same as responsive page padding, but now at band level)
+    Inversely active with [main-padding]
+*/
+[padded="0"] [band*="padded"] { padding: calc(5vh + 48px) calc( 19.5vw - 54.4px) }
+[padded="1"] [band*="padded"] { padding: 0 } /* already padded, no use to pad some more */
+/* 
+'Introduction' is a [band] with padding ([band*="padded"]).
+'Band padding' is only active when 'main padding' ([main-padding]) is off.
+
+Show 'MintCream' background color when 'main padding' is off
+*/
+[padded="0"] [band*="mint"] { background-color: MintCream }
+</style>
+
+<style id="ers-utility-default">
+/**************************************************/
+/* Utility rules, first so they can be overridden */
+/**************************************************/
+body  { cursor: default } /* Plain arrow for everything, but... */
+input { cursor: auto    } /* ...use HTML default cursor on inputs, unless it is an: */
+
+input[list="datalist"],input[type="button"],input[type="checkbox"],input[type="radio"],
+input[type="color"],input[type="range"],input[type="reset"],input[type="file"],input[type="submit"],
+label:not([for=""]),
+a,button,select,keygen   { cursor: pointer } 
+[contenteditable="true"] { cursor: text    }
+
+/* Darker/more contrast text (put in <body>)
+   => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+/* prohibit user from selecting text (put in <body>) */
+[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+[select]   { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
+
+[push*="R"] { margin-left  : auto } /* push elements Right/Left/Top/Bottom */
+[push*="L"] { margin-right : auto }
+[push*="T"] { margin-top   : auto }
+[push*="B"] { margin-bottom: auto }
+
+[align*="C"] { text-align: center  } /* text alignment */
+[align*="J"] { text-align: justify }
+[align*="L"] { text-align: left    }
+[align*="R"] { text-align: right   }
+
+[hide], [data-hide="1"] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+
+/* show all elements with outlines (put in <body>) */
+[data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
+[data-debug="1"] *                  { outline: 1px dashed purple }
+
+[data-debug] #debug,
+[data-debug] #debug *               { outline: none }
+#debug                              { position: fixed; z-index: 999; bottom: 0; padding: .5rem; background-color: rgba(0,0,0,.5) }
+</style>
+
+<style id="ers-theming-default">
+:focus  { outline: solid rgba(112,128,144,.7) 1px }
+
+body    { background-color: GainsBoro }
+</style>
+
 </head>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+
+<body padded="1" noselect cleartype="1" data-debug="0">
+
+<section>
+    <h1 style="margin: 0; text-align: right">my little testing corner online</h1>
+    <p style="margin: 0; margin-bottom: 1.5rem; text-align: right">hosted with GitHub Pages</p>
+</section>
+
 <img src="https://raw.githubusercontent.com/renevanderlende/renevanderlende.github.io/master/forum-so2.png" style="width: 100%">
 </body>
 </html>

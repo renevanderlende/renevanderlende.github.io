@@ -315,13 +315,12 @@ function All(s) { return document.querySelectorAll(s); }
 var settings = { circle: true }; // true: show circles, false: show squares
 var list     = All('.box');       // Get a list of '.box' objects
 
+/* Polyfill for IE11 remove() */
 if (!('remove' in Element.prototype)) {
     Element.prototype['remove'] = function () {
-      if (this.parentNode) {
-        this.parentNode.removeChild(this);
-      }
+      if (this.parentNode) { this.parentNode.removeChild(this); }
     };
-  }
+};
 
 function resizeBoxes(useLH) {
     useLH = useLH = useLH !== false; // Set to 'true' unless passed value is 'false'
