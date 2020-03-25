@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
 
-<title>FitText v2</title>
+<title>FitText v2.1</title>
 
 <style id="ers-globals-default">
 /**************************/
@@ -85,74 +85,9 @@ body {
 }
 </style>
 
-<style>
-
-.clr-test {
-    
-    --turn-base: 0turn;
-    --turn-amount: .25turn /* between .05 and .35 are best */
-    
-    /*   each child uses it's index to get it's color   */
-}
-
-.clr-test > span:nth-child(1) { color: hsl(calc(var(--turn-base) + calc(var(--turn-amount) * 1)), 50%, 50%) }
-.clr-test > span:nth-child(2) { color: hsl(calc(var(--turn-base) + calc(var(--turn-amount) * 2)), 50%, 50%) }
-.clr-test > span:nth-child(3) { color: hsl(calc(var(--turn-base) + calc(var(--turn-amount) * 3)), 50%, 50%) }
-
-
-:root {
-    /*  stash brand color meta  */
-    --hue: 320;
-    --saturation: 90%;
-    --lightness: 80%;
-
-    /*  use it for the primary color  */
-    --primary: var(--hue) var(--saturation) var(--lightness);
-
-    /*  use --primary as the values for HSL / pass some alpha  */
-    --primary-50: hsl(var(--primary) / 50%);
-
-    /*  use hue but hand create a brand saturation almost black  */
-    --on-primary: var(--hue) 100% 5%
-}
-
-@media (color-index: 48) {
-    :root {
-        --saturation: 90%;
-        --lightness: 3%;
-
-        --primary: var(--hue) var(--saturation) var(--lightness);
-        --on-primary: var(--hue) 100% 90%
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --saturation: 90%;
-        --lightness: 3%;
-
-        --primary: var(--hue) var(--saturation) var(--lightness);
-        --on-primary: var(--hue) 100% 90%
-    }
-}
-.use-color {
-    /*  use them  */
-    background: hsl(320, 90%, 80%);
-    background: hsl(var(--primary));
-    color: hsl(320, 100%, 5%);
-    color: hsl(var(--on-primary));
-}
-</style>
-
 
 </head>
 <body>
-<h1 class="clr-test">
-  <span>hsl's hue accepts an angle, </span>
-  <span>which means it also accepts turns, </span>
-  <span>which means we can do math on the turns!</span>
-</h1>
-
     <div>
         <h3>Under heavy construction, do not use for production</h3>
         <p>Should you see any bugs, have ideas for improvement or have some coding ideas, please DO leave a comment. Vanilla code only!</p>

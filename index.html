@@ -80,6 +80,12 @@ html        { font-size: calc(0.625vmin + 0.75rem) }
 Show 'MintCream' background color when 'main padding' is off
 */
 [padded="0"] [band*="mint"] { background-color: MintCream }
+
+/* generic flexbox shortcuts */
+[F]         { display: flex }
+[R]         { flex-direction: row    }
+[C]         { flex-direction: column }
+[W]         { flex-wrap: wrap }
 </style>
 
 <style id="ers-utility-default">
@@ -125,28 +131,40 @@ h1,h2,h3,h4,h5,h6,b,
 
 /* show all elements with outlines (put in <body>) */
 [data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
-[data-debug="1"] *                  { outline: 1px dashed purple }
+[data-debug="1"] * { outline: 1px dashed purple }
 
 [data-debug] #debug,
-[data-debug] #debug *               { outline: none }
-#debug                              { position: fixed; z-index: 999; bottom: 0; padding: .5rem; background-color: rgba(0,0,0,.5) }
+[data-debug] #debug * { outline: none }
+#debug { position: fixed; z-index: 999; bottom: 0; padding: .5rem; background-color: rgba(0,0,0,.5) }
 </style>
 
 <style id="ers-theming-default">
 :focus  { outline: solid rgba(112,128,144,.7) 1px }
 
 body    { background-color: GainsBoro }
+
+[clr="0"]       { background-color: Gainsboro; color: black }
+.header,.tiny,        /* .header here saves coding html */
+[clr="1"]       { background-color: #fefefe; color: #1e1e1e }
+[clr="2"]       { background-color: #1e1e1e; color: Yellow ; font-weight: bolder }
+[clr="3"]       { background-color: #ffcc01; color: #1e1e1e; font-weight: bolder }
 </style>
 
 </head>
 
-<body padded="1" noselect cleartype="1" data-debug="0">
+<body padded="0" noselect cleartype="1" data-debug="0">
 
-<section>
+<section band="padded" C clr="3">
     <h1 style="margin: 0; text-align: right">my little testing corner online</h1>
     <p style="margin: 0; margin-bottom: 1.5rem; text-align: right">hosted with GitHub Pages</p>
 </section>
 
+<section band>
+bla
+</section>
+
+<section band="padded">
 <img src="https://raw.githubusercontent.com/renevanderlende/renevanderlende.github.io/master/forum-so2.png" style="width: 100%">
+</section>
 </body>
 </html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>Scaling Boxes and Text</title>
+
+<style id="ers-globals-default">
+/**************************/
+/* preferred global rules */
+/**************************/
+html,body   { box-sizing: border-box; margin: 0 }
+body        { min-height: 100vh }
+
+*:before,
+*:after, *  { box-sizing: inherit }
+
+/* Responsive main font y=mx+b p1(320,14) p2(1280,20) */
+html { font-size: calc(0.625vmin + 0.75rem) }
+body { font-size: 1rem }
+
+/* Flexbox Layout for easy positioning */
+body {
+    display: flex; flex-flow: row wrap;
+    justify-content: center; align-items: center; align-content: center;
+
+    /*
+        responsive body padding
+    
+        y=mx+b for points:
+        T/B: p1(320,64) p2(1920,144) => y = 0.5x   + 48
+        L/R: p3(320, 8) p4(1920,320) => y = 0.195x - 54.4
+    */
+    padding: calc(5vh + 48px) calc( 19.5vw - 54.4px);
+    background-color: silver;
+}
+</style>
+
+
+<style id="ers-demo-default">
+body { counter-reset: boxes }
+
+.box {
+    display: flex; flex-flow: column wrap;
+    
+    position: relative;
+
+    overflow: hidden;   /* keep surroundings clean */
+    margin: 1rem;       /* space between sibling boxes */
+
+    color: Black;
+    background-color: White;
+
+
+    /* Main font settings for testing */
+    font-family: Arial,sans-serif;
+    font-weight: 400;
+/*    text-align : center;/**/
+
+    border: 0px solid DarkSlateGrey;
+}
+
+.box:after {
+    position: absolute; bottom: 0; right: .25rem;
+    font-size: 0.875em;
+
+    counter-increment: boxes;
+    content: 'box ' counter(boxes);
+}
+
+.small {
+    /* 
+       Scaling up/down on browser resize.
+       Low : 100 at viewport minimum  320
+       High: 300 at viewport minimum 1920
+
+       y=mx+b for points p1(320,100) p2(1920,300) => y = 0.125x + 40
+    */
+    width : calc(12.5vmin + 60px);
+    height: calc(12.5vmin + 60px);
+
+    /* 5.5>11.5*/
+    font-size: calc(0.625vmin + 3.5px);
+    line-height: 1.25;
+
+    /* 2.67>8 */
+    padding: calc(0.56vmin + 0.89px);
+}
+
+.large {
+    /* y=mx+b for points p1(320,300) p2(1920,900) => y = 0.375x + 180 */
+    width : calc(37.5vmin + 180px);
+    height: calc(37.5vmin + 180px);
+
+    /* 16.5>34.5*/
+    font-size: calc(1.875vmin + 10.5px);
+    line-height: 1.25;
+
+    /* 8>24 */
+    padding: calc(1.67vmin + 2.67px);
+}
+
+/************************************/
+/* Some extra eyecandy just for fun */
+/************************************/
+.box {
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12) } /* GMC elevation 1dp */
+
+/*
+.box:hover:not(:focus)  { transform: scale(1.01) }
+.box:active:not(:focus) { transform: scale(0.99);
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 5px  8px  0px rgba(0,0,0,.14),
+                0px 1px 14px  0px rgba(0,0,0,.12) } /* GMC elevation 5dp */
+/*
+.box:hover {
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 6px 10px  0px rgba(0,0,0,.14),
+                0px 1px 18px  0px rgba(0,0,0,.12) } /* GMC elevation 6dp */
+
+</style>
+
+</head>
+<body>
+
+<div class="box small">
+    <p>Pro ea nonumy integre, mel at solum corpora. Id viris audiam repudiare cum, pri dolore appareat ex, per propriae detracto tacimates ex.
+        Elitr sapientem quo et, usu suas porro tibique cu. Iusto causae eos et, tota principes interesset et eos. Similique intellegam cum ei, unum
+        qualisque mel et, regione verterem delicatissimi qui ut. Aliquam incorrupte ea pro, vel veritus consequat id.</p>
+</div>
+
+<div class="box large">
+    <p>Pro ea nonumy integre, mel at solum corpora. Id viris audiam repudiare cum, pri dolore appareat ex, per propriae detracto tacimates ex.
+        Elitr sapientem quo et, usu suas porro tibique cu. Iusto causae eos et, tota principes interesset et eos. Similique intellegam cum ei, unum
+        qualisque mel et, regione verterem delicatissimi qui ut. Aliquam incorrupte ea pro, vel veritus consequat id.</p>
+</div>
+</body>
+</html>
