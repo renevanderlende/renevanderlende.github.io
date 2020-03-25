@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>SO 60610396</title>
+
+<style>
+/*
+    The generally preferred/accepted default,
+    will include paddings and borders in calculations,
+    margins will be excluded.
+
+    https://www.w3schools.com/css/css_boxmodel.asp
+    https://www.w3schools.com/cssref/css3_pr_box-sizing.asp
+*/
+html,body   { box-sizing: border-box !important }
+*::before,*::after,
+ *          { box-sizing: inherit !important }
+
+body        { width: 100%; margin: 0; cursor: default;
+              font-family: monospace,Arial,Helvetica,sans-serif;
+              background-color: White; color: black }
+header,
+h1,h2,h3,
+h4,h5,h6    { text-align: center }
+
+header      { width: 100%; padding: 1rem }
+
+/******************/
+/* FLEXBOX LAYOUT */
+/******************/
+body,.modified, .modified>*,.original,
+.button,.button>*   { display: flex }
+ 
+body                { flex-direction: column; align-items: center }
+.original,.modified { flex-wrap: wrap; width: 100%; justify-content: center }
+.modified>*         { flex-direction: column }
+/**/
+
+/* main document font-size */
+/* p1(320,14) p2(1280,20) => y = 0.00625x + 12 */
+.html { font-size: calc(0.625vmin + 12px) }
+
+/*
+    main body padding (inner space)
+    T/B: p1(320,64) p2(1920,144) => y = 0.5x   + 48     height dependend
+    L/R: p1(320, 8) p2(1920,320) => y = 0.195x - 54.4   width dependend
+*/
+body { padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
+
+/* [OPTIONAL] If you really need 'padding' constraints, uncomment below *//*
+@media screen and (max-width: 320px) { [padded] { padding:  64px   8px } }
+@media screen and (min-width:1920px) { [padded] { padding: 144px 320px } }
+/**/
+
+/*****************************/
+/* responsive cirular button */
+/*****************************/
+.button {
+/*    overflow: hidden; /**/
+
+/*
+    points p1(320,160) p2(1920,320) => y = 0.10x + 128
+    (All are multiplications of 160. And 160 is your best friend ever!)    
+*/
+/* TODO: 'flex-basis' would be legal, but somehow requires 2nd call to JS fittext */
+/*    flex-basis: calc(10vmin + 128px); */ 
+    width : calc(10vmin + 128px);
+    height: calc(10vmin + 128px);
+
+    /* 50% radius to get a circle (AND equal width/height)*/
+    border-radius: 50%; border: 3px solid DarkSlateBlue;
+
+    /* p1(320,24) p2(1280,60) => y = 0.0375x + 12 */
+/*    font-size: calc(3.75vmin + 12px); /**/
+    font-family: monospace,Arial,sans-serif;
+
+    color: CornSilk; background-color: rgba(100, 149, 237,1); /* CornflowerBlue */
+
+}
+
+/* 'text-align' for plain text content, uses FBL alignment for use with inner kids */
+.button,
+.button>* { text-align: center; justify-content: center; align-content: center; align-items: center }/**/
+
+.button>* {
+    border: 2px solid Chartreuse;
+    background-color: DarkSlateBlue;
+
+    /* p1(320,24) p2(1280,60) */
+/*    font-size: calc(3.75vmin + 12px);/**/
+}
+
+.circleInner {
+    /* filling in rounded results of 2) */
+/*    width : calc(7.07109vmin + 90.5099px);/**/
+    width : calc(7.07109vmin + 87px);/**/
+
+/* when you need a square button inner, uncomment */
+/*    height: calc(7.07109vmin + 90.5099px); /**/ 
+    height: calc(7.07109vmin + 87px);/**/
+}
+
+.button.square { border-radius: 0 }
+
+.fittext {
+/* (loosely) based on GMC: p1(320,8) p2(1920,12) => y = 0.0025x + 7.2 */
+    ppadding: calc(0.25vmin + 7.2px);
+    border: 2px solid Chartreuse;
+    background-color: DarkSlateBlue;
+}
+
+/*
+    Nice little trick:
+    Making parent inner space equal to child outer space, which
+    equals distance from parent edge to child sibling distances.
+    
+     p1(320,6) p2(1280,12) => y = 0.00375x + 4.8
+*/
+.modified { padding: calc(0.375vmin + 4.8px) }
+.button   { margin : calc(0.375vmin + 4.8px) }
+
+
+.quizItemAnswerText {
+  display: flex; justify-content: center; align-items: center;
+  height: 300px; width: 300px;
+  padding: 15px; margin: 5px 60px; margin-bottom: 200px;
+
+  font-family: 'News Gothic Std';
+  font-size: 60px; font-weight: bold; text-align: center;
+  
+  background: #333; color:#72B74D;
+  border: 3px solid black; border-radius: 50%; /* mod from 100% */
+
+  /* added for demo only */
+  min-height: 300px;
+  min-width : 300px;
+}
+
+/* some demo eye-candy */
+body        { background-color: #eee   }
+.modified   { background-color: silver }
+.original   { background-color: Azure  }
+header      { background-color: White  }
+
+/* Show element outlines for debugging (use in <body> tag) */
+[outlines="1"] :hover { outline: 2px dashed Crimson; background-color: rgba(255,0,0,.2) }
+
+[outlines="1"] .button,
+[outlines="1"] .button * { outline: 2px solid currentColor }/**/
+</style>
+
+<style>
+
+.test {
+  margin-bottom: 4px;
+  padding: 4px;
+  width: 400px;
+}
+
+.px  { font-size: 16px }
+.rm  { font-size: 1rem }
+.rem { font-size: 1rem }
+.pct { font-size: 62.5% }
+.em  { font-size: 1em  }
+.ch  { font-size: 1ch  }
+.ex  { font-size: 1ex  }
+</style>
+
+</head>
+<body outlines="0">
+
+<div class="test">
+    <div class="px">font-size: 16px <div id="text">Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+        deleniti copiosae.</div></div>
+    <div class="rm" >font-size: 1rem</div>
+    <div class="pct">font-size: 62.5%</div>
+    <div class="rem">font-size: 1rem</div>
+    <div class="em" >font-size: 1em </div>
+    <div class="ch" >font-size: 1ch </div>
+    <div class="ex" >font-size: 1ex </div>
+</div>
+
+<header>
+    <h1>modified buttons with FitText v2.0</h1>
+</header>
+
+<header>
+    <h3>buttons sampled after original</h3>
+</header>
+<div class="modified">
+    <div>
+        <div class="fittext button square">123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789</div>
+    </div>
+    <div>
+        <div class="button square">
+            <div class="fittext circleInner">123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789</div>
+        </div>
+    </div>
+
+    <div>
+        <div class="fittext button square">0</div>
+    </div>
+    <div>
+        <div class="button square"><div class="fittext circleInner">0</div></div>
+    </div>
+
+    <div>
+        <div class="fittext button">0</div>
+    </div>
+    <div>
+        <div class="button"><div class="fittext circleInner">0</div></div>
+    </div>
+
+    <div>
+        <div class="fittext button">Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+        deleniti copiosae.</div>
+    </div>
+    <div>
+        <div class="button"><div class="fittext circleInner">Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+        deleniti copiosae.</div></div>
+    </div>
+    <div>
+        <div class="fittext button">0000</div>
+    </div>
+    <div>
+        <div class="button"><div class="fittext circleInner">0000</div></div>
+    </div>
+    <div>
+        <div class="fittext button">1234 5678</div>
+    </div>
+    <div>
+        <div class="button"><div class="fittext circleInner">1234 5678</div></div>
+    </div>
+    <div>
+        <div class="fittext button">iwiw IWIW IWIWIW iwiwiwiw</div>
+    </div>
+    <div>
+        <div class="button"><div class="fittext circleInner">iwiw IWIW IWIWIW iwiwiwiw</div></div>
+    </div>
+
+</div>
+
+<h1>Original buttons with FitText v2.0</h1>
+<div class="original">
+    <div data-answervalidation="false" data-answerindex="3" class="fittext quizItemAnswerClick quizItemAnswerText">Proin ac libero sit amet metus semper aliquet. Proin ut tellus ut nulla pharetra</div>
+    <div data-answervalidation="false" data-answerindex="3" class="fittext quizItemAnswerClick quizItemAnswerText">TRUE</div>
+</div>
+
+<script>
+'use-strict';
+
+const crlf  = '\r\n';
+const br    = '<br>';
+
+/*! 
+* FitText v2.0 vanilla javascript version
+*
+* Copyright 2011, v1.0 Dave Rupert http://daverupert.com 
+* Copyright 2020, v2.0 Rene van der Lende 
+*
+* Released under the WTFPL license 
+* http://sam.zoy.org/wtfpl/
+* fittext v1.0 modified by Slawomir Kolodziej http://slawekk.info
+*
+* fittext v2.0 by Rene van der Lende, March 2020
+*         - added 'getTextWidth' and 'getDimensions'
+*         - extra boolean parameter to select
+*           (default)  with padding
+*           (optional) without padding
+*/
+
+
+/* https://github.com/mikolalysenko/to-px */
+/*
+    function to-px
+
+    Get the scale factor to convert any CSS unit to px (logical pixel units).
+*/
+var PIXELS_PER_INCH = getSizeBrutal('in', document.body) // 96
+
+//Returns a values clamped to a given number of decimals.
+//Params: float [, required # of decimals, default = 2]
+var clampDec = function (value,dec) { if (dec==null) dec=2;
+ return (dec>0) ? Math.ceil(value * Math.pow(10,dec)) / Math.pow(10,dec) : Math.ceil(value); };
+
+var clampValue = function (value,minVal,maxVal) { return Math.min(Math.max(minVal,value),maxVal); };
+
+/**********************************/
+function splitAndSaveInput(str, out) { // https://github.com/mattdesl/parse-unit
+/**********************************/
+if (!out) out = [0,''];
+str = String(str);
+
+var num = parseFloat(str, 10);
+    out[0] = num;
+    out[1] = str.match(/[\d.\-\+]*\s*(.*)/)[1] || '';
+
+    return { value: out[0], unit: out[1] };
+};
+
+/*************************************/
+function getPropertyInPX(el, prop) {
+/*************************************/
+  var parts = splitAndSaveInput(getComputedStyle(el).getPropertyValue(prop));
+  return parts.value * toPX(parts.unit, el);
+};
+
+//This brutal hack is needed
+/***********************************/
+function getSizeBrutal(unit, el) {
+/***********************************/
+  var testDIV = document.createElement('div');
+
+  testDIV.style['height'] = '128' + unit;
+  el.appendChild(testDIV);
+
+  var size = getPropertyInPX(testDIV, 'height') / 128;
+  el.removeChild(testDIV);
+  return size;
+};
+
+/*************************/
+function toPX(str, el) {
+/*************************/
+  if (!str) return null;
+
+  el = el || document.body;
+  str = (str + '' || 'px').trim().toLowerCase();
+  if(el === window || el === document) {
+      el = document.body;
+  };
+
+  switch(str) {
+    case '%'   : return el.clientHeight / 10000.0; // Faulty, don't use. TODO: check box-sizing and subtr. padding/border!!
+    case 'ch'  : return getSizeBrutal(str, el);
+    case 'ex'  : return getSizeBrutal(str, el);
+    case 'em'  : return getPropertyInPX(el, 'font-size');
+    case 'rem' : return getPropertyInPX(document.body, 'font-size');
+    case 'vw'  : return window.innerWidth/100;
+    case 'vh'  : return window.innerHeight/100;
+    case 'vmin': return Math.min(window.innerWidth, window.innerHeight) / 100;
+    case 'vmax': return Math.max(window.innerWidth, window.innerHeight) / 100;
+    case 'in'  : return PIXELS_PER_INCH;
+    case 'cm'  : return PIXELS_PER_INCH / 2.54;
+    case 'mm'  : return PIXELS_PER_INCH / 25.4;
+    case 'pt'  : return PIXELS_PER_INCH / 72;
+    case 'pc'  : return PIXELS_PER_INCH / 6;
+    case 'px'  : return 1;
+  };
+
+  // detect number of units
+  var parts = splitAndSaveInput(str);
+
+  if (!isNaN(parts.value) && parts.unit) {
+    var px = toPX(parts.unit, el);
+    return typeof px === 'number' ? parts.value * px : null;
+  };
+
+  return null;
+};
+
+console.log('----- toPX() -----');
+console.log('16px',toPX('16px'),'1rem',toPX('1rem'),'1em',toPX('1em'),'62.5%',toPX('62.5%'),'1ch',toPX('1ch'),'1ex',toPX('1ex'));
+console.log('3vh',toPX('3vh'),'3vw',toPX('3vw'),'3vmin',toPX('3vmin'),'3vmax',toPX('3vmax'));
+console.log('------------------',crlf,crlf);
+
+/**************************/
+function getTextInfo(el,cmp) {
+/**************************/
+    var c = document.createElement('canvas');   // Create a dummy canvas (render invisible with css)
+    var ctx = c.getContext('2d');               // Get the context of the dummy canvas
+
+    // HTML/CSS/JS has no 'active font', only font-family.
+    // It's very cumbersome to get current rendered fontname. Left out to save CPU time.
+    ctx.font = cmp.fontSize + ' ' + cmp.fontFamily; 
+
+    // When exists, use only first node of element (the text) as 'innerText' may contain child elements
+    var text = (el.childNodes.length>0) ? el.childNodes[0].nodeValue : "" ;
+    // TODO: check what it is when it is not text!!
+
+    var textMetrics = ctx.measureText(text);
+    var oneCH       = ctx.measureText('0');
+    var ch          = Math.abs(oneCH.actualBoundingBoxLeft) + Math.abs(oneCH.actualBoundingBoxRight);
+    var fs          = parseFloat(cmp.fontSize);
+
+    c.remove(); // No loose ends...
+
+    // (using math to account for italics, see MDN 'Measuring text width')
+    // https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics
+    return { width: Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight),
+             count: text.length,
+             fs   : fs,
+             ch   : ch,
+             ratio: fs/ch
+           };
+           // Get non-proportional size correction factor.
+           // BEWARE: 'ch' is a WIDTH unit while font-size is a HEIGHT value
+           /*
+           Tricky: express ratio as percent of character '0' width
+           
+           The proper way would be to calculate a weighed, statistical average of the character widths.
+           Fine for short texts (<10 chars), but for large paragraphs it would take up way too much
+           CPU time resulting in a non performing jitter when the viewport gets resized.
+     */
+};
+
+// Get reference to an element by its ID (param: id string )
+function elemId(s)  { return document.getElementById(s); }
+function elemAll(s) { return document.querySelectorAll(s); }
+
+var text = elemId('text');
+
+console.log( '#text', getTextInfo(text, window.getComputedStyle(text)) );
+
+
+
+(function(){
+
+var addEvent = function (el, type, fn) {
+  if (el.addEventListener) el.addEventListener(type, fn, false);
+  else                     el.attachEvent('on'+type, fn);
+};
+
+var extend = function(obj,ext){
+  for(var key in ext)
+    if(ext.hasOwnProperty(key))
+      obj[key] = ext[key];
+  return obj;
+};
+
+/**************************************************/
+window.fitText2 = function (el, kompressor, options) {
+/**************************************************/
+var settings = extend({
+    'minFontSize' : '0px',      // Smallest fontsize possible
+    'maxFontSize' : '999999px', // Some really high value
+    'circle'      : false       // Will trigger 'innerSquare' calculation when 'true' 
+},options);
+
+    /*******************************/
+    var getDimensions = function (el,cmp) {
+    /*******************************/
+        // convert strings (plus 'px') to float (minus 'px'), a drag but necessary
+        var bt = parseFloat(cmp.borderTopWidth   );
+        var br = parseFloat(cmp.borderRightWidth );
+        var bb = parseFloat(cmp.borderBottomWidth);
+        var bl = parseFloat(cmp.borderLeftWidth  );
+
+        var pt = parseFloat(cmp.paddingTop   );
+        var pr = parseFloat(cmp.paddingRight );
+        var pb = parseFloat(cmp.paddingBottom);
+        var pl = parseFloat(cmp.paddingLeft  );
+
+        return {
+                 // Subtract padding and border from W/H if CSS box-sizing is 'border-box'
+                 width  : (cmp.boxSizing == 'border-box') ? el.clientWidth  - pr - pl - br - bl : el.clientWidth,
+                 height : (cmp.boxSizing == 'border-box') ? el.clientHeight - pt - pb - bt - bt : el.clientHeight,
+
+                 // We've got the values anyway, why not supply them back also...
+                 padding: { top: pt, right: pr, bottom: pb, left: pl },
+                 border : { top: bt, right: br, bottom: bb, left: bl },
+                 sizing : cmp.boxSizing
+        };
+    };
+
+
+    /***********************************/
+    var innerSquare = function (diameter) {
+    /***********************************/
+        // Returns the side of the inner square of a circle with given diameter
+        return diameter / Math.sqrt(2);
+    };
+
+    var fit = function (el) {
+      var compressor = kompressor || 1;     // if null default to 1
+
+      var mWidth,mHeight,mPct,computed,txtInfo,dims,fontBase,fontSize,elWidth,elHeight,squareRowCol;
+
+      var resizer = function () {
+          computed = getComputedStyle(el);       // Always get current computed CSS values
+          txtInfo  = getTextInfo(el,computed);   // Get total text width in pixels and character count
+          dims     = getDimensions(el,computed); // Get element dimensions (honors `box-sizing`)
+
+          fontSize = txtInfo.fs; // Assign initial value
+
+          // Adjust WxH to inner square when 'circle' requested
+          elWidth  = (settings.circle) ? innerSquare(dims.width ) : dims.width;
+          elHeight = (settings.circle) ? innerSquare(dims.height) : dims.height;
+
+          mWidth  = elWidth;
+          mHeight = elHeight;
+
+          mPct    = fontSize / mHeight; 
+
+
+          if (elWidth>=elHeight) {
+              // A square or a landscape rectangle
+              fontSize = elHeight;
+          }
+          else {
+              // portrait rectangle
+          };
+
+          squareRowCol = Math.ceil(Math.sqrt(txtInfo.count));
+          fontBase     = elHeight / squareRowCol;
+
+//          fontSize = clampValue(fontBase,toPX(settings.minFontSize),toPX(settings.maxFontSize));
+//          el.style.fontSize = clampDec(fontSize) + 'px';
+          el.style.fontSize = clampDec(fontBase) + 'px';
+          el.style.lineHeight = el.style.fontSize;
+          var a=1;
+
+/*
+          el.style.fontSize = Math.max(Math.min(elWidth / (compressor*10),parseFloat(settings.maxFontSize)),
+                                           parseFloat(settings.minFontSize)) + 'px';
+/**/
+      };
+
+      // Call once to set
+      resizer();
+
+      // Bind event
+      addEvent(window, 'resize', resizer);
+    };
+
+    if (el.length)
+        for (var i=0; i<el.length; i++)
+            fit(el[i]);
+    else
+        fit(el);
+
+    // return set of elements
+    return el;
+};
+})();
+
+/******************************************************/
+//document.addEventListener('DOMContentLoaded', initialize); // Do when DOM has been loaded (resources may not have been!)
+window.addEventListener('load', initialize);               // Do when all HTML/CSS has been loaded
+/******************************************************/
+var forEachEntryIn = function (array, callback, scope) {
+for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
+
+function initialize() {
+var cmp; list = document.querySelectorAll('[class*="fittext"]');
+                                           // [class contains with ... ]
+    forEachEntryIn(list,
+        function (idx,elem,scope) {
+            cmp =  window.getComputedStyle(elem); // debug
+            // Params: element, compressor, min/max font-size, strip padding from width
+            window.fitText2(elem, 1, { circle: true } );
+    });
+};
+</script>
+
+<script>
+/*******************************/
+/* RESPONSIVENESS using y=mx+b */
+/*******************************/
+/*
+    a bit 'l;bra - libra - long, but read anyway',
+    as no 'tl;dr - tilder - too long, didn't read' today!
+
+    1)
+
+    In general, 'responsive design' means: modifying and optimizing a webpage layout
+    to accomodate varying device viewport sizes at runtime. In many cases this requires
+    Media Queries testing minimum/maximum height or width values in order to set CSS
+    values for a specific viewport size, the common approach.  
+
+    However, in many cases, 'responsive design' basically only requires measuring
+    up or down CSS element size values depending on a chosen viewport size.  
+
+    This document will show how to use a little math to do a lot of responsive sizing
+    without the need for CSS @media queries.
+
+    THE MATH - 'equation of a straight line'
+
+             y = mx + b     'Slope-Intercept' Form
+        y - y1 = m(x - x1)  'Point-Slope' Form
+
+        or ax + b, or mx + c, or mx + d, or mx + q or...
+        country dependend, here it is the NL version (all the same though)
+
+    Where
+        y = the result we need    - Rise        => how far up the line
+        m = (y2 - y1) / (x2 - x1) - Slope       => steepness of the line (change in Y / change in X) or (Rise / Run)
+        x = 100....               - Run         => how far along the line (always 100 expressed in vh,vw,vmin or vmax)
+        b = y1 - m * x1           - Y-Intercept => where the line crosses the Y-axis (minimum size value y at x=0)
+
+    For points
+        p1 = (x1 = minimum viewport size,
+              y1 = required size at min vps)
+
+        p2 = (x2 = maximum viewport size,
+              y2 = required size at max vps)
+
+        x-axis = viewport size, either portrait or landscape values, depends on required result size
+        y-axis = result size: font-size, width, height, padding, margin, etc.,
+                              virtually any CSS size attribute that accepts calc()
+
+    'Slope-Intercept form' used in CSS calc() for points p1(x1,y1) and p2(x2,y2)
+        This will take manual calculations in advance, but will save CPU time, especially when
+        using many calculations in CSS. Preferred method over below 'Point-Slope form'.
+
+        m = (y2 - y1) / (x2 - x1)
+        x = either 100 vmin,vh,vw,vmax (see NOTE 1)
+        b = y1 - (y2 - y1) / (x2 - x1) * x1
+
+        using 100vmin as example:
+        CSS(1) = calc((y2 - y1) / (x2 - x1) * 100vmin + y1 - (y2 - y1) / (x2 - x1) * x1)
+        CSS(2) = calc(m * 100vmin + b) where m and b have been calculated manually (see NOTE 2)
+
+    'Point-Slope form' equation for points p1(x1,y1) and p2(x2,y2)
+        The shortest equation, should you need to calculate a size manually.
+        On Codepen you can find various examples using this equation in 'responsive sizing'.
+
+             y = y1 + (y2 - y1) / (x2 - x1) * (x - x1)
+
+        CSS(3) = calc( y1 + (y2 - y1) / (x2 - x1) * (x - x1) )
+                 perfectly suited for use with CSS custom --variables 
+
+    Choosing points p1 and p2 
+
+
+    NOTE 1: As 100vmin/vh/vw/vmax are percentages, in CSS calc() the '100' can be removed
+            and decimal points shifted right 2 places (actually: m multiplied by 100, x divided by 100).
+
+            e.g. For below 'html {font-size}' the resulting equation is: 0.00625x + 12
+                 In CSS the equation calc(0.00625 * 100vmin + 12px) becomes calc(0.625vmin + 12px)
+
+    NOTE 2: As more than one CSS(1) became hard to maintain and CSS(2) tedious to calculate,
+            I create an easy to use demo/tool on GeoGebra.org 'ERS linear equations' that
+            does the hard work for me (https://www.geogebra.org/m/gct3bvsp). Simply fill in
+            the points, or drag the points in the graph and you will see the required equation.
+            Fork it, use it, abuse it, or ignore it completely: it won't cost you a dime either way...
+
+            As stated, CSS(3) can be easily converted to CSS custom --variables and used in conjuction
+            with CSS var().
+
+    NOTE 3: What to do when I want a box with some ratio, Like 16:9 or 17:10 or the 'Golden Ratio' 1.618:1?
+            Rather simple: convert the ratio to a decmial value: 16/9 = 1.77778, 17/10 = 1.7 and
+            1.618/1, well.... and use in in the CSS calc like this: calc((m*x+b) * ratio-decimal)
+
+            e.g. '.some-16-9-box { width: calc(10vmin + 128px); height: calc((10vmin + 128px) * 1.77778 ) }'
+            and you have got a nice responsive 16:9 portrait box using p1(320,160) and p2(1920,320).
+
+    Reference
+        general form           - https://www.mathsisfun.com/algebra/line-equation-general-form.html
+        'Slope-Intercept form' - https://www.mathsisfun.com/equation_of_line.html
+        'Point-Slope form'     - https://www.mathsisfun.com/algebra/line-equation-point-slope.html
+*/
+
+</script>
+<script>
+/*
+2) INNER BOX
+
+d = diagonal of inner square = side of outer square = diameter of circle = s√2 = given 320
+s = side of inner square     = diagonal of inner square divided by √2    = d / √2
+
+for CSS calc() without sqrt: √2 = square root of 2 = 1.4142135623730951
+
+Using points p1(320,160) p2(1920,320) for the width/height of responsive circle
+(actually a square, but with 'border-radius: 50%' it becomes a circle)
+
+s(320)  = s at  320 =  60/√2 => 160 / 1.41421 (using only 5 significant digits of Sqrt(2))
+s(1920) = s at 1920 = 320/√2 => 320 / 1.41421
+
+s(320)  = 160/1.41421 = 113.13737‬px width/height inner square at  320
+s(1920) = 320/1.41421 = 226.27474px width/height inner square at 1920
+
+y = mx + b for p1(320,113.13737) p2(1920,226.27474) 
+y = 0.0707108563x + 90.509896
+
+(don't worry about rounding or using only 5 significant digits, it's digits of a single pixel)
+*/
+/*
+3) OUTER BOX Using math of 2)
+
+padding would be p1(320,(160 - 113.13737)/2) p2(1920,(320 - 226.27474)/2)
+p1(320,‭23.431315‬) p2(1920,46.86263) => 0.0146445719x + 18.745052
+
+(again, using only 5 significant digits)
+*/
+</script>
+</body>
+</html>
