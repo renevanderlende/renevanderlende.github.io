@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>FitText v2</title>
+
+<style id="ers-globals-default">
+/**************************/
+/* preferred global rules */
+/**************************/
+html,body   { box-sizing: border-box; margin: 0 }
+body        { min-height: 100vh }
+
+*::before,*::after, * { box-sizing: inherit }
+
+/* Responsive main font y=mx+b p1(320,14) p2(1280,20) */
+html { font-size: calc(0.625vmin + 0.75rem) }
+body { font-size: 1rem }
+
+/* Flexbox Layout for easy positioning */
+body,.box {
+    display: flex; flex-flow: row wrap;
+    justify-content: center; align-items: center; align-content: center;
+}
+
+body { 
+    /*
+        responsive body padding
+    
+        y=mx+b for points:
+        T/B: p1(320,64) p2(1920,144) => y = 0.5x   + 48
+        L/R: p3(320, 8) p4(1920,320) => y = 0.195x - 54.4
+    */
+    padding: calc(5vh + 48px) calc( 19.5vw - 54.4px);
+    background-color: silver;
+}
+
+.box {
+    overflow: hidden;   /* keep surroundings clean */
+    margin: .5rem;      /* space between sibling boxes */
+
+    color: Black;
+    background-color: White;
+
+    /* 
+       Scaling up/down on browser resize.
+       Low :  80 at viewport minimum  320
+       High: 280 at viewport minimum 1920
+
+       y=mx+b for points p1(320,80) p2(1920,280) => y = 0.125x + 40
+    */
+    width : calc(12.5vmin + 40px);
+    height: calc(12.5vmin + 40px);
+
+    /* Main font settings for testing */
+    font-family: 'Noto Sans','Segoe Script','Space Mono',monospace;
+    font-weight: 400;
+    text-align : center;
+
+    /* padding and border to test boxes' inner space calculations */
+    padding: 0;
+    border: 1px solid DarkSlateGrey;
+}
+/************************************/
+/* Some extra eyecandy just for fun */
+/************************************/
+.box {
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12);   /* GMC elevation 1dp */
+}
+.box:hover:not(:focus)  { transform: scale(1.01) }
+.box:active:not(:focus) { transform: scale(0.995);
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 5px  8px  0px rgba(0,0,0,.14),
+                0px 1px 14px  0px rgba(0,0,0,.12);  /* GMC elevation 5dp */
+}
+.box:hover {
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 6px 10px  0px rgba(0,0,0,.14),
+                0px 1px 18px  0px rgba(0,0,0,.12);  /* GMC elevation 6dp */
+}
+</style>
+
+<style>
+
+.clr-test {
+    
+    --turn-base: 0turn;
+    --turn-amount: .25turn /* between .05 and .35 are best */
+    
+    /*   each child uses it's index to get it's color   */
+}
+
+.clr-test > span:nth-child(1) { color: hsl(calc(var(--turn-base) + calc(var(--turn-amount) * 1)), 50%, 50%) }
+.clr-test > span:nth-child(2) { color: hsl(calc(var(--turn-base) + calc(var(--turn-amount) * 2)), 50%, 50%) }
+.clr-test > span:nth-child(3) { color: hsl(calc(var(--turn-base) + calc(var(--turn-amount) * 3)), 50%, 50%) }
+
+
+:root {
+    /*  stash brand color meta  */
+    --hue: 320;
+    --saturation: 90%;
+    --lightness: 80%;
+
+    /*  use it for the primary color  */
+    --primary: var(--hue) var(--saturation) var(--lightness);
+
+    /*  use --primary as the values for HSL / pass some alpha  */
+    --primary-50: hsl(var(--primary) / 50%);
+
+    /*  use hue but hand create a brand saturation almost black  */
+    --on-primary: var(--hue) 100% 5%
+}
+
+@media (color-index: 48) {
+    :root {
+        --saturation: 90%;
+        --lightness: 3%;
+
+        --primary: var(--hue) var(--saturation) var(--lightness);
+        --on-primary: var(--hue) 100% 90%
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --saturation: 90%;
+        --lightness: 3%;
+
+        --primary: var(--hue) var(--saturation) var(--lightness);
+        --on-primary: var(--hue) 100% 90%
+    }
+}
+.use-color {
+    /*  use them  */
+    background: hsl(320, 90%, 80%);
+    background: hsl(var(--primary));
+    color: hsl(320, 100%, 5%);
+    color: hsl(var(--on-primary));
+}
+</style>
+
+
+</head>
+<body>
+<h1 class="clr-test">
+  <span>hsl's hue accepts an angle, </span>
+  <span>which means it also accepts turns, </span>
+  <span>which means we can do math on the turns!</span>
+</h1>
+
+    <div>
+        <h3>Under heavy construction, do not use for production</h3>
+        <p>Should you see any bugs, have ideas for improvement or have some coding ideas, please DO leave a comment. Vanilla code only!</p>
+        <p>BTW: check out my solutions for responsive html fontsize, body padding and sizing of the circles. May be not your daily cuppa tea, but no Media Queries or JS involved...</p>
+    </div>
+
+    <!-- content filled by Javascript (16 boxes) -->
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+
+<script>
+'use-strict';
+
+const crlf  = '\r\n'; // for logging
+
+/**********************************/
+function randomColor(brightness) {
+/**********************************/
+    function randomChannel(brightness){
+        var r = 255-brightness;
+        var n = 0|((Math.random() * r) + brightness);
+        var s = n.toString(16);
+        return (s.length==1) ? '0'+s : s;
+    }
+return '#' + randomChannel(brightness) + randomChannel(brightness) + randomChannel(brightness);
+}
+
+/*****************/
+function GCD(x, y) { // Greatest Common Divisor
+/*****************/
+    if ((typeof x !== 'number') || (typeof y !== 'number')) return false;
+
+    x = Math.abs(x); y = Math.abs(y);
+
+    var t;
+    while (y) { t = y; y = x % y; x = t; };
+return x;
+};
+//console.log(GCD(12, 13));
+//console.log(GCD(9, 3));
+//console.log(GCD(200, 300));
+
+/**************************/
+function getTextInfo(el,cmp) {
+/**************************/
+    var c = document.createElement('canvas');   // Create a dummy canvas (render invisible with css)
+    var ctx = c.getContext('2d');               // Get the context of the dummy canvas
+
+    // HTML/CSS/JS has no 'active font', only font-family.
+    // It's very cumbersome to get current rendered fontname. Left out to save CPU time.
+    ctx.font = '1px' + ' ' + cmp.fontFamily;
+
+    // When exists, use only first node of element (the text) as 'innerText' may contain child elements
+    var text = (el.childNodes.length>0) ? el.childNodes[0].nodeValue : "" ;
+    // TODO: check what it is when it is not text!!
+
+    var textMetrics = ctx.measureText(text);
+
+    var oneCHw      = ctx.measureText('W'); // One of them is widest in a font
+    var oneCHm      = ctx.measureText('M');
+
+    // Get the 'ch' value of the widest character in the font instead of '0' (zero)
+    var ch          = Math.abs(((oneCHw>oneCHm) ? oneCHw : oneCHm).actualBoundingBoxLeft) +
+                      Math.abs(((oneCHw>oneCHm) ? oneCHw : oneCHm).actualBoundingBoxRight);
+
+    // Total width of the text in pixels at font-size: 1px. Use this for ratio calcs. DO NOT ROUND as value is very small.
+    var width       = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
+
+//    c.remove(); // No loose ends...
+//    document.removeChild(c);
+
+    return { width : width,
+             count : text.length, // Note: will include cr+lf characters and such
+             avg   : width/text.length,
+             ch    : ch,
+             metrix: textMetrics
+           };
+};
+/*******************************/
+function getDimensions(el,cmp) {
+/*******************************/
+    // Convert border values (plus 'px') to float (minus 'px'), a drag but required
+    var bt = parseFloat(cmp.borderTopWidth   );
+    var br = parseFloat(cmp.borderRightWidth );
+    var bb = parseFloat(cmp.borderBottomWidth);
+    var bl = parseFloat(cmp.borderLeftWidth  );
+
+    // Same for padding
+    var pt = parseFloat(cmp.paddingTop   );
+    var pr = parseFloat(cmp.paddingRight );
+    var pb = parseFloat(cmp.paddingBottom);
+    var pl = parseFloat(cmp.paddingLeft  );
+
+    return {
+             // Subtract padding and border from W/H if CSS box-sizing is 'border-box'
+             width  : (cmp.boxSizing == 'border-box') ? el.clientWidth  - pr - pl - br - bl : el.clientWidth,
+             height : (cmp.boxSizing == 'border-box') ? el.clientHeight - pt - pb - bt - bt : el.clientHeight,
+
+             // return parsed values, may save a bit of time in calling function
+             padding: { top: pt, right: pr, bottom: pb, left: pl },
+             border : { top: bt, right: br, bottom: bb, left: bl }
+    };
+};
+
+//Returns a values clamped to a given number of decimals.
+//Params: float [, required # of decimals, default = 2]
+function clampDec(value,dec) { if (dec==null) dec=2;
+return (dec>0) ? Math.ceil(value * Math.pow(10,dec)) / Math.pow(10,dec) : Math.ceil(value); };
+
+function clampValue(value,minVal,maxVal) { return Math.min(Math.max(minVal,value),maxVal); };
+
+/******************************************************/
+window.addEventListener('load'  , resizeBoxes); // Do when all HTML/CSS has been loaded
+window.addEventListener('resize', resizeBoxes); // Do on window resize
+/******************************************************/
+var forEachEntryIn = function (array, callback, scope) {
+    for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
+
+// Hardcoded box content
+var ary = [
+  { length: 1  , text: '0'},  
+  { length: 1  , text: '0'},  
+  { length: 2  , text: '00'},  
+  { length: 2  , text: '00'},  
+  { length: 3  , text: '000'},  
+  { length: 3  , text: '000'},  
+  { length: 4  , text: '0000'},  
+  { length: 4  , text: '0000'},  
+  { length: 17 , text: 'W W W W W W W W W'},  
+  { length: 17 , text: 'W W W W W W W W W'},  
+  { length: 154, text: 'Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.'},  
+  { length: 154, text: 'Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.'},  
+  { length: 9  , text: '123456789'},  
+  { length: 9  , text: '123456789'},  
+  { length: 99 , text: '123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789'},  
+  { length: 99 , text: '123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789'}  
+];
+
+// Element select shortcuts
+function Id(s)  { return document.getElementById(s); }
+function All(s) { return document.querySelectorAll(s); }
+
+/*************************/
+/*       THE MAGIC       */
+/*************************/
+var settings = { circle: true }; // true: show circles, false: show squares
+var list     = All('.box');       // Get a list of '.box' objects
+
+if (!('remove' in Element.prototype)) {
+    Element.prototype['remove'] = function () {
+      if (this.parentNode) {
+        this.parentNode.removeChild(this);
+      }
+    };
+  }
+
+function resizeBoxes(useLH) {
+    useLH = useLH = useLH !== false; // Set to 'true' unless passed value is 'false'
+    // TODO: Ignored for now, but later we need to use element 'line-height' value instead
+    //       of 'font-size' as it is usally a larger value. Now forced equal to 'font-size'. Later...
+
+    forEachEntryIn(list,
+        function (idx,el,scope) {
+            el.innerHTML = ary[idx].text; // For temporary test only, assign 'text' so below fnc calls won't fail
+
+            /**********************/
+            /* GET CURRENT VALUES */
+            /**********************/
+            // Always get current actual calculated element values
+            var computed = window.getComputedStyle(el);
+
+            var txtInfo  = getTextInfo(el,computed);   // Get total text width in pixels and character count
+            var dims     = getDimensions(el,computed); // Get element dimensions (honors `box-sizing`)
+
+            // Only get the first element and assume it is the text we are working on.
+            // For now completely ignores the fact that there may be child elements.
+            // TODO: wacky, find and acceptable solution. Maybe take kids into account too? (X my heart, hope to die?)
+            var text = (el.childNodes.length>0) ? el.childNodes[0].nodeValue : "";
+
+            console.log(txtInfo,dims,el.clientWidth,text);
+            
+            /*********************/
+            /* MATH PREPARATIONS */
+            /*********************/
+            var elWidth  = dims.width; // When CSS 'box-sizing: border-box' then subtracts 'padding' and 'border' values
+            var elHeight = dims.height;
+            var padding  = 0;          // 0 for square parent element.
+
+            // TODO: Something is off, counting border-width twice when outer is a square?? Browser rounding errors?
+            //       Fishy that some outer squares have an inner spacing of 'border-width'...
+
+            // Override above values when outer square has to be a circle
+            if (settings.circle==true) {
+                // Adjust WxH to inner square when 'circle' requested
+                elWidth  = el.clientWidth / Math.sqrt(2); // circle diameter / Math.sqrt(2)
+                elHeight = el.clientHeight / Math.sqrt(2);
+                // TODO: Use outer square padding as inner square padding??
+                //       Probably intended as such by developers... 
+
+                // Combined with Flexbox Layout justification below padding will enforce and position
+                // the circle inner squares. As it is a square, using 'width' would be okay to use too.
+                // Divided by 2 for T/B and L/R.
+                var padding = (el.clientHeight - elHeight) / 2;
+            };
+
+            /************/
+            /* THE MATH */
+            /************/
+            // Get NxN inner squares that can fit the box, round up to nearest integer
+            var innerSquares = Math.ceil(Math.sqrt(txtInfo.count));
+
+            // Derive inner squares side value 
+            var innerSide = Math.floor(elHeight / innerSquares);
+/*
+    Say a character has dimensions 1.6x and x.
+    And the word space is a square S x S.
+    To fit N words the ideal would be if all the available area is filled exactly,
+    ie. 1.6x^2 x N = S^2
+    So then I investigated the graph N = s^2/(1.6x^2).  Here's the result:
+
+        100/(1.6x^2) 
+
+    If you then choose a value for N, you can see what value of x will enable this.
+    It's not a perfect answer of course because x probably won't be a value for a font and
+    also the characters have got to actually fit across and down the space,
+    but it's given me an upper bound for the font size.
+
+Maybe from there you could shrink down until you get a fit that actually meets the font size and need to have a whole number of characters per line.
+*/            
+            /**************/
+            /* THE OUTPUT */
+            /**************/
+            el.style.fontSize     =/* innerSide * txtInfo.ch + 'px';/**/
+            el.style.lineHeight   = innerSide + 'px';/**/
+            el.style.padding      = padding  + 'px';
+
+            el.style.borderRadius = (settings.circle==true) ? '50%' : '0';
+
+
+            /*****************************************************************/
+            // Below for testing only, processes only odd boxes for comparison.
+            // Will be removed after testing...
+            /*****************************************************************/
+            if ((idx%2)==0) {
+                var square,i,j;
+
+                // Fastest way to rebuild is to remove current inner squares first
+//                while (el.firstChild) { el.removeChild(el.firstChild); };
+
+                var count = 0;
+
+                // Creates colored inner boxes of equal size 
+                for (i = 0; i < innerSquares; i++) {
+                    for (j = 0; j < innerSquares; j++) {
+                        square = document.createElement('div');
+
+                        // eye-candy, ignore
+                        square.style.cssText = 'display: flex; justify-content: center; align-items: center; align-content: center;';
+                        square.style.backgroundColor = randomColor(180);
+                        square.style.color           = 'Black';
+
+                        // Only if there are characters left to show, otherwise ''
+                        square.innerHTML = (ary[idx].text.length>count) ? ary[idx].text.substr(count,1) : '';
+                        count++;
+
+                        // Assign the new font values
+                        square.style.width  = /* innerSide * txtInfo.ch +'px';/**/
+                        square.style.height = innerSide + 'px';
+
+                        el.appendChild(square);
+                    };
+                };
+            }
+            else { el.style.backgroundColor = randomColor(180) } ;
+    });
+};
+</script>
+</body>
+</html>
+
+
