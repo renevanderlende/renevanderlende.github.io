@@ -39,7 +39,6 @@ body {
 }
 
 .box {
-    overflow: hidden;   /* keep surroundings clean */
     margin: .5rem;      /* space between sibling boxes */
 
     color: Black;
@@ -55,14 +54,16 @@ body {
     width : calc(12.5vmin + 40px);
     height: calc(12.5vmin + 40px);
 
-    /* Main font settings for testing */
-    font-family: 'Noto Sans','Segoe Script','Space Mono',monospace;
+    /* Font settings for testing */
+    font-family: monospace;
+    font-style : normal;
     font-weight: 400;
     text-align : center;
+    overflow: scroll;   /* keep surroundings clean */
 
     /* padding and border to test boxes' inner space calculations */
-    padding: 0;
-    border: 1px solid DarkSlateGrey;
+    padding: 8px;
+    border: 0px solid DarkSlateGrey;
 }
 /************************************/
 /* Some extra eyecandy just for fun */
@@ -70,19 +71,18 @@ body {
 .box {
     box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
                 0px 1px 1px  0px rgba(0,0,0,.14),
-                0px 1px 3px  0px rgba(0,0,0,.12);   /* GMC elevation 1dp */
-}
+                0px 1px 3px  0px rgba(0,0,0,.12) }  /* GMC elevation 1dp */
+/*
 .box:hover:not(:focus)  { transform: scale(1.01) }
 .box:active:not(:focus) { transform: scale(0.995);
     box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
                 0px 5px  8px  0px rgba(0,0,0,.14),
-                0px 1px 14px  0px rgba(0,0,0,.12);  /* GMC elevation 5dp */
-}
+                0px 1px 14px  0px rgba(0,0,0,.12) } /* GMC elevation 5dp */
+/*
 .box:hover {
     box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
                 0px 6px 10px  0px rgba(0,0,0,.14),
-                0px 1px 18px  0px rgba(0,0,0,.12);  /* GMC elevation 6dp */
-}
+                0px 1px 18px  0px rgba(0,0,0,.12) } /* GMC elevation 6dp */
 </style>
 
 
@@ -92,6 +92,8 @@ body {
         <h3>Under heavy construction, do not use for production</h3>
         <p>Should you see any bugs, have ideas for improvement or have some coding ideas, please DO leave a comment. Vanilla code only!</p>
         <p>BTW: check out my solutions for responsive html fontsize, body padding and sizing of the circles. May be not your daily cuppa tea, but no Media Queries or JS involved...</p>
+        <br>
+        <p>Boxes with active scrollbars are too wide or too high...
     </div>
 
     <!-- content filled by Javascript (16 boxes) -->
@@ -177,6 +179,7 @@ function getTextInfo(el,cmp) {
              count : text.length, // Note: will include cr+lf characters and such
              avg   : width/text.length,
              ch    : ch,
+             ratio: 1 / (width/text.length),
              metrix: textMetrics
            };
 };
@@ -196,9 +199,9 @@ function getDimensions(el,cmp) {
     var pl = parseFloat(cmp.paddingLeft  );
 
     return {
-             // Subtract padding and border from W/H if CSS box-sizing is 'border-box'
-             width  : (cmp.boxSizing == 'border-box') ? el.clientWidth  - pr - pl - br - bl : el.clientWidth,
-             height : (cmp.boxSizing == 'border-box') ? el.clientHeight - pt - pb - bt - bt : el.clientHeight,
+             // Subtract padding (and border from W/H if CSS box-sizing is 'border-box')
+             width  : (cmp.boxSizing == 'border-box') ? el.clientWidth  - pr - pl - br - bl : el.clientWidth - pr - pl,
+             height : (cmp.boxSizing == 'border-box') ? el.clientHeight - pt - pb - bt - bt : el.clientHeight - pt - pb,
 
              // return parsed values, may save a bit of time in calling function
              padding: { top: pt, right: pr, bottom: pb, left: pl },
@@ -247,7 +250,7 @@ function All(s) { return document.querySelectorAll(s); }
 /*************************/
 /*       THE MAGIC       */
 /*************************/
-var settings = { circle: true }; // true: show circles, false: show squares
+var settings = { circle: false }; // true: show circles, false: show squares
 var list     = All('.box');       // Get a list of '.box' objects
 
 /* Polyfill for IE11 remove() */
@@ -306,6 +309,60 @@ function resizeBoxes(useLH) {
                 var padding = (el.clientHeight - elHeight) / 2;
             };
 
+            /* Variation 1
+            box:
+            WxH: 200px * 200px = 40000px
+
+            string:
+            text = Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.
+            tc:  count 154
+
+            font:
+            typeface  monospace (Consolas)
+
+            fh: heigth    1.0px (CSS font-size)
+            aw: avg width 0.996px (strange as with monospace avg and ch should be equal)
+            ratio: fh/aw = 1.004
+            
+            ch: ch W/M    0.605px (TODO: check 'ch' test in fnc 'getTextInfo', ignore ch value for now)
+            sw: total string width 153.44px at fontsize 1px (round to 154, accidentally equal to char count!)
+
+            calcs:
+            40000 / 154 = text will fit 260 times (times => WxH / tc)
+              200 / 154 = 1.2987 times per row    (tpr   => W / tc)
+
+            a) scale up the font width so text fills one full row
+            1.2987 * 0.996 = 1.294 new font width to fill box width (=> x = tpr * aw)
+
+            b) get new font height from scaled width
+            1.294 * (1/0.996) = 1.299px (=> y = x * fh / aw)
+              
+            200 / 1.299 = 153.9645881447267 = 153.9646 rows (=> rows = W / y )
+            Check: total new text width would be 1.294 * 153.44 = 198.55136px (close to 200px = W)
+
+            We are done if the text does not contain spaces, soft or hard crlf/hyphens
+            */
+            
+            /* Variation 2
+            Say a character has dimensions 1.6x and x. (fh and aw)
+            And the word space is a square S x S. (WxH)
+            To fit N words the ideal would be if all the available area is filled exactly,
+            ie. 1.6x^2 x N = S^2
+            So then I investigated the graph N = s^2/(1.6x^2) (N = WxH / (fhxfh)).
+            
+            Here's the result:
+
+                100/(1.6x^2) 
+
+            If you then choose a value for N, you can see what value of x will enable this.
+            It's not a perfect answer of course because x probably won't be a value for a font and
+            also the characters have got to actually fit across and down the space,
+            but it's given me an upper bound for the font size.
+
+            Maybe from there you could shrink down until you get a fit that actually meets the font size
+            and need to have a whole number of characters per line.
+            */
+
             /************/
             /* THE MATH */
             /************/
@@ -314,22 +371,7 @@ function resizeBoxes(useLH) {
 
             // Derive inner squares side value 
             var innerSide = Math.floor(elHeight / innerSquares);
-/*
-    Say a character has dimensions 1.6x and x.
-    And the word space is a square S x S.
-    To fit N words the ideal would be if all the available area is filled exactly,
-    ie. 1.6x^2 x N = S^2
-    So then I investigated the graph N = s^2/(1.6x^2).  Here's the result:
 
-        100/(1.6x^2) 
-
-    If you then choose a value for N, you can see what value of x will enable this.
-    It's not a perfect answer of course because x probably won't be a value for a font and
-    also the characters have got to actually fit across and down the space,
-    but it's given me an upper bound for the font size.
-
-Maybe from there you could shrink down until you get a fit that actually meets the font size and need to have a whole number of characters per line.
-*/            
             /**************/
             /* THE OUTPUT */
             /**************/
@@ -367,7 +409,7 @@ Maybe from there you could shrink down until you get a fit that actually meets t
                         count++;
 
                         // Assign the new font values
-                        square.style.width  = /* innerSide * txtInfo.ch +'px';/**/
+                        square.style.width  =
                         square.style.height = innerSide + 'px';
 
                         el.appendChild(square);
