@@ -27,6 +27,10 @@ body,.box {
 }
 
 body { 
+    /* Font settings for testing */
+    font-family: Arial,sans-serif;
+    font-style : normal;
+    font-weight: 400;
     /*
         responsive body padding
     
@@ -37,9 +41,9 @@ body {
     padding: calc(5vh + 48px) calc( 19.5vw - 54.4px);
     background-color: silver;
 }
-
+.log,
 .box {
-    margin: .5rem;      /* space between sibling boxes */
+    margin: .25rem;      /* space between sibling boxes */
 
     color: Black;
     background-color: White;
@@ -54,20 +58,24 @@ body {
     width : calc(12.5vmin + 40px);
     height: calc(12.5vmin + 40px);
 
-    /* Font settings for testing */
-    font-family: monospace;
-    font-style : normal;
-    font-weight: 400;
-    text-align : center;
-    overflow: scroll;   /* keep surroundings clean */
-
     /* padding and border to test boxes' inner space calculations */
-    padding: 8px;
+    padding: 0px;
     border: 0px solid DarkSlateGrey;
+
+    overflow   : hidden;   /* keep surroundings clean */
 }
+
+.box {
+    font-family: monospace;
+    text-align : center
+}
+
+.log { display: none }
+
 /************************************/
 /* Some extra eyecandy just for fun */
 /************************************/
+.log,
 .box {
     box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
                 0px 1px 1px  0px rgba(0,0,0,.14),
@@ -98,26 +106,43 @@ body {
 
     <!-- content filled by Javascript (16 boxes) -->
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
     <div class="box"></div>
+    <div class="log"></div>
 
 <script>
 'use-strict';
 
 const crlf  = '\r\n'; // for logging
+const br    = '<br>';
 
 /**********************************/
 function randomColor(brightness) {
@@ -309,40 +334,48 @@ function resizeBoxes(useLH) {
                 var padding = (el.clientHeight - elHeight) / 2;
             };
 
+
             /* Variation 1
             box:
             WxH: 200px * 200px = 40000px
 
             string:
             text = Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.
-            tc:  count 154
+            cc:  char count 154
 
-            font:
+            font: 
             typeface  monospace (Consolas)
 
-            fh: heigth    1.0px (CSS font-size)
-            aw: avg width 0.996px (strange as with monospace avg and ch should be equal)
+            fh   : heigth 1.0px (CSS font-size)
+            aw   : avg width 0.996px (strange as with monospace avg and ch should be equal)
             ratio: fh/aw = 1.004
-            
-            ch: ch W/M    0.605px (TODO: check 'ch' test in fnc 'getTextInfo', ignore ch value for now)
-            sw: total string width 153.44px at fontsize 1px (round to 154, accidentally equal to char count!)
+            ttw  : total text width 153,43798828125px at fontsize 1px (round to ~154, accidentally equal to char count!)
 
             calcs:
-            40000 / 154 = text will fit 260 times (times => WxH / tc)
-              200 / 154 = 1.2987 times per row    (tpr   => W / tc)
+            40000 / ~154 = text will fit ~260 times (times => WxH / cc)
+              200 / ~154 = 1.2987 times per row (tpr => W / cc)(=> var tpr = elWidth / txtInfo.count)
 
             a) scale up the font width so text fills one full row
-            1.2987 * 0.996 = 1.294 new font width to fill box width (=> x = tpr * aw)
+            1.2987 * 0.996 = 1.294 new font width to fill box width (=> x = tpr * aw)(var fw = tpr * txtInfo.avg)
 
             b) get new font height from scaled width
-            1.294 * (1/0.996) = 1.299px (=> y = x * fh / aw)
-              
-            200 / 1.299 = 153.9645881447267 = 153.9646 rows (=> rows = W / y )
+            1.294 * (1/0.996) = 1.299px (=> y = x * (fh / aw))(=> var fh = fw * txtInfo.ratio)
+
+            200 / 1.299 = 153.9645881447267 = 153.9646 rows (=> rows = H / y )(var rows = elHeight / fh)
             Check: total new text width would be 1.294 * 153.44 = 198.55136px (close to 200px = W)
+            (var chck = fw * rows)
 
             We are done if the text does not contain spaces, soft or hard crlf/hyphens
+
+            fh*fh * ttw = WxH
+            => fh*fh * 153.44 = 40000
+            => fh*fh = 40000 / 153.44
+            => fh*fh = 260.688
+            =>    fh = sqrt(260.688)
+
             */
-            
+
+
             /* Variation 2
             Say a character has dimensions 1.6x and x. (fh and aw)
             And the word space is a square S x S. (WxH)
@@ -363,15 +396,35 @@ function resizeBoxes(useLH) {
             and need to have a whole number of characters per line.
             */
 
+
             /************/
             /* THE MATH */
             /************/
+            /* math variation 1 */
+            var tpr  = clampDec(elWidth / txtInfo.count,3);
+            var fw   = clampDec(tpr * txtInfo.avg,3);
+            var fh   = clampDec(fw * txtInfo.ratio,3);
+            var rows = clampDec(elHeight / fh,3);
+            var chck = clampDec(fw * rows,3);
+            var font = clampDec(elWidth*elHeight / chck,3); 
+/*            
+            var next = el.nextSibling;
+            el.nextElementSibling.innerHTML = 'tpr: ' + tpr     + br +
+                                              ' fw: ' + fw      + br +
+                                              ' fh: ' + fh      + br +
+                                            ' rows: ' + rows    + br +
+                                        ' chck wid: ' + chck    + br +
+                                           ' width: ' + elWidth + br +
+                                            ' font: ' + font;
+*/
+            /* Current math */
             // Get NxN inner squares that can fit the box, round up to nearest integer
             var innerSquares = Math.ceil(Math.sqrt(txtInfo.count));
 
             // Derive inner squares side value 
             var innerSide = Math.floor(elHeight / innerSquares);
 
+            
             /**************/
             /* THE OUTPUT */
             /**************/
