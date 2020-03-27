@@ -167,9 +167,6 @@ function GCD(x, y) { // Greatest Common Divisor
     while (y) { t = y; y = x % y; x = t; };
 return x;
 };
-//console.log(GCD(12, 13));
-//console.log(GCD(9, 3));
-//console.log(GCD(200, 300));
 
 /**************************/
 function getTextInfo(el,cmp) {
@@ -308,8 +305,6 @@ function resizeBoxes(useLH) {
             // TODO: wacky, find and acceptable solution. Maybe take kids into account too? (X my heart, hope to die?)
             var text = (el.childNodes.length>0) ? el.childNodes[0].nodeValue : "";
 
-            console.log(txtInfo,dims,el.clientWidth,text);
-            
             /*********************/
             /* MATH PREPARATIONS */
             /*********************/
@@ -325,88 +320,25 @@ function resizeBoxes(useLH) {
                 // Adjust WxH to inner square when 'circle' requested
                 elWidth  = el.clientWidth / Math.sqrt(2); // circle diameter / Math.sqrt(2)
                 elHeight = el.clientHeight / Math.sqrt(2);
-                // TODO: Use outer square padding as inner square padding??
-                //       Probably intended as such by developers... 
-
-                // Combined with Flexbox Layout justification below padding will enforce and position
-                // the circle inner squares. As it is a square, using 'width' would be okay to use too.
-                // Divided by 2 for T/B and L/R.
-                var padding = (el.clientHeight - elHeight) / 2;
+                var padding = (el.clientHeight - elHeight) / 2;// Divided by 2 for T/B and L/R.
             };
 
-
-            /* Variation 1
-            box:
-            WxH: 200px * 200px = 40000px
-
-            string:
-            text = Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.
-            cc:  char count 154
-
-            font: 
-            typeface  monospace (Consolas)
-
-            fh   : heigth 1.0px (CSS font-size)
-            aw   : avg width 0.996px (strange as with monospace avg and ch should be equal)
-            ratio: fh/aw = 1.004
-            ttw  : total text width 153,43798828125px at fontsize 1px (round to ~154, accidentally equal to char count!)
-
-            calcs:
-            40000 / ~154 = text will fit ~260 times (times => WxH / cc)
-              200 / ~154 = 1.2987 times per row (tpr => W / cc)(=> var tpr = elWidth / txtInfo.count)
-
-            a) scale up the font width so text fills one full row
-            1.2987 * 0.996 = 1.294 new font width to fill box width (=> x = tpr * aw)(var fw = tpr * txtInfo.avg)
-
-            b) get new font height from scaled width
-            1.294 * (1/0.996) = 1.299px (=> y = x * (fh / aw))(=> var fh = fw * txtInfo.ratio)
-
-            200 / 1.299 = 153.9645881447267 = 153.9646 rows (=> rows = H / y )(var rows = elHeight / fh)
-            Check: total new text width would be 1.294 * 153.44 = 198.55136px (close to 200px = W)
-            (var chck = fw * rows)
-
-            We are done if the text does not contain spaces, soft or hard crlf/hyphens
-
-            fh*fh * ttw = WxH
-            => fh*fh * 153.44 = 40000
-            => fh*fh = 40000 / 153.44
-            => fh*fh = 260.688
-            =>    fh = sqrt(260.688)
-
-            */
-
-
-            /* Variation 2
-            Say a character has dimensions 1.6x and x. (fh and aw)
-            And the word space is a square S x S. (WxH)
-            To fit N words the ideal would be if all the available area is filled exactly,
-            ie. 1.6x^2 x N = S^2
-            So then I investigated the graph N = s^2/(1.6x^2) (N = WxH / (fhxfh)).
-            
-            Here's the result:
-
-                100/(1.6x^2) 
-
-            If you then choose a value for N, you can see what value of x will enable this.
-            It's not a perfect answer of course because x probably won't be a value for a font and
-            also the characters have got to actually fit across and down the space,
-            but it's given me an upper bound for the font size.
-
-            Maybe from there you could shrink down until you get a fit that actually meets the font size
-            and need to have a whole number of characters per line.
-            */
-
+            console.log('txtInfo',txtInfo,'dims',dims,'boxW',elWidth,'boxH',elHeight,'text',text);
 
             /************/
             /* THE MATH */
             /************/
-            /* math variation 1 */
-            var tpr  = clampDec(elWidth / txtInfo.count,3);
-            var fw   = clampDec(tpr * txtInfo.avg,3);
-            var fh   = clampDec(fw * txtInfo.ratio,3);
-            var rows = clampDec(elHeight / fh,3);
-            var chck = clampDec(fw * rows,3);
-            var font = clampDec(elWidth*elHeight / chck,3); 
+/*
+            fontHeight^2 * stringWidth = boxWidth * boxHeight
+            => fontHeight^2 = boxWidth * boxHeight / stringWidth
+            => fontHeight = sqrt(boxWidth * boxHeight / stringWidth)
+
+            e.g.: fontHeight = sqrt(200 * 200 / 153.44)
+                             = sqrt(40000 / 153.44)
+                             = sqrt(260,6882..)
+                             =  ~16.1458 pixels
+*/
+
 /*            
             var next = el.nextSibling;
             el.nextElementSibling.innerHTML = 'tpr: ' + tpr     + br +
@@ -424,12 +356,13 @@ function resizeBoxes(useLH) {
             // Derive inner squares side value 
             var innerSide = Math.floor(elHeight / innerSquares);
 
+            var fontSize = txtInfo.avg * Math.sqrt((elWidth * elHeight) / txtInfo.width);
             
             /**************/
             /* THE OUTPUT */
             /**************/
-            el.style.fontSize     =/* innerSide * txtInfo.ch + 'px';/**/
-            el.style.lineHeight   = innerSide + 'px';/**/
+            el.style.fontSize     =
+            el.style.lineHeight   = fontSize + 'px';/**/
             el.style.padding      = padding  + 'px';
 
             el.style.borderRadius = (settings.circle==true) ? '50%' : '0';
