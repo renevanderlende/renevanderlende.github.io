@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
 
-<title>FitText v2.1</title>
+<title>v2.2</title>
 
 <style id="ers-globals-default">
 /**************************/
@@ -111,7 +111,7 @@ body {
 <body noselect outlines="0">
 
 <div>
- <p>fontSize = Sqrt(S^2 / (text width + average character width));
+ <p>CSS 'font-size' = fontHeight = sqrt((finalBoxWidth * finalBoxHeight) / (textWidth + avgCharacterWidth));
 </div>
 
 <div band>
@@ -388,7 +388,7 @@ function resizeBoxes(useLH) {
 
                                               '<b>S^2</b> '    + tab + elWidth + ' * ' + elHeight + ' = ' + S2 + br +
                                               '<b>N</b> '      + tab + tab + tab + txtInfo.count + br +
-                                              '<b>S^2/N</b> '  + tab + clampDec(S2/txtInfo.count,2) + br + br +
+                                              '<b>S^2/N</b> '  + tab + clampDec(S2/txtInfo.count,2) + br +
 
                                               '<b>H:W ratio</b> '  + nb + rat + ' = 1/' + ch + br +
                                               '(H = 1, W = ' + ch + ')'+ br + br +
