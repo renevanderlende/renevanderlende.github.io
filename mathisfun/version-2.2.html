@@ -29,7 +29,7 @@ body { font-size: 1rem }
 [outlines*="1"] *  { outline: 2px dashed Crimson }
 
 /* Flexbox Layout for easy positioning */
-body,.box {
+[band],.box {
     display: flex; flex-flow: row wrap;
     justify-content: center; align-items: center; align-content: center;
 }
@@ -58,7 +58,7 @@ body {
 
     /* padding and border to test boxes' inner space calculations */
 /*    padding: calc(0.5vmin + 14.4px); /* 16>1920,24 */
-    border: 3px solid DarkSlateGrey;
+    border: 2px solid DarkSlateGrey;
 }
 
 .box {
@@ -82,7 +82,7 @@ body {
 
 .log {
     width  : calc(25vmin + 80px);    /* 160>1920,560 */
-    height : calc(25vmin + 80px);
+    height : calc((25vmin + 80px) * 1.618);
     padding: calc(0.5vmin + 14.4px); /* 16>1920,24 */
 }
 
@@ -109,13 +109,12 @@ body {
 
 </head>
 <body noselect outlines="0">
-    <div>
-        <h3>Under heavy construction, do not use for production</h3>
-        <p>Should you see any bugs, have ideas for improvement or have some coding ideas, please DO leave a comment. Vanilla code only!</p>
-        <p>BTW: check out my solutions for responsive html fontsize, body padding and sizing of the circles. May be not your daily cuppa tea, but no Media Queries or JS involved...</p>
-        <br>
-    </div>
 
+<div>
+ <p>fontSize = Sqrt(S^2 / (text width + average character width));
+</div>
+
+<div band>
     <!-- content filled by Javascript (16 boxes) -->
     <div class="box"></div>
     <div class="log"></div>
@@ -149,12 +148,14 @@ body {
     <div class="log"></div>
     <div class="box"></div>
     <div class="log"></div>
+</div>
 
 <script>
 'use-strict';
 
 const crlf  = '\r\n'; // for logging
 const br    = '<br>';
+const nb    = '&nbsp;';
 const tab   = '&emsp;';
 
 /**********************************/
@@ -226,13 +227,17 @@ function getTextInfo(el,cmp) {
              chw   : Math.abs(oneCHw.actualBoundingBoxLeft) + Math.abs(oneCHw.actualBoundingBoxRight),
              chx   : Math.abs(oneCHx.actualBoundingBoxLeft) + Math.abs(oneCHx.actualBoundingBoxRight),
              ch    : ch,
-             ratio : 1 / (width/text.length),
+             ratio : 1 / ch,
              metrix: textMetrics
            };
 };
 /*******************************/
 function getDimensions(el,cmp) {
 /*******************************/
+    var bcr = el.getBoundingClientRect();
+    var W   = clampDec(bcr.width ,2);
+    var H   = clampDec(bcr.height,2);
+
     // Convert border values (plus 'px') to float (minus 'px'), a drag but required
     var bt = parseFloat(cmp.borderTopWidth   );
     var br = parseFloat(cmp.borderRightWidth );
@@ -245,10 +250,14 @@ function getDimensions(el,cmp) {
     var pb = parseFloat(cmp.paddingBottom);
     var pl = parseFloat(cmp.paddingLeft  );
 
+    //clampDec(dims.W / Math.sqrt(2),2)
     return {
+             bounds: bcr,
+             W: W,
+             H: H,
              // Subtract padding (and border from W/H if CSS box-sizing is 'border-box')
-             width  : (cmp.boxSizing == 'border-box') ? clampDec(el.clientWidth  - pr - pl - br - bl,2) : clampDec(el.clientWidth  - pr - pl,2),
-             height : (cmp.boxSizing == 'border-box') ? clampDec(el.clientHeight - pt - pb - bt - bt,2) : clampDec(el.clientHeight - pt - pb,2),
+             width  : (cmp.boxSizing == 'border-box') ? W - pr - pl - br - bl : W,
+             height : (cmp.boxSizing == 'border-box') ? H - pt - pb - bt - bt : H,
 
              // return parsed values, may save a bit of time in calling function
              padding: { top: pt, right: pr, bottom: pb, left: pl },
@@ -262,6 +271,9 @@ function clampDec(value,dec) { if (dec==null) dec=2;
 return (dec>0) ? Math.ceil(value * Math.pow(10,dec)) / Math.pow(10,dec) : Math.ceil(value); };
 
 function clampValue(value,minVal,maxVal) { return Math.min(Math.max(minVal,value),maxVal); };
+
+//check to determine if an overflow is happening
+function isOverflowing(element) { return (element.scrollWidth > element.offsetWidth); };
 
 /******************************************************/
 window.addEventListener('load'  , resizeBoxes); // Do when all HTML/CSS has been loaded
@@ -297,7 +309,7 @@ function All(s) { return document.querySelectorAll(s); }
 /*************************/
 /*       THE MAGIC       */
 /*************************/
-var settings = { circle: true }; // true: show circles, false: show squares
+var settings = { circle: false }; // true: show circles, false: show squares
 var list     = All('.box');       // Get a list of '.box' objects
 
 /* Polyfill for IE11 remove() */
@@ -326,7 +338,7 @@ function resizeBoxes(useLH) {
 
             console.log('txtInfo',txtInfo);
             
-            var dims     = getDimensions(el,computed); // Get element dimensions (honors `box-sizing`)
+            var dims = getDimensions(el,computed); // Get element dimensions (honors `box-sizing`)
 
             // Only get the first element and assume it is the text we are working on.
             // For now completely ignores the fact that there may be child elements.
@@ -338,14 +350,14 @@ function resizeBoxes(useLH) {
             /*********************/
             var elWidth  = dims.width; // When CSS 'box-sizing: border-box' then subtracts 'padding' and 'border' values
             var elHeight = dims.height;
-            var padding  = 0;          // 0 for square parent element.
+            var offset   = 0;          // 0 for square parent element.
 
             // Override above values when outer square has to be a circle
             if (settings.circle==true) {
                 // Adjust WxH to inner square when 'circle' requested
-                elWidth  = clampDec(el.clientWidth  / Math.sqrt(2),2); // circle diameter / Math.sqrt(2)
-                elHeight = clampDec(el.clientHeight / Math.sqrt(2),2);
-                padding  = clampDec((el.clientHeight - elHeight) / 2,2);// Divided by 2 for T/B and L/R.
+                elWidth  = clampDec(dims.W / Math.sqrt(2),2); // circle diameter / Math.sqrt(2)
+                elHeight = elWidth;
+                offset   = clampDec((dims.W - elWidth) / 2,2);// Divided by 2 for T/B and L/R.
             };
 
             /************/
@@ -363,27 +375,27 @@ function resizeBoxes(useLH) {
 */
 
 /**/
-            var tpr  = clampDec(elWidth / txtInfo.count,3);
-            var fw   = clampDec(tpr * txtInfo.avg,3);
-            var fh   = clampDec(fw * txtInfo.ratio,3);
-            var rows = clampDec(elHeight / fh,3);
-            var chck = clampDec(fw * rows,3);
-            var font = clampDec(elWidth*elHeight / chck,3); 
+            var ch  = clampDec(txtInfo.ch,2);
+            var rat = clampDec(txtInfo.ratio,2);
+            var S2  = clampDec(elWidth * elHeight,2);
 
             var next = el.nextSibling;
-            el.nextElementSibling.innerHTML = ((settings.circle) ? 'circle ' : 'box ') + (idx+1)            + br +
-                                              tab + 'client CSS ' + el.clientWidth + 'x'  + el.clientHeight + br +
-                                              tab + 'dims JS '    + dims.width     + 'x'  + dims.height     + br +
-                                              tab + 'final JS '   + elWidth        + 'x'  + elHeight        + br +
-                                              tab + 'padding JS ' + padding                                 + br + br +
-                                              
-                                              'at fontsize 1px, ctx.measureText()' + br +
-                                              tab + 'tpr: ' + tpr     + br +
-                                              tab + 'fw: ' + fw      + br +
-                                              tab + 'fh: ' + fh      + br +
-                                              tab + 'rows: ' + rows    + br +
-                                              tab + 'chck wid: ' + chck    + br +
-                                              tab + 'width: ' + elWidth;
+            el.nextElementSibling.innerHTML = ((settings.circle) ? 'circle ' : 'box ') + (idx+1) + br + br +
+                                              '<b>bounds</b> ' + dims.W + 'x'  + dims.H + br +
+                                              '<b>dims</b> '   + tab + nb + dims.width + 'x' + dims.height + br +
+                                              '<b>offset</b>'  + tab + nb + offset + br +
+                                              '<b>final</b> '  + tab + nb + nb + elWidth + 'x' + elHeight + br + br +
+
+                                              '<b>S^2</b> '    + tab + elWidth + ' * ' + elHeight + ' = ' + S2 + br +
+                                              '<b>N</b> '      + tab + tab + tab + txtInfo.count + br +
+                                              '<b>S^2/N</b> '  + tab + clampDec(S2/txtInfo.count,2) + br + br +
+
+                                              '<b>H:W ratio</b> '  + nb + rat + ' = 1/' + ch + br +
+                                              '(H = 1, W = ' + ch + ')'+ br + br +
+                                              '<b>' + rat + 'x^2</b>' +  br +
+
+                                              '<b>x^2 = S^2/N/'+ rat +'</b> '  + tab + clampDec(S2/txtInfo.count/rat,2) + br +
+                                              '<b>x = Sqrt(S^2/N/'+ rat +')</b> '  + tab + clampDec(Math.sqrt(S2/txtInfo.count/rat),2);
 /**/
             /* Current math */
             // Get NxN inner squares that can fit the box, round up to nearest integer
@@ -392,15 +404,14 @@ function resizeBoxes(useLH) {
             // Derive inner squares side value 
             var innerSide = Math.floor(elHeight / innerSquares);
 
-//            var fontSize = Math.min(innerSide,txtInfo.avg * Math.sqrt((elWidth * elHeight) / txtInfo.width));
-            var fontSize = Math.sqrt((elWidth * elHeight) / (txtInfo.width + txtInfo.ch));
-            
+//            var fontSize = Math.sqrt((elWidth * elHeight) / (txtInfo.width + txtInfo.ch));
+            var fontSize = clampDec(Math.sqrt(S2/txtInfo.count/rat),2);
+
             /**************/
             /* THE OUTPUT */
             /**************/
             el.style.fontSize     =
             el.style.lineHeight   = fontSize + 'px';
-            el.style.padding      = padding  + 'px';
 
             el.style.borderRadius = (settings.circle==true) ? '50%' : '0';
 
@@ -414,12 +425,7 @@ function resizeBoxes(useLH) {
 
                 // Fastest way to rebuild is to remove current inner squares first
                 while (el.firstChild) { el.removeChild(el.firstChild); };
-/*
-                box = (settings.circle==true) ? document.createElement('div') : el;
-                box.style.cssText = 'display: flex; flex-flow: row wrap;' +
-                                    'justify-content: center; align-items: center; align-content: center;';
-                                    'border: 1px solid Chartreuse';
-/**/
+
                 // Creates colored inner boxes of equal size 
                 for (i = 0; i < innerSquares; i++) {
                     for (j = 0; j < innerSquares; j++) {
@@ -438,11 +444,9 @@ function resizeBoxes(useLH) {
                         square.style.width  =
                         square.style.height = innerSide + 'px';
 
-//                        box.appendChild(square);
                         el.appendChild(square);
                     };
                 };
-//                if (settings.circle==true) el.appendChild(box);
             }
             else { el.style.backgroundColor = randomColor(180) } ;
             
