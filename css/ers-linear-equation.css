@@ -1,0 +1,67 @@
+/*
+    THE MATH: linear equations: 'definition of a straight line'
+              for points p1(x1,y1) p2(x2,y2)
+
+    A1) => Intercept-Slope: y = mx + b
+
+        m = (y2 - y1) / (x2 - x1)   => Slope    => steepness of the line 
+        or  delta-Y / delta-X                      (change in Y / change in X)
+
+    A2) => Point-Slope: y = y1 + m(x - x1)
+
+    B)  b = y1 - (m * x1)       => Y-Intercept  => where the line crosses the Y-axis
+
+    C)  x = 100(VMIN/VW/VH)     => Run          => how far along the line
+
+    D)  y = the result we need  => Rise         => how far up the line
+
+        reference: http://www.mathsisfun.com/equation_of_line.html
+                   http://www.mathsisfun.com/algebra/line-equation-2points.html
+                   http://www.mathsisfun.com/geometry/slope.html
+*/
+:root {
+    /* 2 points on a straight line: p1(x1,y1) and p2(x2,y2) */
+    --x1:  320; --y1: 14;   /* point p1 on line y=mx+b => 14px at  320px VP size */
+    --x2: 1280; --y2: 20;   /* point p2 ...            => 20px at 1280px ... */
+
+    /* initialize 'internal' custom properties.
+       (Here for demo only => they will be created and modified by JS anyway) */
+    --js-vmin: 0; --js-vmax: 0; --js-vw: 0; --js-vh: 0;
+
+    /* default browser font-size. TODO: write JS to get proper user font settings */
+    --def-px: 16;
+
+    /* Will hold default values */
+    --x : var(--js-vmin); /* default (as in 'preferred value') => 100vmin */
+    --xh: var(--js-vh);
+    --xw: var(--js-vw);
+    --xm: var(--js-vmax);
+
+    /* line-height (has to be numeric, otherwise it will be NaN in calculations) */
+    --lh: 1.25; line-height: var(--lh); /* making sure it's numeric */
+    --ratio: 1.77778; /* 16:9 */
+}
+
+[data-fnc="p-slope"] { /* Point-Slope: y-y1 = m(x-x1) <=> y = y1 + m(x-x1) */
+    --y: calc( var(--y1) + (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * (var(--x) - var(--x1)) );
+}
+
+/* example alternative calculation (Intercept-Slope, same result, different math) */
+[data-fnc="i-slope"] { /* Intercept-Slope: y =  mx + b */
+    --m: calc((var(--y2) - var(--y1)) / (var(--x2) - var(--x1)));
+    --b: calc( var(--y1) - var(--m) * var(--x1));
+    --y: calc( var(--m)  * var(--x) + var(--b));
+}
+/*
+    EXTRA: examples using the current viewport size in X
+    
+        - workaround for VMIN/VW/VH/VMAX not being updated when using custom props
+        - possibility to choose which VP size X depends on
+
+    Use VMIN/VMAX for responsive font sizes     => width/height indepedend value
+    Use VH/VW for spacing, element sizes, etc.  => width/height dependend value
+*/
+[vmin]  { --x: var(--js-vmin) }
+[vmax]  { --x: var(--js-vmax) }
+[vh]    { --x: var(--js-vh)   }
+[vw]    { --x: var(--js-vw)   }

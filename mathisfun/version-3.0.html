@@ -5,42 +5,40 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
 
-<title>Scaling Boxes and Text</title>
+<title>v3.0</title>
 
 <style id="ers-globals-default">
 /**************************/
 /* preferred global rules */
 /**************************/
-html,body   { box-sizing: border-box; margin: 0 }
-body        { min-height: 100vh }
+html,body   { box-sizing: border-box }
 
 *:before,
 *:after, *  { box-sizing: inherit }
 
-/* Responsive main font y=mx+b p1(320,14) p2(1280,20) */
-html { font-size: calc(0.625vmin + 0.75rem) }
-body { font-size: 1rem }
-
 /* Flexbox Layout for easy positioning */
+body, #main {
+    display: flex; flex-flow: row wrap; width: 100%
+}
 body {
-    display: flex; flex-flow: row wrap;
+    font-size: 1rem; min-height: 100vh; margin: 0;
     justify-content: center; align-items: center; align-content: center;
-
-    /*
-        responsive body padding
-    
-        y=mx+b for points:
-        T/B: p1(320,64) p2(1920,144) => y = 0.5x   + 48
-        L/R: p3(320, 8) p4(1920,320) => y = 0.195x - 54.4
-    */
-    padding: calc(5vh + 48px) calc( 19.5vw - 54.4px);
     background-color: silver;
 }
-</style>
+#main {
+    justify-content: center
+}
 
+#debug { position: fixed; top: .5rem; left: .5rem; z-index: 1; font-size: inherit }
+[outlines="1"] * { outline: 1px dashed purple }
+</style>
 
 <style id="ers-demo-default">
 body { counter-reset: boxes }
+
+/* purposely hardcoded pixel values!! */
+#box1 { font-size: 14px; width:  320px; height: 569px; flex-shrink: 0 } /* ratio 16:9  */
+#box2 { font-size: 17px; width: 1360px; height: 800px; flex-shrink: 0 } /* ratio 17:10 */
 
 .box {
     display: flex; flex-flow: column wrap;
@@ -53,24 +51,22 @@ body { counter-reset: boxes }
     color: Black;
     background-color: White;
 
-
     /* Main font settings for testing */
     font-family: Arial,sans-serif;
+    line-height: 1.25;
     font-weight: 400;
-/*    text-align : center;/**/
+    text-align : center;
 
     border: 0px solid DarkSlateGrey;
 }
-
-.box:after {
-    position: absolute; bottom: 0; right: .25rem;
-    font-size: 0.875em;
+.box:before {
+    position: absolute; top: 0; right: .25rem; z-index: 1;
 
     counter-increment: boxes;
-    content: 'box ' counter(boxes);
+    content: '#box' counter(boxes);
 }
 
-.small {
+.regular {
     /* 
        Scaling up/down on browser resize.
        Low : 100 at viewport minimum  320
@@ -78,28 +74,22 @@ body { counter-reset: boxes }
 
        y=mx+b for points p1(320,100) p2(1920,300) => y = 0.125x + 40
     */
-    width : calc(12.5vmin + 60px);
-    height: calc(12.5vmin + 60px);
-
-    /* 5.5>11.5*/
-    font-size: calc(0.625vmin + 3.5px);
-    line-height: 1.25;
-
-    /* 2.67>8 */
-    padding: calc(0.56vmin + 0.89px);
+    width    : calc(12.5vmin + 60px);
+    height   : calc((12.5vmin + 60px) * 1.6);   /* 100>1920,300 */
+    padding  : calc(0.56vmin + 0.89px);         /* 2.67>8 */
+    font-size: calc(0.625vmin + 3.5px);         /* 5.5>11.5 (visually checked to fit box) */
 }
-
-.large {
-    /* y=mx+b for points p1(320,300) p2(1920,900) => y = 0.375x + 180 */
-    width : calc(37.5vmin + 180px);
-    height: calc(37.5vmin + 180px);
-
-    /* 16.5>34.5*/
-    font-size: calc(1.875vmin + 10.5px);
-    line-height: 1.25;
-
-    /* 8>24 */
-    padding: calc(1.67vmin + 2.67px);
+.small { /* 3 times smaller than .regular */
+    width    : calc((12.5vmin + 60px) * 0.33333);
+    height   : calc((12.5vmin + 60px) * 0.533328);/* 1.6 * 0.33333 */
+    padding  : calc((0.56vmin + 0.89px) * 0.33333);
+    font-size: calc((0.625vmin + 3.5px) * 0.33333);
+}
+.large { /* 3 times larger than .regular */
+    width    : calc((12.5vmin + 60px) * 3);
+    height   : calc((12.5vmin + 60px) * 4.8);   /* 1.6 * 3 */
+    padding  : calc((0.56vmin + 0.89px) * 3);
+    font-size: calc((0.625vmin + 3.5px) * 3);
 }
 
 /************************************/
@@ -109,34 +99,126 @@ body { counter-reset: boxes }
     box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
                 0px 1px 1px  0px rgba(0,0,0,.14),
                 0px 1px 3px  0px rgba(0,0,0,.12) } /* GMC elevation 1dp */
-
-/*
-.box:hover:not(:focus)  { transform: scale(1.01) }
-.box:active:not(:focus) { transform: scale(0.99);
-    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
-                0px 5px  8px  0px rgba(0,0,0,.14),
-                0px 1px 14px  0px rgba(0,0,0,.12) } /* GMC elevation 5dp */
-/*
-.box:hover {
-    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
-                0px 6px 10px  0px rgba(0,0,0,.14),
-                0px 1px 18px  0px rgba(0,0,0,.12) } /* GMC elevation 6dp */
-
 </style>
 
+<style id="show-data-info">/* Display some info about the current tag */
+[data-info]:not([no-js])::after { /* all [data-info] selectors which DO NOT have a [no-js] selector */
+    position: absolute; bottom: 0; left: .25rem; z-index: 1;
+    content: '\000bb' attr(data-info) '';
+    font-weight: normal; color: red;
+    display: block;
+}
+</style>
+<style id="hide-data-info">/* Ehm, actually, don't. WTF? Well, check JS toggleStyle() below... */
+    [data-info]:not([no-js])::after { display: none }
+</style>
+<!-- General purpose JS function to enable disable a named (ID) style tag -->
+<script>function toggleStyle(id) { var el = document.getElementById(id); el.disabled = !el.disabled }</script>
+
+
 </head>
-<body>
 
-<div class="box small">
-    <p>Pro ea nonumy integre, mel at solum corpora. Id viris audiam repudiare cum, pri dolore appareat ex, per propriae detracto tacimates ex.
-        Elitr sapientem quo et, usu suas porro tibique cu. Iusto causae eos et, tota principes interesset et eos. Similique intellegam cum ei, unum
-        qualisque mel et, regione verterem delicatissimi qui ut. Aliquam incorrupte ea pro, vel veritus consequat id.</p>
+<body outlines="0">
+<div id="debug" no-js>
+    <button onclick="toggleStyle('hide-data-info');" title="toggle display of current tag/class/font-size/line-height">toggle info</button>
 </div>
 
-<div class="box large">
-    <p>Pro ea nonumy integre, mel at solum corpora. Id viris audiam repudiare cum, pri dolore appareat ex, per propriae detracto tacimates ex.
-        Elitr sapientem quo et, usu suas porro tibique cu. Iusto causae eos et, tota principes interesset et eos. Similique intellegam cum ei, unum
-        qualisque mel et, regione verterem delicatissimi qui ut. Aliquam incorrupte ea pro, vel veritus consequat id.</p>
+<div id="box1" class="box">
+    <p>320x569 - 16:9</p>
 </div>
+
+<div id="box2" class="box">
+    <p>1360x800 - 17:10</p>
+</div>
+
+<div id="main">
+    <div id="box3" class="box small">
+        <p>Pro ea nonumy integre, mel at solum corpora. Id viris audiam repudiare cum, pri dolore appareat ex, per propriae detracto tacimates ex.
+            Elitr sapientem quo et, usu suas porro tibique cu. Iusto causae eos et, tota principes interesset et eos. Similique intellegam cum ei, unum
+            qualisque mel et, regione verterem delicatissimi qui ut. Aliquam incorrupte ea pro, vel veritus consequat id.</p>
+    </div>
+    <div id="box4" class="box regular">
+        <p>Pro ea nonumy integre, mel at solum corpora. Id viris audiam repudiare cum, pri dolore appareat ex, per propriae detracto tacimates ex.
+            Elitr sapientem quo et, usu suas porro tibique cu. Iusto causae eos et, tota principes interesset et eos. Similique intellegam cum ei, unum
+            qualisque mel et, regione verterem delicatissimi qui ut. Aliquam incorrupte ea pro, vel veritus consequat id.</p>
+    </div>
+    <div id="box5" class="box large">
+        <p>Pro ea nonumy integre, mel at solum corpora. Id viris audiam repudiare cum, pri dolore appareat ex, per propriae detracto tacimates ex.
+            Elitr sapientem quo et, usu suas porro tibique cu. Iusto causae eos et, tota principes interesset et eos. Similique intellegam cum ei, unum
+            qualisque mel et, regione verterem delicatissimi qui ut. Aliquam incorrupte ea pro, vel veritus consequat id.</p>
+    </div>
+</div>
+
+<script src="../js/setrootvalues.js"></script>
+<script src="../js/setbodyvalues.js"></script>
+<script src="../js/ers-lineartocalc.js"></script>
+
+<script>
+'use-strict';
+
+const DEBUG = true;
+const crlf  = '\r\n'; // for logging
+
+var ID  = function (s) { return document.getElementById(s); };
+
+/******************************************************/
+document.addEventListener('DOMContentLoaded', initialize); // Do when DOM has been loaded, while resources loading
+//window.addEventListener('load', initialize);               // Do when all HTML/CSS/JS has been loaded
+/******************************************************/
+function initialize() {
+    /* 
+       Responsive <html> font-size, p1(320,14) p2(800,17)
+      (default return value of 'getlinearEquation')
+    */
+    __root__.setAttribute( 'style', 'font-size: ' + getlinearEquation() );
+    /*
+        Responsive <body> padding
+    
+        T/B: p1(320,64) p2(1920,144) => y = 0.5x   + 48     (vp height dependend)
+        L/R: p3(320, 8) p4(1920,320) => y = 0.195x - 54.4   (vp width  dependend)
+    */
+    var padTB = getlinearEquation( { y1: 64, x2: 1920, y2: 144, factor: 1, unit: 'px', vp: 'vh' } );
+    var padLR = getlinearEquation( { y1:  8, x2: 1920, y2: 320, factor: 1, unit: 'px', vp: 'vw' } );
+    
+    ID('main').setAttribute('style',  'padding-top: ' + padTB + 'padding-bottom: ' + padTB +
+                                     'padding-left: ' + padLR +  'padding-right: ' + padLR);
+   
+    if (DEBUG) {
+        var bold = 'font-weight: bold';
+        console.log('%chtml font-size', bold);
+        console.log( window.getlinearEquation() );
+        console.log( '%cpadding T/B', bold );
+        console.log( window.getlinearEquation( { y1: 64, x2: 1920, y2: 144, vp: 'vh' } ) );
+        console.log( window.getlinearEquation( { y1: 64, x2: 1920, y2: 144, factor: 1, unit: 'px', vp: 'vh' } ) );
+        console.log( window.getlinearEquation( { y1: 64, x2: 1920, y2: 144, factor: 1, unit: 'px', vp: 'vh', ratio: 1.77778 } ) );
+        console.log( window.getlinearEquation( { y1: 64, x2: 1920, y2: 144, vp: 'vh', ratio: 0.5625 } ) );
+        console.log( '%cpadding L/R', bold );
+        console.log( window.getlinearEquation( { y1:  8, x2: 1920, y2: 320, vp: 'vw' } ) );
+        console.log( window.getlinearEquation( { y1:  8, x2: 1920, y2: 320, factor: 1, unit: 'px', vp: 'vw' } ) );
+        console.log( window.getlinearEquation( { y1:  8, x2: 1920, y2: 320, factor: 1, unit: 'px', vp: 'vw', ratio: 1.618 } ) );
+        console.log( window.getlinearEquation( { y1:  8, x2: 1920, y2: 320, vp: 'vw', ratio: 0.5625 } ) );
+    };
+};
+
+var elemList = document.querySelectorAll('[class^="box"]');
+
+function updateInfo() {
+    Array.prototype.forEach.call(elemList, function(p) {
+        var styles    = getComputedStyle(p);
+        var lh        = parseFloat(styles.lineHeight.replace('px', ''));
+        var fs        = parseFloat(styles.fontSize.replace('px', ''));
+        var ratio     = Math.round((lh / fs) * 100) / 100;
+        var roundedFs = Math.round(fs * 100) / 100;
+
+        p.setAttribute('data-info', p.tagName.toLowerCase() + 
+                                    ((!p.className == '') ? '/'+ p.className : '') + '/'+ roundedFs + '/' + ratio );
+    });
+
+}
+
+document.addEventListener("DOMContentLoaded", updateInfo);
+window.addEventListener('resize', updateInfo);
+
+</script>
 </body>
 </html>

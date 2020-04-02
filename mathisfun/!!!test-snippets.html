@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>mathisfun snippets</title>
+
+<style id="style1">
+html,body   { box-sizing: border-box }
+
+*:before,
+*:after, *  { box-sizing: inherit }
+body        { font-size: 1rem; min-height: 100vh; margin: 0 }
+
+/* Flexbox Layout for easy positioning */
+body {
+    display: flex; flex-flow: row wrap;
+    justify-content: center; align-items: center; align-content: center;
+    background-color: silver;
+}
+</style>
+
+<style id="style2">
+.text       { color: green; }
+.text:hover { color: blue;  }
+
+.test {
+  margin : 10px;
+  padding: 10px;
+  background: yellow; color: black;
+}
+</style>
+
+</head>
+<body>
+
+<div class="text">TEXT</div>
+
+<button onclick="edit()" >Click me</button>
+<div class="test" >My box 1</div>
+<div class="test" >My box 2</div>
+<div class="test" >My box 3</div>
+
+<script>
+'use-strict';
+
+//Shortcuts to HTML elements references, by ID or by various selectors.
+//Param: selector string
+var ALL = function (s) { return document.querySelectorAll(s); };
+var CLS = function (s) { return document.getElementsByClassName(s); };
+var ID  = function (s) { return document.getElementById(s); };
+var SEL = function (s) { return document.querySelector(s); };
+var TAG = function (s) { return document.getElementsByTagName(s); };
+
+console.log(ID('style1').sheet.cssRules);
+console.log(ID('style2').sheet.cssRules);
+
+var rules = [];
+if      (document.styleSheets[1].cssRules) rules = document.styleSheets[1].cssRules;
+else if (document.styleSheets[1].rules)    rules = document.styleSheets[1].rules;
+rules[1].style.color = 'red';
+
+function edit() {
+// (spread operator) Retrieve rules of stylesheet #style2 and find selector '.test'
+[...ID('style2').sheet.cssRules].find(x => x.selectorText=='.test').style.background= 'none';
+};
+</script>
+
+</body>
+</html>
