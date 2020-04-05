@@ -15,19 +15,19 @@ window.getlinearEquation = function (options) {
     var settings = extend({
         'x1': 320,          // point p1 viewport minimum value
         'y1': 14,           // point p1 minimum size at vp minimum
-        'x2': 800,          // point p2: viewport maximum value
-        'y2': 17,           // point p2: maximum size at vp maximum
+        'x2': 1280,         // point p2: viewport maximum value
+        'y2': 20,           // point p2: maximum size at vp maximum
         // The default point values are demo and can be used to set <html> font-size
 
         'factor': 16,       // unit calculation factor, default 16 = rem, 1 = px
         'unit'  : 'rem',    // Standard unit to use for 'b'
         'vp'    : 'vmin',   // Viewport dependency unit
-        'calc'  : true,     // return full 'calc()' or equation only
-
         'ratio' : 1,        // multiplication factor for 'y', convenient for boxes
+
+        'precision': 5,     // decimal precision, 5 is usually sufficient enough
                             // e.g. 16:9 = 1.77778, 17:10 = 1.7, golden ratio = 1.618
-        'important': false, // convenience, make calc() persistent or not
-        'precision': 5      // decimal precision, 5 is usually sufficient enough
+        'calc'     : true,  // return full 'calc()' or equation only
+        'important': false  // convenience, make calc() persistent or not
     }, options);
 
     /*
@@ -38,8 +38,13 @@ window.getlinearEquation = function (options) {
         --y: calc( var(--m)  * var(--x) + var(--b));
 
         or
-    
+
+        --x: --js-v*** JS value;
         --y: calc( var(--y1) + (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * (var(--x) - var(--x1)) );
+
+        BEWARE: --x has to be the current 100vmin/vh/vw/vmax without unit, which has to be derived by JS as
+                the current CSS custom variable system does not update that value on browser resize.
+                (See below 'updateVPsizeValues()' for an example)
     */
     var x1 = settings.x1, y1 = settings.y1;
     var x2 = settings.x2, y2 = settings.y2;
@@ -54,14 +59,16 @@ window.getlinearEquation = function (options) {
     /*
         OUTPUT construction
 
-        - when ratio <> 1 add left parenthesis
-
         - mx   = multiply 'm' by 100 to turn '0.xxx * 100vmin' into 'xx.xvmin' and add vp unit
         - bOut = empty when b is 0, else when 'b' is larger than 0 then use a '+', otherwise use '-'
                  and when factor = 1 use 'px', otherwise use specified unit
 
+        - when ratio <> 1 add left parenthesis
+
         - ratioOut = when ratio <> 1 add left and right parenthesis and multiplifcation of the factor
                      when b=0 leave out parenthesis
+
+        - impOut = add '!important' when requested, but only when 'calc' is requested too
 
         - All calculated values will use the specified decimal precision
     */
@@ -71,7 +78,6 @@ window.getlinearEquation = function (options) {
     var bOut  = (b==0) ? '' :  ((b>0) ? ' + ' : ' - ') +
                                Math.abs(clampDec(b,settings.precision)) +
                                ((settings.factor==1) ? 'px' : settings.unit );
-
     var ratioOut = { 
             L: (settings.ratio==1) ? '' : ((b==0) ? '' : '('),
             R: (settings.ratio==1) ? '' : ((b==0) ? ' * ' : ') * ') + clampDec(settings.ratio,settings.precision)
@@ -80,22 +86,42 @@ window.getlinearEquation = function (options) {
     
     if (!b==0) { // 'calc()' needed when b<>0
         output = ratioOut.L + mxOut + bOut + ratioOut.R;
-        return (settings.calc) ? prefix + output + suffix + impOut: output;
+        output = (settings.calc) ? prefix + output + suffix + impOut: output;
     }
     else
         if (settings.ratio==1) { // b=0 and ratio=1 then no 'calc()' needed, ignore settings.calc
-            output = mxOut + bOut;
-            return output + impOut;
+            output = mxOut + bOut + impOut;
         }
         else { // b=0 and ratio<>1 then need 'calc()' for mx * ratio
             output = ratioOut.L + mxOut + ratioOut.R;
+            output = (settings.calc) ? prefix + output + suffix + impOut: output;
         };
-    
+
     // Return either the equation as a full 'calc();' or just the equation
-    return (settings.calc) ? prefix + output + suffix + impOut: output;
+    //  (y1 + (y2 - y1) / (x2 - x1) * (x - x1))
+    return { 
+        calc: output
+    };
+
 };
 })();
-const TEST_getlinearEquation = true;
+
+// Purposely commented out
+/*
+function updateVPsizeValues() {
+var root = document.documentElement;
+// Find the min/max of viewport Width/Height
+// and set custom variables accordingly so we can use it with CSS var()
+root.style.setProperty('--js-vmin', Math.min(window.innerWidth, window.innerHeight));
+root.style.setProperty('--js-vmax', Math.max(window.innerWidth, window.innerHeight));
+root.style.setProperty('--js-vw'  , window.innerWidth);
+root.style.setProperty('--js-vh'  , window.innerHeight);
+};
+window.addEventListener('resize', updateVPsizeValues);
+*/
+
+// For debugging purposes
+const TEST_getlinearEquation = false;
 
 if (TEST_getlinearEquation) {
     var test_getlinearEquation = {

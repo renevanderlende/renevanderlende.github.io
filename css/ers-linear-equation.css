@@ -41,7 +41,7 @@
     --lh: 1.25; line-height: var(--lh); /* making sure it's numeric */
     --ratio: 1.77778; /* 16:9 */
 }
-
+[data-fnc],
 [data-fnc="p-slope"] { /* Point-Slope: y-y1 = m(x-x1) <=> y = y1 + m(x-x1) */
     --y: calc( var(--y1) + (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * (var(--x) - var(--x1)) );
 }

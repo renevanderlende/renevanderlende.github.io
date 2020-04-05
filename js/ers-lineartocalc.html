@@ -5,7 +5,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
 
-<title>Insert title here</title>
+<title>LEC - Linear Equation to Calc()</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cutive&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700;800&display=swap"> 
+
+<link rel="stylesheet" href="../css/ers-linear-equation.css">
+<style id="ers-typography-default">
+[data-typo],
+[data-typo="1"]     { font-size: calc(var(--y) * 1px) }
+[data-typo="2"]     { font-size: calc(var(--y) * 2px) }
+[data-typo="3"]     { font-size: calc(var(--y) * 3px) }
+[data-typo="hero"]  { font-family: Cutive, serif; font-size: calc(5.20834vmin + 0.14584rem); } /* (320,19)(1280,69) */
+</style>
 
 <style id="ers-globals-default">
 /**************************/
@@ -17,13 +29,15 @@ body        { min-height: 100vh }
 *::before,*::after,
  *          { box-sizing: inherit }
 
-::-moz-focus-inner  { padding: 0; border: 0 } /* Firefox */
-:focus      { outline: dotted rgba(60,69,78,.5) 2px }
-:focus      { outline: -webkit-focus-ring-color auto 0; outline-width: 0 } /* for Edge 2020 */
+::-moz-focus-inner { padding: 0; border: 0 } /* Kill Firefox outline */
+:focus      { outline: dotted rgba(60,69,78,.5) 2px;
+              outline: -webkit-focus-ring-color auto 0; outline-width: 0 } /* for Edge 2020 */
 
 /* responsive base font size */
 /* y=mx+b => f:y(320,14)(1280,20), VMIN dependend */
 html        { font-size: calc(0.625vmin + 0.75rem) }
+body        { font-size: 1rem; font-family: 'Open Sans', sans-serif; line-height: 1.5 }
+h1          { font-size: 2rem } /* override FF+ H1 nesting behaviour */
 
 /* responsive padding */
 /* p1(320,64)(1920,144) => 0.5x + 48
@@ -39,7 +53,7 @@ html        { font-size: calc(0.625vmin + 0.75rem) }
 /******************/
 [simple-band] { display: flex; flex-flow: row wrap;
          justify-content: center; align-content: center;
-         padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
+         padding: calc(2vh + 24px) calc(19.5vw - 54.4px) } /* (320,32)(1920,72) */
 
 /* [OPTIONAL] */
 @media screen and (max-width: 319px) { [simple-band] { padding: 1.5rem   8px } }
@@ -62,9 +76,10 @@ html        { font-size: calc(0.625vmin + 0.75rem) }
 */
 [band]                  { position: relative }
 
-[band],[block]          { display: flex;
-                          justify-content: center; align-content: center }
+[band],[block],div      { display: flex }
+[band],[block]          { justify-content: center; align-content: center }
 
+div,
 [band],[band*="cols"]   { flex-flow: row wrap    }  /* a row of columns, default */
        [band*="rows"]   { flex-flow: column wrap }  /* a column of rows */
 
@@ -74,15 +89,11 @@ html        { font-size: calc(0.625vmin + 0.75rem) }
     responsive band padding (same as responsive page padding, but now at band level)
     Inversely active with [main-padding]
 */
-[padded="0"] [band*="padded"] { padding: calc(5vh + 48px) calc( 19.5vw - 54.4px) }
+[padded="0"] [band*="padded"] { padding: calc(2.5vh + 24px) calc( 19.5vw - 54.4px) }
 [padded="1"] [band*="padded"] { padding: 0 } /* already padded, no use to pad some more */
 /* 
 'Introduction' is a [band] with padding ([band*="padded"]).
 'Band padding' is only active when 'main padding' ([main-padding]) is off.
-
-Show 'MintCream' background color when 'main padding' is off
-*/
-[padded="0"] [band*="mint"] { background-color: MintCream }
 
 /* generic flexbox shortcuts */
 [F]         { display: flex }
@@ -112,8 +123,8 @@ h1,h2,h3,h4,h5,h6,b,
 [cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
 
 /* prohibit user from selecting text (put in <body>) */
-[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
-[select]   { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+[no-select] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+[do-select] { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
 /* enable user to select text (put in specific elements) */
 
 [push*="R"] { margin-left  : auto } /* push elements Right/Left/Top/Bottom */
@@ -125,6 +136,9 @@ h1,h2,h3,h4,h5,h6,b,
 [align*="J"] { text-align: justify }
 [align*="L"] { text-align: left    }
 [align*="R"] { text-align: right   }
+[align*="V"] { align-items: center }
+
+
 
 [hide], [data-hide="1"] {
     display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
@@ -134,7 +148,7 @@ h1,h2,h3,h4,h5,h6,b,
 
 /* show all elements with outlines (put in <body>) */
 [data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
-[data-debug="1"] * { outline: 1px dashed purple }
+[data-debug="1"] *                  { outline: 1px dashed purple }
 
 [data-debug] #debug,
 [data-debug] #debug * { outline: none }
@@ -142,36 +156,269 @@ h1,h2,h3,h4,h5,h6,b,
 </style>
 
 <style id="ers-theming-default">
-:focus  { outline: solid rgba(112,128,144,.7) 1px }
+:focus              { outline: solid rgba(112,128,144,.7) 1px }
+::selection         { background-color: DarkSlateGrey; color: White }
 
-body    { background-color: DarkSlateGrey; color: white }
+body                { font-family: 'Open Sans', sans-serif; font-weight: normal;
+                      background-color: rgba(47, 79, 79,.2) /*DarkSlateGrey*/; color: black }
 
-[clr="0"]       { background-color: Gainsboro; color: black }
-.header,.tiny,        /* .header here saves coding html */
-[clr="1"]       { background-color: #fefefe; color: #1e1e1e }
-[clr="2"]       { background-color: #1e1e1e; color: Yellow ; font-weight: bolder }
-[clr="3"]       { background-color: #ffcc01; color: #1e1e1e; font-weight: bolder }
+input,label,select  { font-size: 1rem }
+input[type="number"]{ width: 4rem }
+option              { width: 3rem }
+#lec-rat            { width: 6rem }
+
+#text,#form { 
+    padding: 1rem 2rem 2rem; margin: .125rem;
+
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12);  /* GMC elevation 1dp */
+}
+#text,#form         { flex-basis: calc(50% - .5rem); justify-content: flex-start; flex-grow: 1; min-width: 19rem  }
+#output             { font-size: 1.125rem; flex-grow: 1; width: 100%; cursor: auto }
+
+.label-header,
+.label-title        { min-width: 4.5rem; font-size: 1.125rem }
+
+.label-header       { font-weight: bolder }
+[id^="lec"]         { line-height: inherit }
+[id^="LEC"]         { font-size: 0.9375rem }
+
+[clr="0"]           { background-color: rgba(47, 79, 79,.1) /*DarkSlateGrey*/; color: black }
+[clr="1"]           { background-color: #fefefe; color: #1e1e1e }
+[clr="2"]           { background-color: #1e1e1e; color: Yellow ; font-weight: bolder }
+[clr="3"]           { background-color: #ffcc01; color: #1e1e1e; font-weight: bolder }
+[clr="F"]           { background-color: White; color: black }
+
+[check]             { font-family: sans-serif }
+[check="1"]::after  { content: '\2714'; color: ForestGreen; padding-left: .25em }
+[check="0"]::after  { content: '\2718'; color: FireBrick;   padding-left: .25em }
 </style>
+
+<style>
+.check                 { height: 0; width: 0; visibility: hidden }
+.check:checked + label { background-color: ForestGreen }
+
+.check + label {
+    display: inline-flex;
+    position: relative; width: 2.5rem; height: 1.25rem;
+
+    background-color: FireBrick; border-radius: 2rem;
+    text-indent: -9999px;
+}
+
+.check + label:after {
+    position: absolute; top: 7.5%; left: 4%; width: 45%; height: 85%; content: '';
+
+    background-color: #fff; border-radius: 50%;
+    transition: all 50ms ease-in-out;
+
+    box-shadow: 0px 0px 1px -1px rgba(0,0,0,.20),
+                0px 0px 1px  0px rgba(0,0,0,.14),
+                0px 0px 3px  0px rgba(0,0,0,.12);
+}
+.check:checked + label:after { left: 96%; transform: translateX(-100%) }
+.check + label:active:after  { width: 60% } /* gooey action */
+</style>
+
 
 </head>
 
-<body padded="0" noselect cleartype="1" data-debug="0">
+<body padded="0" no-select cleartype="0" data-debug="0">
 
-<section band="padded" C clr="3">
-    <h1 style="margin: 0; text-align: right">my little testing corner online</h1>
-    <p style="margin: 0; margin-bottom: 1.5rem; text-align: right">hosted with GitHub Pages</p>
+<section band="padded.hero" C clr="3">
+    <div data-typo="hero">y = mx + b to "calc()"</div>
+    <p style="margin: 0; text-align: right">hosted with GitHub Pages</p>
 </section>
 
-<section band="padded">
-    <div>sdsd
+<section band="padded" R>
+    <div id="text" C clr="F">
+        <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
+            deleniti copiosae.</p>
+        <p>Cu vel debet nobis, repudiare deseruisse reprehendunt usu ad. Ex elit idque nam. Omnis munere detraxit mei te, eu labore appareat verterem
+            est. Mel ex oporteat consectetuer.</p>
+        <p>Pro ea nonumy integre, mel at solum corpora. Id viris audiam repudiare cum, pri dolore appareat ex, per propriae detracto tacimates ex.
+            Elitr sapientem quo et, usu suas porro tibique cu. Iusto causae eos et, tota principes interesset et eos. Similique intellegam cum ei, unum
+            qualisque mel et, regione verterem delicatissimi qui ut. Aliquam incorrupte ea pro, vel veritus consequat id.</p>
+        <p>Pri te amet electram. Tation commodo minimum cu pri, utamur minimum id pri. No legimus atomorum vim.</p>
     </div>
+
+    <div id="form" C clr="F">
+        <div class="label-header">points</div>
+        <div C clr="0">
+            <div>
+                <div push="R" class="label-title">(x1,y1)</div>
+                <div>
+                    <input id="lec-x1" value="320" type="number" step="any"/>
+                    <input id="lec-y1" value="14"  type="number" step="any"/>
+                </div>
+            </div>
+            <div>
+                <div push="R" class="label-title">(x2,y2)</div>
+                <div>
+                    <input id="lec-x2" value="1280" type="number" step="any"/>
+                    <input id="lec-y2" value="20"   type="number" step="any"/>
+                </div>
+            </div>
+        </div>
+
+        <p></p>
+        <div class="label-header">units</div>
+        <div C clr="0">
+            <div>
+                <div push="R" class="label-title">mx</div>
+                <select push="R" id="lec-vp">
+                    <option value="vmin" selected="selected">vmin</option>
+                    <option value="vw"  >vw  </option>
+                    <option value="vh"  >vh  </option>
+                    <option value="vmax">vmax</option>
+                </select>
+            </div>
+            <div>
+                <div push="R" class="label-title">b</div>
+                <select push="R" id="lec-unit">
+                    <option value="rem" data-value="16" selected="selected">rem</option>
+                    <option value="px"  data-value="1">px</option>
+                </select>
+            </div>
+            <div>
+                <div push="R" class="label-title">decimals</div>
+                <input push="R" id="lec-dec" value="5" type="number" min="0" max="5"/>
+            </div>
+        </div>
+
+        <p></p>
+        <div C clr="0">
+            <div>
+                <div  class="label-header">multiply with</div>
+                <input push="R" id="lec-rat" value="1" step="any" type="number"/>
+            </div>
+        </div>
+
+        <p></p>
+        <div C clr="0">
+            <div align="V">
+                <div   class="label-header">use calc()&nbsp;</div>
+                <input class="check" type="checkbox" id="lec-calc" checked /><label for="lec-calc"></label>
+                <div   class="label-header">&nbsp;&nbsp;!important</div>
+                <input class="check" type="checkbox" id="lec-imp" /><label for="lec-imp"></label>
+            </div>
+        </div>
+
+        <p></p>
+        <div id="output" C clr="0">
+            <div  class="label-header">CSS</div>
+            <div id="LEC-converted-equation" do-select></div>
+        </div>
+    </div>
+    
 </section>
-
-
-
 
 <script src="setrootvalues.js"></script>
 <script src="setbodyvalues.js"></script>
+<script src="ers-oneliners.js"></script>
 <script src="ers-lineartocalc.js"></script>
+
+<script>
+/**************/
+/* initialize */
+/**************/
+function LinearEquationToCalc(parentElem) {
+var DEBUG = false;
+
+var owner  = document.body,
+    parent = document.getElementById(parentElem);
+
+var formInput = ALL('[id^="lec-"]'); // Lowercase 'lec' IDs only
+var input = {
+        x1: 320,
+        y1: 14,
+        x2: 1280,
+        y2: 20,
+
+        factor: 16,
+        unit  : 'rem',
+        vp    : 'vmin',
+        ratio : 1,
+
+        precision: 5,
+        calc     : true,
+        important: false
+    };
+
+    // traverse retrieved form input elements and assign 'onchange' listener
+    forEachEntryIn(formInput,
+        function (idx,el,scope) {
+            el.onchange = function(e) { __LEC_InputsOnChange(e.target) }; });
+
+    function __LEC_outputEquation() {
+        if (parent) { /* WIP */ };
+        
+        // Uppercase 'LEC' ID
+        var LEC = window.getlinearEquation(input);
+        ID('LEC-converted-equation').innerHTML = LEC.calc;
+    };
+    /*********************/
+    /* document handling */
+    /*********************/
+    function __LEC_UpdateAll() { // Execute on change of user input fields, checks all fields
+        forEachEntryIn(formInput, function (idx,el,scope) { __LEC_ProcessUserInput(el); });
+
+        __LEC_outputEquation();
+    };
+
+    function __LEC_InputsOnChange(element) { // Execute on change of user input fields, checks single field
+        __LEC_ProcessUserInput(element);
+        __LEC_outputEquation();
+    };
+
+    function __LEC_ProcessUserInput(element) { // Checks if a user input field has changed
+
+        if (DEBUG) console.log(element);
+        
+        switch (element.id) { // HTML element #id
+            case 'lec-x1'  : if (element.value != input.x1)         { input.x1 = element.value; }; break;
+            case 'lec-y1'  : if (element.value != input.y1)         { input.y1 = element.value; }; break;
+            case 'lec-x2'  : if (element.value != input.x2)         { input.x2 = element.value; }; break;
+            case 'lec-y2'  : if (element.value != input.y2)         { input.y2 = element.value; }; break;
+            case 'lec-vp'  : if (element.value != input.vp)         { input.vp = element.value; }; break;        
+
+            case 'lec-dec' : if (element.value != input.precision)  { input.precision = element.value; }; break;        
+            case 'lec-rat' : if (element.value != input.ratio)      { input.ratio     = element.value; }; break;        
+
+            case 'lec-calc': if (element.checked != input.calc     ){ input.calc      = element.checked; }; break;        
+            case 'lec-imp' : if (element.checked != input.important){ input.important = element.checked; }; break;        
+
+            case 'lec-unit':
+                if (element.value != input.unit) {
+                    input.unit   = element.value;
+                    input.factor = (element.value == 'rem') ? 16 : 1; // else 'px'
+                }; break;        
+        };
+    };
+
+    return {
+      /* PROPERTIES */
+      inputs: formInput,
+
+      /* METHODS */
+      initialize: __LEC_outputEquation,
+      updateAll : __LEC_UpdateAll,
+    };
+};
+
+/********/
+/* MAIN */
+/********/
+// document.addEventListener('DOMContentLoaded',DocInit);
+window.addEventListener('load', DocInit);
+
+function DocInit() {
+var EQU = new LinearEquationToCalc(__body__);
+EQU.updateAll();
+};
+</script>
+
+
 </body>
 </html>
