@@ -1,7 +1,5 @@
 var __root__ = document.documentElement;
 
-var getComputedProperty = function (el,prop) { return window.getComputedStyle(el,null).getPropertyValue(prop) };
-
 function updateRootValues() {
 /*
     Keep this content as short as possible as it is called on each browser resize!!
@@ -18,7 +16,7 @@ function setRootDefaults() {
     // Add anything that needs to be initialized once
 
 // Very WIP!, only on document load because of responsive html fontsize
-var fs = parseFloat(getComputedProperty(__root__,'font-size'));
+var fs = parseFloat(window.getComputedStyle(__root__,null).getPropertyValue('font-size'));
 if (!fs==16) { __root__.style.setProperty('--def-px',fs); };
 /**/
 

@@ -4,8 +4,8 @@ var extend = function(obj,ext){
     for(var key in ext) if(ext.hasOwnProperty(key)) obj[key] = ext[key]; return obj; };
 
 var clampDec = function (value,dec) {
-    if (dec==null) dec=2;
-    return (dec>0) ? Math.ceil(value * Math.pow(10,dec)) / Math.pow(10,dec) : Math.ceil(value);
+    if (dec==null) dec=2; dec = Math.abs(dec);
+    return (dec>0) ? Math.ceil(value * Math.pow(10,dec)) / Math.pow(10,dec) : value;
 };
 
 // Creates 'calc(mx+b)' from given points p1 and p2 X/Y values for use in CSS
@@ -121,7 +121,7 @@ window.addEventListener('resize', updateVPsizeValues);
 */
 
 // For debugging purposes
-const TEST_getlinearEquation = false;
+var TEST_getlinearEquation = false;
 
 if (TEST_getlinearEquation) {
     var test_getlinearEquation = {

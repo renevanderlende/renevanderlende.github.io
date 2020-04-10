@@ -7,59 +7,100 @@
 
 <title>LEC - Linear Equation to Calc()</title>
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cutive&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700;800&display=swap"> 
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cutive&family=Cutive+Mono&family=Open+Sans:wght@300;400;600;700&display=swap"> 
 
-<link rel="stylesheet" href="../css/ers-linear-equation.css">
-<style id="ers-typography-default">
-[data-typo],
-[data-typo="1"]     { font-size: calc(var(--y) * 1px) }
-[data-typo="2"]     { font-size: calc(var(--y) * 2px) }
-[data-typo="3"]     { font-size: calc(var(--y) * 3px) }
-[data-typo="hero"]  { font-family: Cutive, serif; font-size: calc(5.20834vmin + 0.14584rem); } /* (320,19)(1280,69) */
-</style>
-
-<style id="ers-globals-default">
+<style id="stl-globals-default">
 /**************************/
 /* preferred global rules */
 /**************************/
-html,body   { box-sizing: border-box; margin: 0 }
-body        { min-height: 100vh }
+html,body           { box-sizing: border-box; margin: 0 }
+body                { min-height: 100vh }
 
 *::before,*::after,
- *          { box-sizing: inherit }
+ *                  { box-sizing: inherit }
 
-::-moz-focus-inner { padding: 0; border: 0 } /* Kill Firefox outline */
-:focus      { outline: dotted rgba(60,69,78,.5) 2px;
-              outline: -webkit-focus-ring-color auto 0; outline-width: 0 } /* for Edge 2020 */
+img                 { width: 100%; display: block; object-fit: cover }
 
-/* responsive base font size */
-/* y=mx+b => f:y(320,14)(1280,20), VMIN dependend */
+:focus              { outline: -webkit-focus-ring-color auto 0; outline-width: 0 } /* for Edge 2020 */
+::-moz-focus-inner  { padding: 0; border: 0 } /* Kill Firefox outline */
+</style>
+
+<style id="stl-globals-utility-default">
+/**************************************************/
+/* Utility rules, first so they can be overridden */
+/**************************************************/
+body  { cursor: default } /* Plain arrow for everything, but... */
+input { cursor: auto    } /* ...use HTML default cursor on inputs, unless it is an: */
+
+input[list="datalist"],
+input[type="button"  ],
+input[type="checkbox"],
+input[type="radio"   ],
+input[type="color"   ],
+input[type="range"   ],
+input[type="reset"   ],
+input[type="file"    ],
+input[type="submit"  ],
+label:not([for=""]),
+a,button,select,keygen   { cursor: pointer } 
+[contenteditable="true"] { cursor: text    }
+
+/* Darker/more contrast text (put in <body>)
+   => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"] { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                              -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,strong,
+[cleartype="0"] { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+hr { 
+    display: block; width: 100%;
+    margin-top   : 0;
+    margin-bottom: 0.75em;
+    margin-left  : auto;
+    margin-right : auto;
+    border: 1px solid Grey;
+}
+
+/* prohibit user from selecting text (put in <body>) */
+[no-select] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+[do-select] { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
+
+[hide], [data-hide="1"] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+
+/* show all elements with outlines (put in <body>) */
+[outlines="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
+[outlines="1"] *                  { outline: 1px dashed purple }
+</style>
+
+
+<style id="stl-gobals-typography-default">
+/***********************************/
+/* Default global typography rules */
+/***********************************/
+
+/* responsive base font size (320,14)(1280,20) */
 html        { font-size: calc(0.625vmin + 0.75rem) }
-body        { font-size: 1rem; font-family: 'Open Sans', sans-serif; line-height: 1.5 }
+
+body        { font-size: 1rem; line-height: 1.5;
+              font-family: Arial, Helvetica, sans-serif }
+
 h1          { font-size: 2rem } /* override FF+ H1 nesting behaviour */
+</style>
 
-/* responsive padding */
-/* p1(320,64)(1920,144) => 0.5x + 48
-   p2(320, 8)(1920,320) => 0.195x - 54.4 */
-[padded="1"]{ padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
 
-/* uncomment to constraint padding below 320, above 1920 *//*
-@media screen and (max-width: 319px) { [padded] { padding:  64px   8px } }
-@media screen and (min-width:1921px) { [padded] { padding: 144px 320px } }
-/**/
+<style id="stl-flexbox-banding-default">
 /******************/
 /* simple banding */
 /******************/
-[simple-band] { display: flex; flex-flow: row wrap;
-         justify-content: center; align-content: center;
-         padding: calc(2vh + 24px) calc(19.5vw - 54.4px) } /* (320,32)(1920,72) */
-
-/* [OPTIONAL] */
-@media screen and (max-width: 319px) { [simple-band] { padding: 1.5rem   8px } }
-@media screen and (min-width:1921px) { [simple-band] { padding: 1.5rem 320px } }
-</style>
-<style id="stl-banding-default">
+[simple-band] { 
+    display: flex; flex-flow: row wrap;
+    justify-content: center; align-content: center;
+}
 /***************************************/
 /* responsive FLEXBOX bands and blocks */
 /***************************************/
@@ -74,17 +115,40 @@ h1          { font-size: 2rem } /* override FF+ H1 nesting behaviour */
 
     Note: only works from IE11 and up (huh? up?)
 */
-[band]                  { position: relative }
+[band]                  { position: relative; width: 100% }
 
-[band],[block],div      { display: flex }
+[band],[block]          { display: flex }
 [band],[block]          { justify-content: center; align-content: center }
 
-div,
 [band],[band*="cols"]   { flex-flow: row wrap    }  /* a row of columns, default */
        [band*="rows"]   { flex-flow: column wrap }  /* a column of rows */
 
 [block],[block*="rows"] { flex-flow: column wrap }  /* inverse default of [band] */
         [block*="cols"] { flex-flow: row wrap    }
+</style>
+
+
+<style id="stl-flexbox-simple-default">
+/* [MANDATORY] last in flexbox styles so they can override above setttings */
+
+/* simple flexbox shortcuts */
+[F]         { display: flex }
+[R]         { flex-direction: row }
+[C]         { flex-direction: column }
+[W]         { flex-wrap: wrap }
+
+div,item    { display: flex }
+div         { flex-flow: row wrap    }  /* a row of columns */
+item        { flex-flow: column wrap }  /* a column of rows */
+</style>
+
+
+<style id="stl-globals-spacing-alignment-default">
+p { margin: 0; padding: 1rem 0 .25rem }
+
+[simple-band] { 
+    padding: calc(2vh + 24px) calc(19.5vw - 54.4px); /* (320,32)(1920,72) */
+}
 /*
     responsive band padding (same as responsive page padding, but now at band level)
     Inversely active with [main-padding]
@@ -92,40 +156,13 @@ div,
 [padded="0"] [band*="padded"] { padding: calc(2.5vh + 24px) calc( 19.5vw - 54.4px) }
 [padded="1"] [band*="padded"] { padding: 0 } /* already padded, no use to pad some more */
 /* 
-'Introduction' is a [band] with padding ([band*="padded"]).
 'Band padding' is only active when 'main padding' ([main-padding]) is off.
+*/
 
-/* generic flexbox shortcuts */
-[F]         { display: flex }
-[R]         { flex-direction: row    }
-[C]         { flex-direction: column }
-[W]         { flex-wrap: wrap }
-</style>
-
-<style id="ers-utility-default">
-/**************************************************/
-/* Utility rules, first so they can be overridden */
-/**************************************************/
-body  { cursor: default } /* Plain arrow for everything, but... */
-input { cursor: auto    } /* ...use HTML default cursor on inputs, unless it is an: */
-
-input[list="datalist"],input[type="button"],input[type="checkbox"],input[type="radio"],
-input[type="color"],input[type="range"],input[type="reset"],input[type="file"],input[type="submit"],
-label:not([for=""]),
-a,button,select,keygen   { cursor: pointer } 
-[contenteditable="true"] { cursor: text    }
-
-/* Darker/more contrast text (put in <body>)
-   => GPU intensive, set default to "0" if document scroll feels too sluggish. */
-[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
-                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
-h1,h2,h3,h4,h5,h6,b,
-[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
-
-/* prohibit user from selecting text (put in <body>) */
-[no-select] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
-[do-select] { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
-/* enable user to select text (put in specific elements) */
+/* responsive padding */
+/* p1(320,64)(1920,144) => 0.5x + 48
+   p2(320, 8)(1920,320) => 0.195x - 54.4 */
+[padded="1"]{ padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
 
 [push*="R"] { margin-left  : auto } /* push elements Right/Left/Top/Bottom */
 [push*="L"] { margin-right : auto }
@@ -138,101 +175,377 @@ h1,h2,h3,h4,h5,h6,b,
 [align*="R"] { text-align: right   }
 [align*="V"] { align-items: center }
 
-
-
-[hide], [data-hide="1"] {
-    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
-    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
-    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
-}
-
-/* show all elements with outlines (put in <body>) */
-[data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 } /* Kills FF extra outline */
-[data-debug="1"] *                  { outline: 1px dashed purple }
-
-[data-debug] #debug,
-[data-debug] #debug * { outline: none }
-#debug { position: fixed; z-index: 999; bottom: 0; padding: .5rem; background-color: rgba(0,0,0,.5) }
+[outside],
+[outside="H"] { margin: auto calc(50% - 50vw) }
+[outside="V"] { margin: calc(50% - 50vh) auto }
 </style>
 
-<style id="ers-theming-default">
-:focus              { outline: solid rgba(112,128,144,.7) 1px }
-::selection         { background-color: DarkSlateGrey; color: White }
+<style id="stl-checkbox-default">
+/********************************/
+/* WIDGETS: checkbox variations */
+/********************************/
+[check] { height: 0; width: 0; display: none }
 
-body                { font-family: 'Open Sans', sans-serif; font-weight: normal;
-                      background-color: rgba(47, 79, 79,.2) /*DarkSlateGrey*/; color: black }
+/********************/
+/* Simple checkmark */
+/********************/
+[check="0"]                     { font-family: Arial,Helvetica,sans-serif }
+[check="0"]+label:after         { padding-left: .25em }
 
-input,label,select  { font-size: 1rem }
-input[type="number"]{ width: 4rem }
-option              { width: 3rem }
-#lec-rat            { width: 6rem }
+[check="0"]:checked+label:after { content: '\2714'; color: rgba( 47, 79, 79,.9) }
+[check="0"]+label:after         { content: '\2718'; color: rgba(178, 34, 34,.9) }
+</style>
 
-#text,#form { 
-    padding: 1rem 2rem 2rem; margin: .125rem;
-
-    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
-                0px 1px 1px  0px rgba(0,0,0,.14),
-                0px 1px 3px  0px rgba(0,0,0,.12);  /* GMC elevation 1dp */
+<style id="stl-checkbox-alt1" class="check-alt1">
+/********************/
+/* colored checkbox */
+/********************/
+[check="1"] + label {
+    display: inline-flex; position: relative; width: 2.25rem; height: 1.125rem;
+    border-radius: 2rem; border: 1px solid Silver; text-indent: -9999px;
 }
-#text,#form         { flex-basis: calc(50% - .5rem); justify-content: flex-start; flex-grow: 1; min-width: 19rem  }
-#output             { font-size: 1.125rem; flex-grow: 1; width: 100%; cursor: auto }
+
+[check="1"] + label:after {
+    position: absolute; top: 7.5%; left: 4%; width: 40%; height: 85%; content: '';
+    border-radius: 50%; background-color: Silver; transition: all 25ms ease-in-out;
+}
+
+[check="1"]:checked + label       { border-color: DimGrey }
+[check="1"]:checked + label:after { left: 96%; transform: translateX(-100%); background-color: DimGrey }
+[check="1"] + label:active:after  { width: 60% } /* gooey action */
+</style>
+
+
+<style id="stl-style-editor-default">
+/*****************************/
+/* Style viewing and editing */
+/*****************************/
+[style-edit*="1"] style { display: block }
+[style-edit*="0"] style { display: none  }
+
+style {
+    font-family: monospace; 
+    font-weight: normal; line-height: normal; letter-spacing: .02em;
+    font-size: calc(0.9375vmin + 0.3125rem); /* (320,8)(1280,17) */
+    white-space: pre-wrap;
+
+    width: 100%; max-width: 100%; padding: .5rem;
+
+    background-color: white; color: black
+ }
+ style[contenteditable="false"] { color: DimGrey }
+ 
+/******************************************/
+/* [OPTIONAL] style editor eye-candy only */
+/******************************************/
+style:before,style:after    { font-family: sans-serif; color: Black }
+
+style:before                { content: '<style id="'attr(id)'" class="'attr(class)'">' }
+style:not([class]):before   { content: '<style id="'attr(id)'">' }
+style:not([id]):before      { content: '<style class="'attr(class)'">' }
+style[media]:before         { content: '<style media="'attr(media)'">' }
+style:after                 { content: '<\/style>' }
+</style>
+<style id="theme-1-style-editor">
+/************************/
+/* Style editor theming */
+/************************/
+style                       { font-family: 'Cutive Mono', monospace }
+style:before,style:after    { font-family: 'Open Sans', sans-serif; color: rgba(47, 79, 79,.8) }
+style:not([id]):before      { color: DodgerBlue }
+style[media]:before         { color: RoyalBlue }
+</style>
+
+
+<style id="theme-1-default">
+/*****************************************/
+/* Main Theme: DarkSlateGrey and EggYoke */
+/*****************************************/
+body                { background-color: rgba(47, 79, 79,.5); color: White }
+
+h1,h2,h3,h4,h5,h6   { color: rgba(47, 79, 79,.6) }
+b,strong            { color: rgba(47, 79, 79,.8) }
+
+hr                  { border: 1px solid rgba(47, 79, 79,.1) }
+
+:focus              { outline: dotted rgba(112,128,144,.7) 2px }
+::selection         { background-color: DarkSlateGrey; color: White }
+</style>
+
+<style id="theme-1-typography">
+body,input,select       { font-family: 'Open Sans', sans-serif; font-weight: 400 }
+[data-typo="hero"]      { font-family: Cutive, serif; font-size: calc(5.20834vmin + 0.14584rem) } /* (320,19)(1280,69) */
+[data-typo="subhero"]   { font-family: Cutive, serif; color: black }
+</style>
+
+<style id="theme-1-colors">
+[clr="0"]               { background-color: rgba(47, 79, 79,.1); color: black }
+[clr="1"]               { background-color: #fefefe; color: #1e1e1e }
+[clr="2"]               { background-color: #1e1e1e; color: Yellow ; font-weight: bolder }
+[clr="3"]               { background-color: #ffcc01; color: #1e1e1e; font-weight: bolder }
+[clr="F"]               { background-color: White  ; color: black }
+</style>
+
+<style id="stl-checkbox-alt1-theme-1" class="check-alt1">
+[check="1"]:checked + label       { border-color: rgba(47, 79, 79,.8) }
+[check="1"]:checked + label:after { background-color: rgba(47, 79, 79,.8) }
+</style>
+
+
+<style id="ers-demo-lineartocalc">
+/***********************/
+/* Page specific rules */
+/***********************/
+input,select { width: 4rem; margin: .125rem; font-size: 1rem; border: 1px solid rgba(47, 79, 79,.2) }
+#lec-rat     { width: 6rem }
+
+[id^="LEC-"] {
+    justify-content: flex-start; flex-basis: 50%; flex-grow: 1;
+
+    min-width: 19rem;
+    padding  : calc(2.5vmin + 8px); /* (320,16)(1920,56) */
+    margin   : .125rem;
+}
+[id^="LEC-"] h3     { margin-bottom: 0 }
+
+#LEC-text           { flex-basis: 100% }
+#LEC-form           { flex-basis: 19rem }
+#LEC-equation       { font-weight: 700; width: 100%; cursor: auto; min-height: 10rem; color: rgba(47, 79, 79,.8) }
+
+.lec-container      { justify-content: center; flex-grow: 1 }
 
 .label-header,
-.label-title        { min-width: 4.5rem; font-size: 1.125rem }
+.label              { font-size: 1rem; color: rgba(47, 79, 79,.8) }
 
-.label-header       { font-weight: bolder }
+.label-header       { font-weight: 600; padding: .5rem 0 0; width: 100%; justify-content: flex-end; color: rgba(47, 79, 79,.4) }
+.label              { min-width: 8rem }
+
+.input              { align-items: center }
+
 [id^="lec"]         { line-height: inherit }
-[id^="LEC"]         { font-size: 0.9375rem }
 
-[clr="0"]           { background-color: rgba(47, 79, 79,.1) /*DarkSlateGrey*/; color: black }
-[clr="1"]           { background-color: #fefefe; color: #1e1e1e }
-[clr="2"]           { background-color: #1e1e1e; color: Yellow ; font-weight: bolder }
-[clr="3"]           { background-color: #ffcc01; color: #1e1e1e; font-weight: bolder }
-[clr="F"]           { background-color: White; color: black }
+.tbody              { padding: 1rem 0 }
+.tr                 { padding: .5rem 0 }
+#table1 .tr>*       { padding: 0 }
 
-[check]             { font-family: sans-serif }
-[check="1"]::after  { content: '\2714'; color: ForestGreen; padding-left: .25em }
-[check="0"]::after  { content: '\2718'; color: FireBrick;   padding-left: .25em }
+#table1 .tr>:first-child { min-width: 11rem }
+
 </style>
-
-<style>
-.check                 { height: 0; width: 0; visibility: hidden }
-.check:checked + label { background-color: ForestGreen }
-
-.check + label {
-    display: inline-flex;
-    position: relative; width: 2.5rem; height: 1.25rem;
-
-    background-color: FireBrick; border-radius: 2rem;
-    text-indent: -9999px;
-}
-
-.check + label:after {
-    position: absolute; top: 7.5%; left: 4%; width: 45%; height: 85%; content: '';
-
-    background-color: #fff; border-radius: 50%;
-    transition: all 50ms ease-in-out;
-
-    box-shadow: 0px 0px 1px -1px rgba(0,0,0,.20),
-                0px 0px 1px  0px rgba(0,0,0,.14),
-                0px 0px 3px  0px rgba(0,0,0,.12);
-}
-.check:checked + label:after { left: 96%; transform: translateX(-100%) }
-.check + label:active:after  { width: 60% } /* gooey action */
-</style>
-
 
 </head>
 
-<body padded="0" no-select cleartype="0" data-debug="0">
+
+<body padded="0" no-select style-edit="1" outlines="0">
 
 <section band="padded.hero" C clr="3">
     <div data-typo="hero">y = mx + b to "calc()"</div>
-    <p style="margin: 0; text-align: right">hosted with GitHub Pages</p>
+    <p style="padding: 0; text-align: right">responsiveness with linear equations</p>
 </section>
 
 <section band="padded" R>
-    <div id="text" C clr="F">
+    <div id="LEC-form" C clr="F">
+        <div class="label-header">points</div>
+        <hr>
+        <div C>
+            <div class="input">
+                <div class="label">p1(x1,y1)</div>
+                <input id="lec-x1" value="320" type="number" step="any"/>
+                <input id="lec-y1" value="14"  type="number" step="any"/>
+            </div>
+            <div class="input">
+                <div class="label">p2(x2,y2)</div>
+                <input id="lec-x2" value="1280" type="number" step="any"/>
+                <input id="lec-y2" value="20"   type="number" step="any"/>
+            </div>
+        </div>
+
+        <div class="label-header">result</div>
+        <hr>
+        <div C>
+            <div class="input">
+                <div class="label">multiply with</div>
+                <input id="lec-rat" value="1" type="number" step="any"/>
+            </div>
+        </div>
+
+        <div class="label-header">units</div>
+        <hr>
+        <div C>
+            <div class="input">
+                <div class="label">mx</div>
+                <select id="lec-vp">
+                    <option value="vmin" selected="selected">vmin</option>
+                    <option value="vw"  >vw  </option>
+                    <option value="vh"  >vh  </option>
+                    <option value="vmax">vmax</option>
+                </select>
+            </div>
+            <div class="input">
+                <div class="label">b</div>
+                <select id="lec-unit">
+                    <option value="rem" data-value="16" selected="selected">rem</option>
+                    <option value="px"  data-value="1">px</option>
+                </select>
+            </div>
+            <div class="input">
+                <div class="label">decimals</div>
+                <input id="lec-dec" value="3" type="number" min="0" max="6"/>
+            </div>
+        </div>
+
+        <div class="label-header">CSS</div>
+        <hr>
+        <div C>
+            <div class="input">
+                <div class="label">create 'calc()'</div>
+                <input check="1" type="checkbox" id="lec-calc" checked />
+                <label for="lec-calc"></label>
+            </div>
+            <div class="input">
+                <div class="label">!important</div>
+                <input check="1" type="checkbox" id="lec-imp"/>
+                <label for="lec-imp"></label>
+            </div>
+            <div class="input">
+                <div class="label">comment</div>
+                <input check="1" type="checkbox" id="lec-com" />
+                <label for="lec-com"></label>
+            </div>
+            <div class="input" style="margin-top: 1rem">
+                <div class="label">edit style</div>
+                <input check="1" type="checkbox" id="editstyle"
+                       onclick="switchStyleEditbyId('stl-example-cards');
+                                toggleAttributeById('stl-example-cards','cleartype','1','0');" />
+                <label for="editstyle"></label>
+            </div>
+            <div class="input" style="margin-top: 1rem">
+                <div class="label">checkbox alt 1</div>
+                <input check="1" type="checkbox" id="checktest" checked
+                       onclick="toggleAttributeAll('[type=\x22checkbox\x22]','check','1','0');" />
+                <label for="checktest"></label>
+            </div>
+        </div>
+
+        <div class="label-header">tl;dr</div>
+        <hr>
+        <div C>
+            <p class="label">linear equation <b>y=mx+b</b><br>
+               for points <b>p1(x1,y1)</b> and <b>p2(x2,y2)</b><br>
+               variation <b>y = y1 + (y2 - y1) / (x2 - x1) * (x - x1)</b>
+            </p>
+        </div>
+
+
+    </div>
+    <div id="LEC-equation" C clr="F">
+        <div C>
+            <div  class="label-header">resulting equation</div>
+            <hr>
+            <div id="output">
+                <div id="converted-equation" do-select></div>
+            </div>
+        </div>
+
+        <div C>
+            <div  class="label-header">example cards CSS rules</div>
+            <hr>
+            <div class="input">
+            <style id="stl-example-cards" contenteditable="false" cleartype="0" do-select>
+.card-outer, .card-inner {
+    /* otherwise FBL in this document */
+    display: block;
+}
+
+.card-outer {
+    /* 
+        parent width minus 
+        parent padding divide by
+        columns wanted at min/max
+
+        min =  (300.5- 32)/2 = 134.25
+        max = (1258.3-112)/4 = 286.5‬
+    */
+    /* (320,134)(1920,286) */
+    width : calc( 9.5vw + 103.6px);
+    height: calc((9.5vw + 103.6px) * 1.618);
+
+    /* (320,2)(1920,6) */
+    padding: calc(0.25vmin + 1.2px); /* GMC */
+}
+
+.card-inner {
+    background-color: rgba(47, 79, 79,.2);
+    color: Black;
+
+    /* (320,10)(1280,20) */
+    font-size: calc(1.041667vmin + 0.416667rem);
+
+    /* fill parent */
+    width: 100%; height: 100%;
+
+    /* (320,16)(1920,24) */
+    padding: calc(0.5vmin + 14.4px); /* GMC */
+
+}
+.card-inner p { padding: 0; margin: 0 }
+
+/* Some eye-candy */
+.card-inner {
+    /* GMC elevation 1dp */
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12);
+}
+.card-inner:hover {
+    transform: scale(1.01);
+    /* GMC elevation 3dp */
+    box-shadow: 0px 3px 3px -2px rgba(0,0,0,.20),
+                0px 3px 4px  0px rgba(0,0,0,.14),
+                0px 1px 8px  0px rgba(0,0,0,.12);
+}
+.card-inner:active:not(:focus) { transform: scale(1) }
+</style>
+            </div>
+        </div>
+    </div>
+
+    <div id="LEC-example" clr="F">
+        <div class="label-header">example cards</div>
+        <hr>
+        <div class="lec-container">
+            <div class="card-outer">
+                <div class="card-inner">
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad.
+                       Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.
+                    </p>
+                </div>
+            </div>
+            <div class="card-outer">
+                <div class="card-inner">
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad.
+                       Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.
+                    </p>
+                </div>
+            </div>
+            <div class="card-outer">
+                <div class="card-inner">
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad.
+                       Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.
+                    </p>
+                </div>
+            </div>
+            <div class="card-outer">
+                <div class="card-inner">
+                    <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad.
+                       Legendos expetendis id sed. Ex ius quem accusamus, pri et deleniti copiosae.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="LEC-text" C clr="F">
+        <h3><span title="long; but read anyway">l;bra</span> - how to use linear equations for responsive sizing</h3>
         <p>Lorem ipsum dolor sit amet, exerci dolorem est ad. Sumo rebum prompta vim ad. Legendos expetendis id sed. Ex ius quem accusamus, pri et
             deleniti copiosae.</p>
         <p>Cu vel debet nobis, repudiare deseruisse reprehendunt usu ad. Ex elit idque nam. Omnis munere detraxit mei te, eu labore appareat verterem
@@ -240,82 +553,75 @@ option              { width: 3rem }
         <p>Pro ea nonumy integre, mel at solum corpora. Id viris audiam repudiare cum, pri dolore appareat ex, per propriae detracto tacimates ex.
             Elitr sapientem quo et, usu suas porro tibique cu. Iusto causae eos et, tota principes interesset et eos. Similique intellegam cum ei, unum
             qualisque mel et, regione verterem delicatissimi qui ut. Aliquam incorrupte ea pro, vel veritus consequat id.</p>
-        <p>Pri te amet electram. Tation commodo minimum cu pri, utamur minimum id pri. No legimus atomorum vim.</p>
-    </div>
 
-    <div id="form" C clr="F">
-        <div class="label-header">points</div>
-        <div C clr="0">
-            <div>
-                <div push="R" class="label-title">(x1,y1)</div>
-                <div>
-                    <input id="lec-x1" value="320" type="number" step="any"/>
-                    <input id="lec-y1" value="14"  type="number" step="any"/>
+        <div id="table1" C>
+            <div class="tbody" C>
+                <div class="tr">
+                    <h3><b>calculate result using</b></h3>
+                </div>
+
+                <div class="tr">
+                    <div>intercept-slope form</div>
+                    <div><b>y = mx + b</b></div>
+                </div>
+
+                <div class="tr">
+                    <div>point-slope form</div>
+                    <div><b>y = y1 + (y2 - y1) / (x2 - x1) * (x - x1)</b></div>
+                </div>
+
+                <div class="tr">
+                    <h3><b>for points</b></h3>
+                </div>
+
+                <div class="tr">
+                    <div><b>p1</b>: (x1,y1)</div>
+                    <div><b>x1</b>&nbsp;- minimum viewport value &nbsp;</div>
+                    <div><b>y1</b>&nbsp;- value at minimum viewport</div>
+                </div>
+                <div class="tr">
+                    <div><b>p2</b>: (x2,y2)</div>
+                    <div><b>x2</b>&nbsp;- maximum viewport value &nbsp;</div>
+                    <div><b>y2</b>&nbsp;- value at maximum viewport</div>
+                </div>
+
+                <div class="tr">
+                    <h3><b>where</b></h3>
+                </div>
+
+                <div class="tr">
+                    <div><b>y</b>: equation result</div>
+                    <div><b>rise</b>&nbsp;- how far up the line</div>
+                </div>
+
+                <div class="tr">
+                    <div><b>m</b>: (y2 - y1) / (x2 - x1)</div>
+                    <div><b>slope</b>&nbsp;- steepness of the line (change in Y / change in X) or (rise / run)</div>
+                </div>
+
+                <div class="tr">
+                    <div><b>x</b>: 100vmin</div>
+                     <div><b>run</b>&nbsp;- how far along the line (fixed 100 vmin, vh, vw or vmax)</div>
+                </div>
+
+                <div class="tr">
+                    <div><b>b</b>: y1 - m * x1</div>
+                    <div><b>Y-intercept</b>&nbsp;- where the line crosses the Y-axis</div>
+                </div>
+
+                <div class="tr">
+                    <div><b>y-scale</b>:</div>
+                    <div>viewport size</div>
+                </div>
+                <div class="tr">
+                    <div><b>y-scale</b>:</div>
+                    <div>element size</div>
                 </div>
             </div>
-            <div>
-                <div push="R" class="label-title">(x2,y2)</div>
-                <div>
-                    <input id="lec-x2" value="1280" type="number" step="any"/>
-                    <input id="lec-y2" value="20"   type="number" step="any"/>
-                </div>
-            </div>
-        </div>
-
-        <p></p>
-        <div class="label-header">units</div>
-        <div C clr="0">
-            <div>
-                <div push="R" class="label-title">mx</div>
-                <select push="R" id="lec-vp">
-                    <option value="vmin" selected="selected">vmin</option>
-                    <option value="vw"  >vw  </option>
-                    <option value="vh"  >vh  </option>
-                    <option value="vmax">vmax</option>
-                </select>
-            </div>
-            <div>
-                <div push="R" class="label-title">b</div>
-                <select push="R" id="lec-unit">
-                    <option value="rem" data-value="16" selected="selected">rem</option>
-                    <option value="px"  data-value="1">px</option>
-                </select>
-            </div>
-            <div>
-                <div push="R" class="label-title">decimals</div>
-                <input push="R" id="lec-dec" value="5" type="number" min="0" max="5"/>
-            </div>
-        </div>
-
-        <p></p>
-        <div C clr="0">
-            <div>
-                <div  class="label-header">multiply with</div>
-                <input push="R" id="lec-rat" value="1" step="any" type="number"/>
-            </div>
-        </div>
-
-        <p></p>
-        <div C clr="0">
-            <div align="V">
-                <div   class="label-header">use calc()&nbsp;</div>
-                <input class="check" type="checkbox" id="lec-calc" checked /><label for="lec-calc"></label>
-                <div   class="label-header">&nbsp;&nbsp;!important</div>
-                <input class="check" type="checkbox" id="lec-imp" /><label for="lec-imp"></label>
-            </div>
-        </div>
-
-        <p></p>
-        <div id="output" C clr="0">
-            <div  class="label-header">CSS</div>
-            <div id="LEC-converted-equation" do-select></div>
         </div>
     </div>
-    
 </section>
 
-<script src="setrootvalues.js"></script>
-<script src="setbodyvalues.js"></script>
 <script src="ers-oneliners.js"></script>
 <script src="ers-lineartocalc.js"></script>
 
@@ -342,8 +648,10 @@ var input = {
         ratio : 1,
 
         precision: 5,
+
         calc     : true,
-        important: false
+        important: false,
+        comment  : false
     };
 
     // traverse retrieved form input elements and assign 'onchange' listener
@@ -356,7 +664,12 @@ var input = {
         
         // Uppercase 'LEC' ID
         var LEC = window.getlinearEquation(input);
-        ID('LEC-converted-equation').innerHTML = LEC.calc;
+        ID('converted-equation').innerHTML = LEC.calc +
+            ((input.comment) ? ' /* (' +
+                               input.x1 + ',' + input.y1 + ')(' +
+                               input.x2 + ',' + input.y2 + 
+                               ') */'
+                             : '');
     };
     /*********************/
     /* document handling */
@@ -388,6 +701,7 @@ var input = {
 
             case 'lec-calc': if (element.checked != input.calc     ){ input.calc      = element.checked; }; break;        
             case 'lec-imp' : if (element.checked != input.important){ input.important = element.checked; }; break;        
+            case 'lec-com' : if (element.checked != input.comment)  { input.comment   = element.checked; }; break;        
 
             case 'lec-unit':
                 if (element.value != input.unit) {
@@ -418,7 +732,5 @@ var EQU = new LinearEquationToCalc(__body__);
 EQU.updateAll();
 };
 </script>
-
-
 </body>
 </html>

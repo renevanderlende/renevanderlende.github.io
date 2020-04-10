@@ -1,0 +1,581 @@
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>!!!Test Snippets</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" crossorigin="anonymous">
+
+<style id="ers-globals-default">
+
+/* modify parent when hovering child *//*
+.parent      { pointer-events: none; outline: 10px solid #ffc439; outline-offset: -10px }
+#child       { pointer-events: auto; height: 44px }
+#child:hover { outline: 10px solid #f1bb37; outline-offset: -10px }
+
+<div class="parent">
+    <div id="child"></div>
+</div>
+/**/
+
+/*
+    MAXIMUM Z-INDEX VALUE: 2^31 - 1 => 2.147.483.648 - 1
+    BEWARE: depending on browser higher values may become unpredicatable or elements disappear (Firefox),
+            but will mostly default to 2.147.483.647
+*/
+/*
+
+    TODO: massive WIP
+
+    Introduce GLOBAL density like GMC    
+
+
+    Density scale
+
+    The density scale allows you to control the density of individual components when needed.
+
+    The density scale is numbered, starting at 0 for a component’s default density.
+    The scale moves to negative numbers (-1, -2, -3) as space decreases, creating higher density.
+    Each increment represents a decrease in the height of a component by 4dps. 
+
+    - Do not change the padding of a component when increasing its density.
+      Component padding affects height and reducing padding can affect user interactions negatively.
+
+    - Change dimensions when increasing the density of components.
+      Component dimensions affect the length and height of the component or element.
+
+    - Use a center specification to align elements within component containers.
+      Center aligning elements allows component heights to be adjusted without additional
+      alignment of elements. (note: GMC mostly uses flexbox alignment)
+
+    - When multiple elements are stacked vertically within a component,
+      use 4dp increments to separate them. Center the grouped element within the component container.
+
+    - Touch targets apply to any device that receives both touch and non-touch input.
+      To balance information density and usability, the touch target for default density components
+      should be at least 48 x 48 dp, with at least 8dp of space between each target.
+
+    Elements (examples)
+    40dp element, 48dp touch target (FAB)
+    24dp element, 48dp touch target (icon)
+    36dp element, 48dp touch target (button)
+
+    Typography (examples)
+    Larger  line height: 44dp, 40dp, 44dp, 32dp
+    Smaller line height: 36dp, 32dp, 40dp, 20dp
+
+    Implementation (as of Feb 2020)
+    Android Planned
+    iOS     Planned
+    Web     Available (https://material.io/develop/web/components/density/)
+    Flutter Planned
+
+    SASS button equation: $height: $mdc-button-height + $mdc-density-interval * $density-scale
+    // @example 36px + 4px * (-3) => 24px
+*/
+
+/**********************/
+/* Global preferences */
+/**********************/
+html,body           { box-sizing: border-box; width: 100%; height: 100%; margin: 0 }
+*::before,
+*::after, *         { box-sizing: inherit }
+
+body                { max-width: 100%; min-height: 100vh }
+
+/* generic FBL rules */
+#main,
+section,section>*,
+div,item,ul         { display: flex; flex-wrap: wrap }
+#main,item,ul       { flex-direction: column }
+div                 { flex-direction: row    }
+
+/* layout stuff */
+ul                  { margin: 0; padding: 0; list-style-type: none } /* remove html defaults */
+p,li                { margin: 0 }
+a                   { color: currentColor } /* use href="javascript:void(0)" instead of "#" to prevent jump */
+</style>
+
+<style id="ers-sizing-default">
+/************************/
+/* Global element sizing */
+/************************/
+#main           { width: 100%; height: 100%; overflow: auto }
+
+section         { justify-content: center }
+section>*       { flex-grow: 0;
+                  flex-basis: calc(0.9375vw + 297px);
+                  padding: .5rem }
+</style>
+
+
+<style id="ers-spacing-default">
+/**************************************/
+/* Global element spacing preferences */
+/**************************************/
+
+p   { padding-bottom: .25rem }
+
+/* f:y=mx+b => T/B f:y(320,64)(1920,144) => 0.5x + 48
+            => L/R f:y(320, 8)(1920,320) => 0.195x - 54.4 */
+[padded]    { padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
+
+/* uncomment to constraint padding below 320, above 1920 *//*
+@media screen and (max-width: 319px) { [padded] { padding:  64px   8px } }
+@media screen and (min-width:1921px) { [padded] { padding: 144px 320px } }
+/**/
+</style>
+
+
+<style id="ers-utility-default">
+/******************************/
+/* Global utility preferences */
+/******************************/
+body  { cursor: default } /* Plain arrow for everything, but... */
+input { cursor: auto    } /* ...use HTML default cursor on inputs, except on: */
+
+input[list="datalist"],input[type="button"],input[type="checkbox"],input[type="radio"],
+input[type="color"],input[type="range"],input[type="reset"],input[type="file"],input[type="submit"],
+label:not([for=""]),
+a,button,select,keygen   { cursor: pointer } 
+[contenteditable="true"] { cursor: text    }
+
+/* Darker/more contrast text (put this in <body>)
+   => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+/* prohibit user from selecting text (put this in <body>) */
+.noselect,[select="0"],[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+.select  ,[select="1"],[select]   { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
+
+/* element positioning (concurrent options possible) */
+[push*="T"] { margin-bottom: auto } /* UP    */
+[push*="R"] { margin-left  : auto } /* RIGHT */
+[push*="B"] { margin-top   : auto } /* DOWN  */
+[push*="L"] { margin-right : auto } /* LEFT  */
+
+/* element alignment for non FBL (one option possible) */
+[just="C"] { text-align: center  }
+[just="J"] { text-align: justify }
+[just="L"] { text-align: left    }
+[just="R"] { text-align: right   }
+
+[hide] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+[data-hide="0"] { display: flex } /* yes, assuming FBL */
+[data-hide="1"] { display: none }
+</style>
+
+
+<style id="ers-graphics-default">
+/*********************************/
+/* Generic graphical preferences */
+/*********************************/
+[data-grid="1"] {
+       background-image: url(../../assets/SVG/grid-svg.svg);
+       background-origin  : border-box;
+       background-position: 0 0;
+       background-size    : cover;
+       background-repeat  : repeat;
+       background-attachment: fixed;
+}
+
+svg  { width: 100%; height: 100% }
+</style>
+
+
+<style id="ers-icns-default">
+/******************************************/
+/* Generic icon preferences, GMC inspired */
+/******************************************/
+[icn] {
+/* https://material.io/resources/icns/ */
+    display: inline-flex;
+    justify-content: center; align-content: center; align-items: center;
+    text-align: center;
+
+    width      : 1.25rem; /* originally 24px/1.5rem */
+    height     : 1.25rem;
+    line-height: 1.25rem;
+    font-size  : 1.25rem;
+
+    font-weight: normal; font-style: normal;
+    letter-spacing: normal; text-transform: none; white-space: nowrap; word-wrap: normal;
+
+     /* Just for IE11 (or maybe older FF too) */
+    -moz-font-feature-settings: 'liga';
+    font-feature-settings     : 'liga';
+
+    -moz-osx-font-smoothing   : grayscale;
+}
+[icn], /* <= Default (move your preferred icon 'font-family' below this) */
+[icn="gmc"] { font-family: 'Material Icons' }           /* Google Material Components icon */
+[icn="awe"] { font-family: 'FontAwesome 5 Pro' }        /* FontAwsome 5+ */
+[icn="cus"] { font-family: inherit }                    /* Custom character, current font */
+[icn="utf"] { font-family: Arial,Helvetica,sans-serif } /* html attribute or unicode symbols,
+                                                           browser default font */
+/* TODO: Just here as a reminder */
+[icn][T] { padding-top   : .275rem } /* In IE11 some (GMC) font icns need T/R/B/L adjustment */
+[icn][R] { padding-right : .275rem } /* Depending on number of icns used, maybe add to 'icn' rule above? */
+[icn][B] { padding-bottom: .275rem } /* BUT alas, recent browser don't need this, now what? */
+[icn][L] { padding-left  : .275rem } /* Some ligature setting for IE11??  For now: don't use these */
+</style>
+
+
+<style id="ers-buttons-default">
+/********************************************/
+/* Generic button preferences, GMC inspired */
+/********************************************/
+[btn] {
+    display: inline-flex; justify-content: center; align-content: center; align-items: center;
+    position: relative;
+
+    /* no selection (on accidental double-click or clicker-de-clicks) */
+    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+
+    /* cancels html defaults for <a>,<button>,<li> */
+    font-family: inherit; text-decoration: none; border: none; margin: 0; padding: 0;
+
+    font-size  : 1rem;
+}
+
+[btn*="default"] {
+    width      : 2.5rem;
+    height     : 2.5rem;
+    line-height: 2.5rem;
+}
+[btn], /* my preference, move to yours... */
+[btn*="comfy"] {
+    width      : 2rem;
+    height     : 2rem;
+    line-height: 2rem;
+}
+[btn*="compact"] {
+    width      : 1.75rem;
+    height     : 1.75rem;
+    line-height: 1.75rem;
+}
+</style>
+
+
+<style id="ers-theming-default">
+/*****************************************/
+/* Generic dull theme/layout preferences */
+/*****************************************/
+/* y=mx+b => f:y(320,16)(1280,22), VMIN dependend, never VMAX (yields faulty results) */
+html    { font-size: calc(0.625vmin + 0.875rem) } /* 16>22 */
+/* add/subtract 0.0625 to/from 0.875 for 1px up/down => 0.9375 => 17>23 */
+
+body    { line-height: 1.3333; background-color: #f5f5f5; color: rgba(60,69,78,1) } /* dark Slate Gray/#3c454e */
+
+.info   { margin-bottom: auto } /* pushes text UP */
+
+[icn] { /* for ALL icons */
+    background-color: transparent;
+    color: currentColor;    /* font */
+    fill : currentColor;    /* SVG  */
+    opacity: .85;
+}
+[btn], [btn] [menu] { /* for ALL custom buttons */
+    cursor: pointer; /* for non-input elements */
+    color: black; background-color: Silver;
+    border-radius: 1.25rem; /* height/2, which seems 50% but that doesn't work here */
+    opacity: .7;
+}
+[btn]>span      { padding: 0 .5rem }        /* for Extended FAB label, use 'span' only */
+[btn]>*         { pointer-events: none }    /* for IE11, bubbles 'click' event to containing <a> */
+
+[btn*="sq"] { border-radius: 3px }
+
+[btn]:hover,[btn]:focus {
+    width: auto;
+    min-width: 8rem /*[OPTIONAL] makes 'em equal(ish) */
+}
+[btn]:hover [menu],
+[btn]:hover     { opacity: 1 }
+[btn]:focus [menu],
+[btn]:focus     { opacity: 1; background-color: Gray }
+
+/* add [btn]/.btn selectors if for custom buttons only */
+:disabled,:disabled:hover,
+[disabled=""],[disabled=""]:hover {
+    pointer-events: none; opacity: .3;
+    filter: saturate(75%);          /* for IE11 */
+    filter: saturate(75%) blur(1px) /* others   */
+ }
+:disabled *,:disabled:hover *,      /* ditto */
+[disabled=""] *,[disabled=""]:hover * { pointer-events: none; opacity: .7 }
+/**/
+</style>
+
+
+<style id="tgl-shaded-btn-default">
+/******************************/
+/* Button shading preferences */
+/******************************/
+[btn] {
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12);   /* GMC elevation 1dp */
+}
+[btn]:not([no-anim]):hover:not(:focus)  { transform: scale(1.03) }
+[btn]:not([no-anim]):active:not(:focus) { transform: scale(0.99);
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 5px  8px  0px rgba(0,0,0,.14),
+                0px 1px 14px  0px rgba(0,0,0,.12);  /* GMC elevation 5dp */
+}
+[btn]:not([no-anim]):hover {
+    box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
+                0px 6px 10px  0px rgba(0,0,0,.14),
+                0px 1px 18px  0px rgba(0,0,0,.12);  /* GMC elevation 6dp */
+}
+
+/* add [btn]/.btn selectors if for custom buttons only */
+:disabled,:disabled:hover,[disabled=""],[disabled=""]:hover {
+    box-shadow: none;
+}
+</style>
+
+
+<style id="tgl-theming-colored">
+/********************************************/
+/* Generic colored theme/layout preferences */
+/********************************************/
+:focus                  { outline: dotted rgba(60,69,78,.5) 2px }
+::selection             { background-color: rgba( 75,  0,130,1); color: white }
+
+[btn]:hover [menu],
+[btn]:hover             { background-color: rgba( 95,108,122,1) } /* rgba( 95,108,122,1) #5f6c7a 2 * darker SlateGray */
+
+[btn]:focus [menu],
+[btn]:focus             { background-color: rgba( 75,  0,130,1) } /* rgba( 75,  0,130,1) #4b0082 Indigo */
+
+[btn],[btn] [menu]      { color: white; background-color: rgba(112,128,144,1) } /* SlateGray */
+
+#debug [btn]            { background-color: rgba(100,149,237,1) } /* rgba(139,  0,139,1) #8b008b DarkMagenta */
+#debug [btn]:focus      { background-color: rgba(139,  0,139,1) } /* rgba(100,149,237,1) #6495ed CornflowerBlue */
+</style>
+
+
+<style id="tgl-theme-outlines">
+/****************************************/
+/* Global element 'outline' preferences */
+/****************************************/
+/* DISABLED by default, production: make sure to enable for the 'vision impaired' */
+::-moz-focus-inner  { padding: 0; border: 0 }                      /* FF extra outline */
+:focus              { outline: none;                               /* Generic */
+                      outline: -webkit-focus-ring-color auto 0px } /* Edge (Chromium 2020) */
+</style>
+
+
+<style id="ers-debug-default">
+/**************************************************/
+/* debug rules, last but before snippet specifics */
+/**************************************************/
+
+/* show all elements with outlines (put in <body>) */
+[data-debug="1"] ::-moz-focus-inner { padding: 0; border: 0 }
+[data-debug="1"] :focus             { outline: -webkit-focus-ring-color auto 0px }
+[data-debug="1"] *                  { outline: 1px dashed purple }
+
+/* debug menu styling */
+#debug, #debug>*                    { display: flex; flex-flow: column wrap }
+#debug>*                            { flex-basis: auto; align-items: flex-end }
+
+#debug                              { position: fixed; z-index: 99999;
+                                      bottom: 0; right: 0; padding: 1rem }
+
+#debug [btn] { /* 'dense' buttons */
+    margin     : .25rem 0;
+    width      : 2rem;
+    height     : 2rem;
+    line-height: 2rem;
+ }
+
+#debug [btn]::before,
+#debug [btn]::after                 { padding: 0 .25rem }
+
+/* no outlines around #debug itself */
+#debug, #debug *                    { outline: none; transition: all 0ms ease-in-out }
+
+/* default 'on' for toggle */
+[data-debug="1"] *                  { transition: all 250ms ease-in-out }
+</style>
+<style id="tgl-dbg-transition">
+[data-debug="1"] *                  { transition: all 0ms ease-in-out }
+</style>
+
+
+<style id="ers-snippets">
+/*****************************************************/
+/* snippets/demo, last so they can override anything */
+/*****************************************************/
+[id^="sn-"]     { text-align: center; align-items: center }
+[id^="sn-"]>*   { margin-bottom: .25rem }
+
+/* Snippet 001/002 */
+[btn] [long], [btn] [menu]
+{ display: none } /* hide initially */
+
+[btn]:hover [menu],[btn]:focus [menu],
+[btn]:hover [long],[btn]:focus [long] { display: flex }
+
+#sn-002 [btn]:hover [short], #sn-002 [btn]:focus [short]
+{ display: none } /* [OPTIONAL] hides 'short' content when active */
+
+/* Snippet 003/004 */
+#sn-003 [btn],#sn-004 [btn],#sn-005 [btn] { min-width: 8rem }
+
+#sn-005     { flex-flow: row nowrap }
+#sn-005>*   { margin: .25rem }
+
+[btn] [menu] {
+    position: absolute; top: 2.75rem; left: .125rem; width: 7.75rem;
+    z-index: 10;
+    flex-direction: column;
+    border-radius: 0 0 1.25rem 1.25rem;
+}
+[btn*="dense"] [menu] {
+    top: 2.25rem;
+}
+</style>
+
+</head>
+
+
+<body data-debug="0" dir="ltr">
+<main id="main" data-grid="0">
+    <section padded>
+        <item>
+            <h4>Snippet 1: Ext FAB menu</h4>
+            <p class="info">Using &lt;A&gt; and &lt;BUTTON&gt; as toggle elements with :FOCUS selector as alternative to the 'checkbox trick'.<br>
+               (GMC Extended FAB inspired)</p>
+            <item id="sn-001">
+                <a btn href="javascript:void(0)"><i short icn>home</i><span long>home</span></a>
+                <button btn><i short icn>menu </i><span long>menu </span></button>
+                <button btn><i short icn>close</i><span long>close</span></button>
+                <button btn disabled><i short icn>accessible</i><span long>disabled</span></button>
+            </item>
+        </item>
+        <item>
+            <h4>Snippet 2: Ext FAB toggle</h4>
+            <p class="info">The same as snippet 2, but with 'short' removed on hover.</p>
+            <item id="sn-002">
+                <a btn href="javascript:void(0)"><i short icn>home</i><span long>home</span></a>
+                <button btn><i short icn>menu </i><span long>menu </span></button>
+                <button btn><i short icn>close</i><span long>close</span></button>
+                <button btn disabled><i short icn>accessible</i><span long>disabled</span></button>
+            </item>
+        </item>
+        <item>
+            <h4>Snippet 3: Ext Button Menu</h4>
+            <p class="info">Full width Ext FAB buttons, equal code without 'short' and 'long' attributes in &lt;tags&gt;.</p>
+            <item id="sn-003">
+                <a btn href="javascript:void(0)"><i icn>home</i><span>home</span></a>
+                <button btn><i icn>menu </i><span>menu </span></button>
+                <button btn><i icn>close</i><span>close</span></button>
+                <button btn disabled><i icn>accessible</i><span>disabled</span></button>
+            </item>
+        </item>
+        <item>
+            <h4>Snippet 4: Button Menu Alt</h4>
+            <p class="info">The same as snippet 3, but using 'Unordered List', &lt;UL&gt; and &lt;LI&gt;.</p>
+            <ul id="sn-004">
+                <li><a btn href="javascript:void(0)"><i icn>home </i><span>home </span></a></li>
+                <li><button btn><i icn>menu </i><span>menu </span></button></li>
+                <li><button btn><i icn>close</i><span>close</span></button></li>
+                <li><button btn disabled><i icn>accessible</i><span>disabled</span></button></li>
+            </ul>
+        </item>
+        <item>
+            <h4>Snippet 5, Button Dropdown Menu</h4>
+            <p class="info"></p>
+            <item id="sn-005">
+                <a btn="dense" href="javascript:void(0)">
+                    <i short icn>menu </i><span>menu 1</span>
+                    <span menu>
+                        <span>row 1</span>
+                        <span>row 2</span>
+                        <span>row 3</span>
+                        <span>row 4</span>
+                    </span>
+                </a>
+                <a btn="dense" href="javascript:void(0)">
+                    <i short icn>menu </i><span>menu 2</span>
+                    <span menu>
+                        <span>row 1</span>
+                        <span>row 2</span>
+                        <span>row 3</span>
+                        <span>row 4</span>
+                    </span>
+                </a>
+            </item>
+        </item>
+    </section>
+
+
+    <section id="debug" dir="ltr">
+        <item>
+            <button btn onclick="toggleStateB('data-debug')"           ><i short icn>bug_report       </i><span long>debug    </span></button>
+            <button btn onclick="toggleStyle('tgl-dbg-transition')"    ><i short icn>slow_motion_video</i><span long>dbg delay</span></button>
+            <button btn onclick="toggleState('main','data-grid')"      ><i short icn>grid_on          </i><span long>grid 10px</span></button>
+        </item>
+        <item>
+            <button btn onclick="toggleStyle('tgl-theming-colored')"   ><i short icn>style            </i><span long>styling  </span></button>
+            <button btn onclick="toggleStyle('tgl-shaded-btn-default')"><i short icn>filter_none      </i><span long>shading  </span></button>
+            <button btn onclick="toggleStyle('tgl-theme-outlines')"    ><i short icn>border_clear     </i><span long>outlines </span></button>
+        </item>
+        <item>
+            <button btn onclick="toggleDocDir()"                       ><i short icn>chevron_right    </i><span long>direction</span></button>
+        </item>
+    </section>
+</main>
+
+
+<script id="ers-oneliners-scr">
+'use-strict'; /* always, prevents on-the-fly use of variables */
+
+/* Shortcuts to both the html and body element */
+var root = document.documentElement;
+var body = document.body;
+
+// Traverse an array and execute the passed callback function for each array element found
+var forEachEntryIn = function (array, callback, scope) {
+for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
+
+/*****************************/
+/* Oneliner toggle functions */
+/*****************************/
+
+// No error checking whatsoever, so the elements better exist...
+
+//Get reference to HTML element by its ID
+function elem(e) { return document.getElementById(e); } 
+
+function toggleState(id,a) { var e=elem(id); if (e) { if (e.getAttribute(a)=='1') e.setAttribute(a,'0'); else e.setAttribute(a,'1');}; }
+function toggleStateB(a)   { if (body.getAttribute(a)=='1') body.setAttribute(a,'0'); else body.setAttribute(a,'1'); }
+function toggleStateR(a)   { if (root.getAttribute(a)=='1') root.setAttribute(a,'0'); else root.setAttribute(a,'1'); }
+
+// Toggle the use of a specific style block
+function toggleStyle(id) { var el = elem(id); el.disabled = !el.disabled; }
+
+// Toggle/Disable/Enable an array of style blocks (by ID)
+function stylesToggle(array) { forEachEntryIn( array, function (i,e,s) { toggleStyle(e); }); }
+function stylesOff(array)    { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = true;  }); }
+function stylesOn(array)     { forEachEntryIn( array, function (i,e,s) { elem(e).disabled = false; }); }
+
+// Toggles the document direction from LTR to RTL and v.v.
+function toggleDocDir() { if  (body.getAttribute('dir')=='rtl') body.setAttribute('dir','ltr'); else body.setAttribute('dir','rtl'); }
+</script>
+
+</body>
+</html>
