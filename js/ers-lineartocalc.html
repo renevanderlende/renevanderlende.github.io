@@ -117,8 +117,7 @@ h1          { font-size: 2rem } /* override FF+ H1 nesting behaviour */
 */
 [band]                  { position: relative; width: 100% }
 
-[band],[block]          { display: flex }
-[band],[block]          { justify-content: center; align-content: center }
+[band],[block]          { display: flex; justify-content: center; align-content: center }
 
 [band],[band*="cols"]   { flex-flow: row wrap    }  /* a row of columns, default */
        [band*="rows"]   { flex-flow: column wrap }  /* a column of rows */
@@ -144,25 +143,19 @@ item        { flex-flow: column wrap }  /* a column of rows */
 
 
 <style id="stl-globals-spacing-alignment-default">
+
 p { margin: 0; padding: 1rem 0 .25rem }
 
-[simple-band] { 
-    padding: calc(2vh + 24px) calc(19.5vw - 54.4px); /* (320,32)(1920,72) */
-}
 /*
-    responsive band padding (same as responsive page padding, but now at band level)
-    Inversely active with [main-padding]
+    responsive page padding
+    and responsive band padding (same as responsive page padding, but at band level)
+    p1(320,32)(1920, 72) => 0.25x + 24
+    p2(320, 8)(1920,320) => 0.195x - 54.4 
 */
-[padded="0"] [band*="padded"] { padding: calc(2.5vh + 24px) calc( 19.5vw - 54.4px) }
+[padded="1"],[simple-band],
+[padded="0"] [band*="padded"] { padding: calc(2.5vh + 24px) calc(19.5vw - 54.4px) }
 [padded="1"] [band*="padded"] { padding: 0 } /* already padded, no use to pad some more */
-/* 
-'Band padding' is only active when 'main padding' ([main-padding]) is off.
-*/
-
-/* responsive padding */
-/* p1(320,64)(1920,144) => 0.5x + 48
-   p2(320, 8)(1920,320) => 0.195x - 54.4 */
-[padded="1"]{ padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
+/* 'Band padding' is only active when 'page padding' is off. */
 
 [push*="R"] { margin-left  : auto } /* push elements Right/Left/Top/Bottom */
 [push*="L"] { margin-right : auto }
@@ -335,7 +328,7 @@ input,select { width: 4rem; margin: .125rem; font-size: 1rem; border: 1px solid 
 </head>
 
 
-<body padded="0" no-select style-edit="1" outlines="0">
+<body padded="0" style-edit="1" outlines="0" no-select>
 
 <section band="padded.hero" C clr="3">
     <div data-typo="hero">y = mx + b to "calc()"</div>
@@ -411,14 +404,18 @@ input,select { width: 4rem; margin: .125rem; font-size: 1rem; border: 1px solid 
                 <input check="1" type="checkbox" id="lec-com" />
                 <label for="lec-com"></label>
             </div>
-            <div class="input" style="margin-top: 1rem">
+        </div>
+        <div class="label-header">various</div>
+        <hr>
+        <div C>
+            <div class="input">
                 <div class="label">edit style</div>
                 <input check="1" type="checkbox" id="editstyle"
                        onclick="switchStyleEditbyId('stl-example-cards');
                                 toggleAttributeById('stl-example-cards','cleartype','1','0');" />
                 <label for="editstyle"></label>
             </div>
-            <div class="input" style="margin-top: 1rem">
+            <div class="input">
                 <div class="label">checkbox alt 1</div>
                 <input check="1" type="checkbox" id="checktest" checked
                        onclick="toggleAttributeAll('[type=\x22checkbox\x22]','check','1','0');" />
@@ -633,7 +630,7 @@ function LinearEquationToCalc(parentElem) {
 var DEBUG = false;
 
 var owner  = document.body,
-    parent = document.getElementById(parentElem);
+    parent = ID(parentElem);
 
 var formInput = ALL('[id^="lec-"]'); // Lowercase 'lec' IDs only
 var input = {
@@ -660,16 +657,14 @@ var input = {
             el.onchange = function(e) { __LEC_InputsOnChange(e.target) }; });
 
     function __LEC_outputEquation() {
-        if (parent) { /* WIP */ };
-        
-        // Uppercase 'LEC' ID
-        var LEC = window.getlinearEquation(input);
-        ID('converted-equation').innerHTML = LEC.calc +
-            ((input.comment) ? ' /* (' +
-                               input.x1 + ',' + input.y1 + ')(' +
-                               input.x2 + ',' + input.y2 + 
-                               ') */'
-                             : '');
+        if (parent) {
+            var LEC = window.getlinearEquation(input);
+            parent.innerHTML = LEC.calc +
+                ((input.comment) ? ' /* (' +
+                                   input.x1 + ',' + input.y1 + ')(' +
+                                   input.x2 + ',' + input.y2 +  ') */'
+                                 : '');
+        };
     };
     /*********************/
     /* document handling */
@@ -687,8 +682,6 @@ var input = {
 
     function __LEC_ProcessUserInput(element) { // Checks if a user input field has changed
 
-        if (DEBUG) console.log(element);
-        
         switch (element.id) { // HTML element #id
             case 'lec-x1'  : if (element.value != input.x1)         { input.x1 = element.value; }; break;
             case 'lec-y1'  : if (element.value != input.y1)         { input.y1 = element.value; }; break;
@@ -728,7 +721,7 @@ var input = {
 window.addEventListener('load', DocInit);
 
 function DocInit() {
-var EQU = new LinearEquationToCalc(__body__);
+var EQU = new LinearEquationToCalc('converted-equation');
 EQU.updateAll();
 };
 </script>

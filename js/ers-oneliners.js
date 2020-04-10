@@ -44,7 +44,7 @@ function switchAbilities(s) { forEachEntryIn(ALL(s), function (idx,el,sc) { swit
 function switchAbility(e)   { e.disabled = !e.disabled; }
 
 /**************************/
-// (Yes, quotes! Initially a string with value 'inherit'. To toggle, however, use booleans. Nasty....)
+// (Initially a string with value 'inherit'. To toggle, however, use booleans. Yes, quotes! Nasty....)
 function switchStylesEdit(s)    { forEachEntryIn( ALL(s), function (idx,el,sc) { switchStyleEdit(el) }); }
 function switchStyleEditbyId(s) { switchStyleEdit(ID(s)); }
 function switchStyleEdit(e)     { if (e.contentEditable == "true") e.contentEditable = false; else e.contentEditable = true; }
