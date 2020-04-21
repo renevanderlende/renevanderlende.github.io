@@ -82,6 +82,8 @@ hr {
 /* Default global typography rules */
 /***********************************/
 
+/* a few preferred personal rules */
+
 /* responsive base font size (320,14)(1280,20) */
 html        { font-size: calc(0.625vmin + 0.75rem) }
 
@@ -149,7 +151,7 @@ item        { flex-flow: column wrap }  /* a column of rows */
 /* global spacing and aligment */
 /*******************************/
 p {
-    margin: 0;                      /* no outer space */
+    margin: 0; /* no outer space */
     padding: calc( 1.25vmin + 12px)
              calc((1.25vmin + 12px) / 2); /* (320,16)(1920,36), inner space */
 }
@@ -206,11 +208,12 @@ p {
     break-inside: avoid    !important;  /* [MANDATORY] Avoid orphaned child content (don't spread over columns) */
 }
 
-/* below column width calculation based on main page padding */
+/* WIP, below column width calculation is based on main page padding */
 [newspaper],
-[newspaper="3"] { /* ((320 - 2*8) / 1) - 17 => 287 and ((1920 - 2*320) / 3) - (17/3) => 421  17 = scrollbar */
+[newspaper="3"] { /* ((320 - 2*8) / 1) - 17 => 287 and ((1920 - 2*320) / 3) - (17 / 3) => 421 (17 = scrollbar) */
     column-width: calc(8.375vmin + 16.2625rem); /* (320,287)(1920,421) => 1 and 3 columns */
-    column-count: 4; /* using the max column count, CSS 'column mechanism' will calculate the proper value */
+    column-count: 10; /* Testing: CSS 'column mechanism' will calculate the proper value based on 'column-width' */
+                     /* (TODO: not sure why I did this => 3, 4 or 10 does make a difference, though...) */
 }
 /******************/
 /* column padding */
@@ -271,8 +274,8 @@ p {
 /*****************************/
 /* Style viewing and editing */
 /*****************************/
-[style-edit*="1"] style { display: block }
-[style-edit*="0"] style { display: none  }
+[style-view*="1"] style { display: block }
+[style-view*="0"] style { display: none  }
 
 style {
     font-family: monospace; 
@@ -424,7 +427,7 @@ h1,h2,h3,h4,h5,h6   { margin-bottom: 0 }
 </head>
 
 
-<body padded="0" style-edit="0" outlines="0" no-select>
+<body padded="0" style-view="1" outlines="0" no-select>
 
 <section band="padded.padx2.hero" C clr="3">
     <div data-typo="hero">linear equation to "calc()"</div>
@@ -433,7 +436,7 @@ h1,h2,h3,h4,h5,h6   { margin-bottom: 0 }
 
 <section band="padded.padx2" clr="0">
     <div class="info" push="R">
-        <p>plain, uncommented version of <strong><a target="_blank" href="javascript:void(0)">linearToCalc v1.1</a></strong></p>
+        <p>plain, uncommented version of <strong><a rel="noopener" target="_blank" href="https://renevanderlende.github.io/js/ers-lineartocalc-plain.html ">linearToCalc v1.1</a></strong></p>
     </div>
 
     <div C>
@@ -446,11 +449,18 @@ h1,h2,h3,h4,h5,h6   { margin-bottom: 0 }
            A simple XY-graph with a few sample lines depicting equations I used in my webpages.
         </p>
         <p>
-           Although they yield the same result, a general CSS rule like:<br>
+           Although both equations yield the same result, a general CSS rule like:<br>
            &emsp;<strong><i>font-size: calc(mx + b)</i></strong><br>
+           e.g. font-size: calc(0.625vmin + 0.75rem)<br><br>
            is much easier to maintain than one like:<br>
-           &emsp;<strong><i>font-size: calc(y1 + (y2 - y1) / (x2 - x1) * (x - x1))</i></strong>
+           &emsp;<strong><i>font-size: calc((y2 - y1) / (x2 - x1) * (x - x1) + y1)</i></strong><br>
+           e.g. font-size: calc((14 + (20 - 14) / (1280 - 320) * (100vmin - 320)) * 1px), should you get this code running
+           at all as using <strong>vmin</strong> like that yields an error in the <strong>calc()</strong>.
         </p>
+    </div>
+
+    <div C>
+        <p>For that reason I created a simple tool (below form)</p>
     </div>
 </section>
 
@@ -829,6 +839,10 @@ h1,h2,h3,h4,h5,h6   { margin-bottom: 0 }
 /**************/
 /* initialize */
 /**************/
+ 
+console.log( 14 + (20 - 14) / (1280 - 320) * (320 - 320) ); 
+console.log( 14 + (20 - 14) / (1280 - 320) * (1280 - 320) ); 
+ 
 function LinearEquationToCalc(parentElem) {
 var DEBUG = false;
 
