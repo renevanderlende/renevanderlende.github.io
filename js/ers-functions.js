@@ -20,7 +20,7 @@ var clampDec = function (value,dec) {
 };
 // Rounded down
 var clampDecLow = function (value,dec) {
- if (dec==null) dec=2; dec = Math.abs(dec);
+ if (dec==null) dec=3; dec = Math.abs(dec);
  return (dec>0) ? Math.floor(value * Math.pow(10,dec)) / Math.pow(10,dec) : value;
 };
 
@@ -97,8 +97,9 @@ window.getlinearEquation = function (options) {
         'unit'     : 'rem',
         'vp'       : 'vmin',
         'ratio'    : 1,
-        'precision': 5,
+        'precision': 3,
         'calc'     : true,
+        'comment'  : false,
         'important': false
     }, options);
 
@@ -112,6 +113,7 @@ window.getlinearEquation = function (options) {
     var prefix = 'calc(', output = '', suffix = ')';
 
     var mxOut = clampDec(m * x,settings.precision) + settings.vp;
+
     var bOut  = (b==0) ? '' :  ((b>0) ? ' + ' : ' - ') +
                                Math.abs(clampDec(b,settings.precision)) +
                                ((settings.factor==1) ? 'px' : settings.unit );
@@ -119,19 +121,24 @@ window.getlinearEquation = function (options) {
             L: (settings.ratio==1) ? '' : ((b==0) ? '' : '('),
             R: (settings.ratio==1) ? '' : ((b==0) ? ' * ' : ') * ') + clampDec(settings.ratio,settings.precision)
     };
+
+    var comOut = (settings.comment)   ? ' /* (' +
+            settings.x1 + ',' + settings.y1 + ')(' +
+            settings.x2 + ',' + settings.y2 +  ') */' : '';
+
     var impOut = (settings.important) ? ' !important;' : ';';
     
     if (!b==0) { // 'calc()' needed when b<>0
         output = ratioOut.L + mxOut + bOut + ratioOut.R;
-        output = (settings.calc) ? prefix + output + suffix + impOut: output;
+        output = (settings.calc) ? prefix + output + suffix + impOut + comOut: output;
     }
     else
         if (settings.ratio==1) { // b=0 and ratio=1 then no 'calc()' needed, ignores settings.calc
-            output = mxOut + bOut + impOut;
+            output = mxOut + bOut + impOut + comOut;
         }
         else { // b=0 and ratio<>1 then need 'calc()' for mx * ratio
             output = ratioOut.L + mxOut + ratioOut.R;
-            output = (settings.calc) ? prefix + output + suffix + impOut: output;
+            output = (settings.calc) ? prefix + output + suffix + impOut + comOut: output;
         };
 
     // Return either the equation as a full 'calc();' or just the equation

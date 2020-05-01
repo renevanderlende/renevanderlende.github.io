@@ -5,71 +5,48 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
 
-<title>Fork Ribbon</title>
+<title>45deg Fork Ribbon</title>
 
-<style id="stl-globals-default">
-html        { font-size: calc(0.625vmin + 0.75rem) }/* (320,14)(1280,20) */
-html,body   { box-sizing: border-box; margin: 0 }
-
-*::before,*::after, * { box-sizing: inherit }
-
-body {
-    width: 100%; max-width: 100%;
-    font-size: 1rem; line-height: 1.5;
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: rgba(0,0,0,.15);
-}
-
-[outlines="1"] * { outline: 1px dashed }
-
-[hide], [data-hide="1"] {
-    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
-    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
-    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
-}
-</style>
-
-<style id="stl-ribbon-eyecandy">
-/*************************/
-/* fork ribbon eye-candy */
-/*************************/
-.fork {
-    background-color: rgba(30,30,30,.76);
-    color: rgba(255,204,1,1);
-/*    box-shadow: 0px 3px 5px -1px rgba(0,0,0,.8); /**/
-}
-.fork a {
-    font-weight: bold; color: inherit; text-decoration: none; 
-    border-style   : dotted;
-    border-color   : rgba(255,204,1,1) transparent;
-}
-.fork a:hover {
-    color: #fff; border-color: #fff transparent;
-}
-</style>
-
-<style id="stl-ribbon-default">
+<style id="stl-widget-ribbon-default">
 /*****************************/
 /* fork ribbon generic rules */
 /*****************************/
 .fork {
-    position: fixed; /* using 'absolute' will result in overflow */
+    box-sizing: border-box; /* [OPTIONAL], but smart when using borders */
+    position: fixed; /* using 'absolute' will result in overflow and scrollbar */
+
+    /* Flexbox layout [OPTIONAL], personal preference */
     display: flex; justify-content: center; align-items: center;
+
+    z-index: 999999; /* on top of everything */
+    /* maximum value is usually 2^(32 - 1): 32bits number -1 for negative sign */
+
+    /* Some default colors */
+    background-color: Black; color: White;
+
+    box-shadow: 0px 3px 5px -1px rgba(0,0,0,.4);
+    opacity: 0.7; /* Little 'shine through' for :hover */
 }
+.fork:hover { opacity: 1 }
+
 .fork a {
-    box-sizing: border-box;
+    box-sizing: border-box; /* [DITTO] */
     width: 100%; padding: 0.25rem 0;
     line-height: 1; white-space: nowrap; text-align: center;
+
+    font-weight: bold; color: inherit; text-decoration: none; 
+    border-style   : dotted;
+    border-color   : White transparent;
 }
+/* [OPTIONAL] How to use a custom property for text */
 .fork a:before { content: attr(data-ribbon) }
 
-.fork.slanted.right {
-    transform-origin: top left; /* rotate around T/L corner of the rectangle */
-    transform: rotate(45deg);   /* at a 45 degree angle */
+.fork.tr45deg { /* [MANDATORY] for this version to work properly */
+    transform-origin: top left; /* pivot around T/L corner of the rectangle */
+    transform: rotate(45deg);   /* at a 45 degree angle. (Do not change as below cos() will fail) */
 }
 </style>
-
-<style id="stl-ribbon-fixed-ie">
+<style id="stl-widget-ribbon-fixed-ie">
 /***************************/
 /* fork ribbon IE specific */
 /***************************/
@@ -81,59 +58,77 @@ body {
 }
 .fork a { border-width: 2px 0 }
 
-.fork.slanted.top.right {
-    top  : calc(((0.5vmin + 1.4rem) * 1.1) / 1.4142 * -1);
+.fork.tr45deg {
+    /* ribbon scale  = 1.1        */
+    /* sqrt(2)       = 1.4142...  */
+    /* (180-45deg)/2 = 67.5       */
+    /* cos(67.5)     = 0.38268343, to move element right */
+    /* to go above top and beyond right margins: multiply with -1 to negate final result */
+
+    /* after 45deg rotation (pivot around top/left corner) 'fork' height becomes diagonal of a square */
+    /* To get the side (height and/or width) of a square from its diagonal (= hypotenuse of a traingle)
+       => hypotenuse / sqrt(2) */
+
+    /* to move 'fork' up: ribbon height (which is now hypotenuse) / 1.4142 */
+    /* where height = 0.5vmin + 1.4rem * scale */
+
+    /* distance to go right = (hypotenuse / 1.4142) + (2 * width * cos^2) * scale * -1 */
+    /* (discussed and verified on 'MathIsFun Forum': http://www.mathisfunforum.com/viewtopic.php?id=25620) */
+    /* This works like a charm, so cool! (Thanks a bunch, Bob) */
+
+    top  : calc((0.5vmin + 1.4rem) / 1.4142 * 1.1 * -1);
     right: calc((((0.5vmin + 1.4rem) / 1.4142) + (2 * (5vmin + 10.25rem) * 0.38268343 * 0.38268343)) * 1.1 * -1);
 }
 </style>
-
-<style id="stl-ribbon-custom-variables-others">
+<style id="stl-widget-ribbon-custom-variables">
 /*************************************/
 /* fork ribbon with custom variables */
 /*************************************/
 :root {
     /* for all others, variable scales */
-    --fog-scale     : 1.1; /* set these to your desired scales */
-    --fog-scale-text: 1;
-    --fog-bd        : 2px;                  /* border width */
+    --fork-scale     : 1.1; /* set these to your desired scales */
+    --fork-scale-text: 1;
+    --fork-bd        : 2px;                 /* border width */
 
-    --fog-x : 1vmin;                        /* x is always 1vmin */
-    --fog-wm: 5    ; --fog-wb: 10.25rem;    /* m and b variables to calculate y */
-    --fog-hm: 0.5  ; --fog-hb: 1.4rem;      /* for ribbon width, height and font-size */
-    --fog-fm: 0.625; --fog-fb: 0.5rem;
+    --fork-wm: 5    ; --fork-wb: 10.25rem;  /* m and b variables to calculate y, ribbon width */
+    --fork-hm: 0.5  ; --fork-hb: 1.4rem;    /* ditto for height and font-size */
+    --fork-fm: 0.625; --fork-fb: 0.5rem;
 
-    --sqrt-2   : 1.4142;                    /* Math.sqrt(2) ~ 1.4142135...              */
-    --cos67dot5: 0.38268343;                /* cos(67.5) => 67.5 = (180deg - 45deg) / 2 */
+    /* do not modify */
+    --fork-x: 1vmin;                        /* x is always 1vmin */
+    --sqrt-2: 1.4142;                       /* Math.sqrt(2) ~ 1.4142135...              */
+    --cos   : 0.38268343;                   /* cos(67.5) => 67.5 = (180deg - 45deg) / 2 */
                                             /* Used to move rotated ribbon up and right */
 }
 .fork {
-    width    : calc((var(--fog-wm) * var(--fog-x) + var(--fog-wb)) * var(--fog-scale));
-    height   : calc((var(--fog-hm) * var(--fog-x) + var(--fog-hb)) * var(--fog-scale));
-    font-size: calc((var(--fog-fm) * var(--fog-x) + var(--fog-fb)) * var(--fog-scale-text));
+    width    : calc((var(--fork-wm) * var(--fork-x) + var(--fork-wb)) * var(--fork-scale));
+    height   : calc((var(--fork-hm) * var(--fork-x) + var(--fork-hb)) * var(--fork-scale));
+    font-size: calc((var(--fork-fm) * var(--fork-x) + var(--fork-fb)) * var(--fork-scale-text));
 }
-.fork a { border-width: var(--fog-bd) 0; padding: calc(var(--fog-scale)/4 * 1rem) 0 }
+.fork a { border-width: var(--fork-bd) 0; padding: calc(var(--fork-scale)/4 * 1rem) 0 }
 
-.fork.slanted.top.right {
-/* OLD    right: calc(((var(--fog-wm) * var(--fog-x) + var(--fog-wb)) * var(--fog-scale)) / var(--sqrt-2) * -0.545); /**/
+.fork.tr45deg {
+    /*       cos = cos(67.5) */
+    /*         r = (wm * x + wb)                    /* width  of rectangle */
+    /* distance2 = (hm * x + hb) / sqrt2            /* height of rectangle */
+    /* distance3 = 2 * r * cos(67.5) * cos(67.5) */
+    /* top   = (hm * x + hb) / sqrt2 * scale * -1   /* move above top border */
+    /* right = (((hm * x + hb) / sqrt2) + (2 * (wm * x + wb) * cos * cos)) * scale * -1 /* move beyond right border */
 
-    /* distance3 = 2r.cos(67.5) * cos(67.5) */
-
-    /* cos67dot5 = cos(67.5) */
-    /* distance2 = (hm * x + hb) / sqrt2 /* height of rectangle */
-    /*         r = (wm * x + wb)         /* width  of rectangle */
-
-    /* top   = (hm * x + hb) / sqrt2 * scale * -1 /* negative to move above top border */
-    /* right = (((hm * x + hb) / sqrt2) + (2 * (wm * x + wb) * cos * cos)) * scale * -1 /* negative to move beyond right border */
-
-    top  : calc(((var(--fog-hm) * var(--fog-x) + var(--fog-hb)) * var(--fog-scale)) / var(--sqrt-2) * -1);
-    right: calc((((var(--fog-hm) * var(--fog-x) + var(--fog-hb)) / var(--sqrt-2)) + (2 * (var(--fog-wm) * var(--fog-x) + var(--fog-wb)) * var(--cos67dot5) * var(--cos67dot5))) * var(--fog-scale) * -1);
+    top  : calc((var(--fork-hm) * var(--fork-x) + var(--fork-hb)) / var(--sqrt-2) * var(--fork-scale) * -1);
+    right: calc((((var(--fork-hm) * var(--fork-x) + var(--fork-hb)) / var(--sqrt-2)) + (2 * (var(--fork-wm) * var(--fork-x) + var(--fork-wb)) * var(--cos) * var(--cos))) * var(--fork-scale) * -1);
 }
 </style>
-
 </head>
 
-<body outlines="0">
-    <span hide class="fork horizontal top right"><a target="_blank" href="https://github.com/renevanderlende" data-ribbon="Fork me on GitHub"></a></span>
-    <span class="fork slanted top right"   ><a target="_blank" href="http://www.mathisfunforum.com/viewtopic.php?pid=413105" data-ribbon="Find me at MathIsFun"></a></span>
+<body>
+    <span class="fork tr45deg">
+        <a rel="noopener" target="_blank" href="javascript:void(0)" data-ribbon="Fork me at ......"></a>
+    </span>
+    <h3>GeoGebra graph of the math involved to position the top/right 45deg ribbon (click to load)</h3>
+    <iframe title="rectangle" src="https://www.geogebra.org/material/iframe/id/ha7gmgut/width/1280/height/720/border/888888/sfsb/true/smb/true/stb/true/stbh/true/ai/false/asb/true/sri/true/rc/true/ld/true/sdz/true/ctl/true" width="1280px" height="720px" style="border:0px;"> </iframe>
 </body>
+
 </html>
+
+
