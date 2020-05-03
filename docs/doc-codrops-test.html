@@ -450,20 +450,14 @@ body { background-color: #edf0f2; line-height: 1.5 }
 
 <style id="ers-linear-functions-default">
 :root {
-    
-    /*
-    */
-
     /*
         NOTE: All values in this block hold pixel values (px), but without the px unit attached.
               [bdiv] and [mdiv] are common decimal values (unit independend).
-    */
 
-    /* 
         Initialize 'internal' custom properties. These properties will hold
         the current value of 100vmin/vmax/vw/vh respectively and are being
-        kept up to date with the use of Javascript (Here for demo only as they will 
-        be created by JS).
+        kept up to date with the use of Javascript (Here for demo only as,
+         for the time being, they will be created and modified by JS).
     */
     --js-vmin: 0; --js-vmax: 0; --js-vw: 0; --js-vh: 0;
 
@@ -471,7 +465,7 @@ body { background-color: #edf0f2; line-height: 1.5 }
         Some Initial value of 2 points on a straight line: p1(x1,y1) and p2(x2,y2)
 
         NOTE: Setting these to 0 will work just as well, but giving them a meaningfull
-              initial value makes more sense as it saves writing CSS code later.
+              initial value makes a little more sense: instant values to use.
     */
     --x1:  320; --y1: 14;   /* point p1 => 14px at  320px (100vmin = 320px)  */
     --x2: 1280; --y2: 20;   /* point p2 => 20px at 1280px (100vmin = 1280px) */
@@ -479,15 +473,14 @@ body { background-color: #edf0f2; line-height: 1.5 }
     /* Initially assumes that [--x] is minimum viewport size dependend */
     --x : var(--js-vmin); /* defaults to current minimum viewport size JS value */
 
-    /* Initial value. Could be 0 too, but now you have a value you can already use */
+    /* Initial value. Could be 0 too. */
     --y: calc(0.625vmin + 0.75rem); /* p1(320,14) p2(1280,20) where b=12/16 to get REM */
 
     /* Multiplication/Division factor PX to REM */
     --factorP2R: 16;
 }
 /* (1) Shortest formula, main formula for use as all-purpose y=mx+b. When in doubt, use this one */
-[data-math],
-[data-math="p-slope"] { /* Point-Slope: y = y1 + m(x-x1) => default as it is the shortest (saves CPU time) */
+[data-math],[data-math="p-slope"] { /* Point-Slope: y = y1 + m(x-x1) => default as it is the shortest (saves CPU time) */
     --y: calc((var(--y1) + (var(--y2) - var(--y1)) / (var(--x2) - var(--x1)) * (var(--x) - var(--x1))) / var(--factorP2R)) }
 
 /*
@@ -500,7 +493,7 @@ body { background-color: #edf0f2; line-height: 1.5 }
     - border (TODO test browser calc() support)
     - etc.
 
-    with a usage selector.
+    with some usage selector (class, custom prop).
 */
 </style>
 
@@ -851,7 +844,7 @@ body { background-color: #edf0f2; line-height: 1.5 }
 'use-strict';
 
 /* Shortcuts to both the html and body element */
-var root = document.documentElement;
+var html = document.documentElement;
 var body = document.body;
 
 // Traverse an array and execute the passed callback function for each array element found
@@ -868,7 +861,7 @@ for (var i = 0; i < array.length; i++) { callback.call(scope, i, array[i]); } };
 function elem(e) { return document.getElementById(e); }; 
 
 function toggleStateB(d) { if (body.getAttribute(d)=='1') body.setAttribute(d,'0'); else body.setAttribute(d,'1'); }
-function toggleStateR(d) { if (root.getAttribute(d)=='1') root.setAttribute(d,'0'); else root.setAttribute(d,'1'); }
+function toggleStateR(d) { if (html.getAttribute(d)=='1') html.setAttribute(d,'0'); else html.setAttribute(d,'1'); }
 
 // Toggle the use of a specific style element
 function toggleStyle(id) { var el = elem(id); el.disabled = !el.disabled }
@@ -888,24 +881,24 @@ function toggleDocDir() { if  (body.getAttribute('dir')=='rtl') body.setAttribut
 function intialize() { /* nothing to do yet */ };
 
 /******************************************************/
-window.addEventListener("DOMContentLoaded",intialize);  // General initialization
-window.addEventListener("DOMContentLoaded",setVPSizes); // first run
-window.addEventListener('resize', setVPSizes);          // on resize of browser window
+window.addEventListener('DOMContentLoaded', intialize ); // General initialization
+window.addEventListener('load'            , setVPSizes); // first run
+window.addEventListener('resize'          , setVPSizes); // on resize of browser window
 /******************************************************/
 
     // For use of relative viewport sizes in JS 
-function vh(v)   { return (v * Math.max(root.clientHeight, window.innerHeight || 0)) / 100; };
-function vw(v)   { return (v * Math.max(root.clientWidth , window.innerWidth  || 0)) / 100; };
+function vh(v)   { return (v * Math.max(html.clientHeight, window.innerHeight || 0)) / 100; };
+function vw(v)   { return (v * Math.max(html.clientWidth , window.innerWidth  || 0)) / 100; };
 function vmin(v) { return Math.min(vh(v), vw(v)); };
 function vmax(v) { return Math.max(vh(v), vw(v)); };
 
 function setVPSizes() {
-    // Set custom CSS properties of viewport sizes for use with CSS var(). Workaround.
-    root.style.setProperty('--js-vmin', vmin(100));
-    root.style.setProperty('--js-vmax', vmax(100));
-    root.style.setProperty('--js-vw'  ,   vw(100));
-    root.style.setProperty('--js-vh'  ,   vh(100));
-}
+    // Set custom CSS properties of viewport sizes for use with CSS var(), workaround.
+    html.style.setProperty('--js-vmin', vmin(100));
+    html.style.setProperty('--js-vmax', vmax(100));
+    html.style.setProperty('--js-vw'  ,   vw(100));
+    html.style.setProperty('--js-vh'  ,   vh(100));
+};
 </script>
 
 </body>

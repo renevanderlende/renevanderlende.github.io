@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
 
-<title>!!!Test Snippets</title>
+<title>Test Snippets</title>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" crossorigin="anonymous">
 
@@ -296,25 +296,24 @@ body    { line-height: 1.3333; background-color: #f5f5f5; color: rgba(60,69,78,1
 [btn]>span      { padding: 0 .5rem }        /* for Extended FAB label, use 'span' only */
 [btn]>*         { pointer-events: none }    /* for IE11, bubbles 'click' event to containing <a> */
 
-[btn*="sq"] { border-radius: 3px }
+[btn*="sq"]     { border-radius: 3px }
 
 [btn]:hover,[btn]:focus {
     width: auto;
     min-width: 8rem /*[OPTIONAL] makes 'em equal(ish) */
 }
-[btn]:hover [menu],
-[btn]:hover     { opacity: 1 }
-[btn]:focus [menu],
-[btn]:focus     { opacity: 1; background-color: Gray }
+[btn]:hover [menu], [btn]:hover { opacity: 1 }
+[btn]:focus [menu], [btn]:focus { opacity: 1; background-color: Gray }
 
-/* add [btn]/.btn selectors if for custom buttons only */
+/* add [btn] or .btn selectors if for custom buttons only */
 :disabled,:disabled:hover,
 [disabled=""],[disabled=""]:hover {
     pointer-events: none; opacity: .3;
     filter: saturate(75%);          /* for IE11 */
     filter: saturate(75%) blur(1px) /* others   */
  }
-:disabled *,:disabled:hover *,      /* ditto */
+/* ditto */
+:disabled *,:disabled:hover *,
 [disabled=""] *,[disabled=""]:hover * { pointer-events: none; opacity: .7 }
 /**/
 </style>
@@ -341,7 +340,7 @@ body    { line-height: 1.3333; background-color: #f5f5f5; color: rgba(60,69,78,1
                 0px 1px 18px  0px rgba(0,0,0,.12);  /* GMC elevation 6dp */
 }
 
-/* add [btn]/.btn selectors if for custom buttons only */
+/* add [btn] or .btn selectors if for custom buttons only */
 :disabled,:disabled:hover,[disabled=""],[disabled=""]:hover {
     box-shadow: none;
 }

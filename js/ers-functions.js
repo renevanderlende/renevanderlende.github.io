@@ -13,9 +13,9 @@ var head = document.head;
 
 /************************************/
 // Returns a values rounded up to a given number of decimals.
-// Params: float [, required # of decimals, default = 2]
+// Params: float [, required # of decimals, default = 3]
 var clampDec = function (value,dec) {
- if (dec==null) dec=2; dec = Math.abs(dec);
+ if (dec==null) dec=3; dec = Math.abs(dec);
  return (dec>0) ? Math.ceil(value * Math.pow(10,dec)) / Math.pow(10,dec) : value;
 };
 // Rounded down
@@ -105,6 +105,7 @@ window.getlinearEquation = function (options) {
 
     var x1 = settings.x1, y1 = settings.y1;
     var x2 = settings.x2, y2 = settings.y2;
+    var p  = settings.precision;
 
     var m = (y2 - y1) / (x2 - x1);
     var x = 100;

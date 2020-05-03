@@ -63,7 +63,7 @@ a           { color: inherit }
     [block] - vertical content like a list
 
     - Can both be used interchangeably and nested
-      (band of blocks, block of bands, band of blocks holding bands...)
+      (band of blocks, block of bands, band of blocks holding bands…)
     - Invert orientation with 'rows'/'cols' parameter ( *= means: contains )
 
     Note: only works from IE11 and up (huh? up?)
@@ -144,7 +144,7 @@ p {
 /*****************************/
 /*
     NOTE: '!important' only used in this document to express importance, can be removed safely,
-          unless you are unsure about external settings, injected code, an E.L.E. Just saying.....
+          unless you are unsure about external settings, injected code, an E.L.E. Just saying…
 */
 [newspaper] {
     display   : block      !important;  /* [MANDATORY] flexbox can't handle CSS 'columns' or v.v. */
@@ -163,7 +163,7 @@ p {
 [newspaper="3"] { /* ((320 - 2*8) / 1) - 17 => 287 and ((1920 - 2*320) / 3) - (17 / 3) => 421 (17 = scrollbar) */
     column-width: calc(8.375vmin + 16.2625rem); /* (320,287)(1920,421) => 1 and 3 columns */
     column-count: 10; /* Testing: CSS 'column mechanism' will calculate the proper value based on 'column-width' */
-                     /* (TODO: not sure why I did this => 3, 4 or 10 does make a difference, though...) */
+                     /* (TODO: not sure why I did this => 3, 4 or 10 does make a difference, though…) */
 }
 /******************/
 /* column padding */
@@ -282,7 +282,7 @@ style[media]:before         { color: RoyalBlue }
     display: flex; justify-content: center; align-items: center;
 
     z-index: 999999; /* on top of everything */
-    /* maximum value is usually 2^(32 - 1): 32bits number -1 for negative sign */
+    /* maximum value is usually 2^31 - 1 = 2.147.483.647 */
 
     /* Some default colors */
     background-color: Black; color: White;
@@ -325,9 +325,9 @@ style[media]:before         { color: RoyalBlue }
 .fork a { border-width: 2px 0 }
 
 .fork.tr45deg {
-    /* ribbon scale  = 1.1        */
-    /* sqrt(2)       = 1.4142...  */
-    /* (180-45deg)/2 = 67.5       */
+    /* ribbon scale  = 1.1      */
+    /* sqrt(2)       = 1.4142…  */
+    /* (180-45deg)/2 = 67.5     */
     /* cos(67.5)     = 0.38268343, to move element right */
     /* to go above top and beyond right margins: multiply with -1 to negate final result */
 
@@ -363,7 +363,7 @@ style[media]:before         { color: RoyalBlue }
 
     /* do not modify */
     --fork-x: 1vmin;                        /* x is always 1vmin */
-    --sqrt-2: 1.4142;                       /* Math.sqrt(2) ~ 1.4142135...              */
+    --sqrt-2: 1.4142;                       /* Math.sqrt(2) ~ 1.4142135…                */
     --cos   : 0.38268343;                   /* cos(67.5) => 67.5 = (180deg - 45deg) / 2 */
                                             /* Used to move rotated ribbon up and right */
 }
@@ -541,8 +541,8 @@ p.label             { padding: calc(12px + 1.25vmin) 0 }
 /**************************************************/
 /* Utility rules, first so they can be overridden */
 /**************************************************/
-body  { cursor: default } /* Plain arrow for everything, but... */
-input { cursor: auto    } /* ...use HTML default cursor on inputs, unless it is an: */
+body  { cursor: default } /* Plain arrow for everything, but… */
+input { cursor: auto    } /* …use HTML default cursor on inputs, unless it is an: */
 
 input[list="datalist"],
 input[type="button"  ],
@@ -592,7 +592,7 @@ hr {
 
 
 <body padded="0" style-view="1" outlines="0" no-select>
-<div class="fork tr45deg"><a target="_blank" href="https://renevanderlende.github.io/js/ers-lineartocalc.html " data-ribbon="Code at Github"></a></div>
+<div class="fork tr45deg"><a target="_blank" href="https://github.com/renevanderlende/renevanderlende.github.io/tree/master/js" data-ribbon="Code at Github"></a></div>
 
 <section band="padded.padx2.hero" C clr="3" plain="0">
     <div data-typo="hero">linear equation to "calc()"</div>
@@ -646,11 +646,11 @@ hr {
             <li>The
                 <a rel="noopener" target="_blank" title="wikipedia.org"  href="https://en.wikipedia.org/wiki/Linear_equation#Point%E2%80%93slope_form">point slope</a>
                 form: <strong>y-y1=m(x-x1)</strong> or simplified: <strong>y=y1+m(x-x1)</strong> 
-            <li>and quite a few more, but we will be using variations of the ones above from here on...</li> 
+            <li>and quite a few more, but we will be using variations of the ones above from here on…</li> 
         </ul>
 
         <p>With above equations you can calculate all points making up a line running through two points.
-           Let this sink in for a moment: <strong>two points, line through them, get all other points on that line...</strong>
+           Let this sink in for a moment: <strong>two points, line through them, get all other points on that line…</strong>
         </p>
 
         <h3>why and how to use</h3>
@@ -794,7 +794,7 @@ hr {
                from 'point slope form'<br><br>
             </p>
             <p class="label" plain="0">
-               full specifications <a href="#LEC-text">below...</a>
+               full specifications <a href="#LEC-text">below…</a>
             <p>
         </div>
     </div>
@@ -1075,7 +1075,7 @@ hr {
 
 <section band="padded.padx2" clr="2" C plain="0">
     <div data-typo="hero">some nice outro information</div>
-    <p data-typo="subline">part of 'easy responsiveness series' &trade;</p>
+    <p data-typo="subline" do-select>part of 'easy responsiveness series' &trade;</p>
 </section>
 
 <script src="ers-functions.js"></script>
@@ -1227,7 +1227,7 @@ var variables = { // Other, generic demo variables
 /********/
 /* MAIN */
 /********/
-// document.addEventListener('DOMContentLoaded',DocInit); // not sure which works best...
+// document.addEventListener('DOMContentLoaded',DocInit); // not sure which works best…
 window.addEventListener('load', DocInit);
 
 function DocInit() {
