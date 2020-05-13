@@ -24,8 +24,7 @@ img                 { width: 100%; display: block; object-fit: cover }
 :focus              { outline: -webkit-focus-ring-color auto 0; outline-width: 0 } /* for Edge 2020 */
 ::-moz-focus-inner  { padding: 0; border: 0 } /* Kill Firefox outline */
 </style>
-
-
+<!--   id="stl-globals-custom-variables-default" -->
 <style id="stl-gobals-typography-default">
 /***********************************/
 /* Default global typography rules */
@@ -34,7 +33,7 @@ img                 { width: 100%; display: block; object-fit: cover }
 /* a few preferred personal rules */
 
 /* responsive root font size (320,14)(1280,20) */
-/* demo: full versus substituted equation: same result, different 'calc()'. CHECK THIS OUT!! */
+/* demo: full versus substituted equation: same result, different 'calc()'. */
 /*html        { font-size: calc((14 / 16 * 1rem) + (20 - 14) / (1280 - 320) * (100vmin - 320px)) }/**/
 html        { font-size: calc(0.625vmin + 0.75rem) }/**/
 
@@ -78,7 +77,6 @@ a           { color: inherit }
 [block],[block*="rows"] { flex-flow: column wrap }  /* inverse default of [band] */
         [block*="cols"] { flex-flow: row wrap    }
 </style>
-
 <style id="stl-flexbox-simple-default">
 /******************/
 /* FLEXBOX LAYOUT */
@@ -96,7 +94,6 @@ div,item    { display: flex }
 div         { flex-flow: row wrap    }  /* a row of columns */
 item        { flex-flow: column wrap }  /* a column of rows */
 </style>
-
 <style id="stl-globals-spacing-alignment-default">
 /*******************************/
 /* global spacing and aligment */
@@ -137,7 +134,6 @@ p {
 [outside="H"] { margin: auto calc(50% - 50vw) }
 [outside="V"] { margin: calc(50% - 50vh) auto }
 </style>
-
 <style id="stl-widget-newspaper-default">
 /*****************************/
 /* primary column definition */
@@ -282,26 +278,13 @@ style[media]:before         { color: RoyalBlue }
     display: flex; justify-content: center; align-items: center;
 
     z-index: 999999; /* on top of everything */
-    /* maximum value is usually 2^31 - 1 = 2.147.483.647 */
-
-    /* Some default colors */
-    background-color: Black; color: White;
-
-    box-shadow: 0px 3px 5px -1px rgba(0,0,0,.4);
-    opacity: 0.56; /* Little 'shine through' for :hover */
+    /* maximum value is usually 2^(32 - 1): 32bits number -1 for negative sign */
 }
-/* [OPTIONAL] default eye-candy */
-.fork:hover     { color: #fff; opacity: 1 }
-.fork:hover a   { border-color: #fff transparent }
+.fork:hover { opacity: 1 }
 
 .fork a {
     box-sizing: border-box; /* [DITTO] */
-    width: 100%; padding: 0.25rem 0;
-    line-height: 1; white-space: nowrap; text-align: center;
-
-    font-weight: bold; color: inherit; text-decoration: none; 
-    border-style   : dotted;
-    border-color   : White transparent;
+    width: 100%;
 }
 /* [OPTIONAL] How to use a custom property for text */
 .fork a:before { content: attr(data-ribbon) }
@@ -311,7 +294,6 @@ style[media]:before         { color: RoyalBlue }
     transform: rotate(45deg);   /* at a 45 degree angle. (Do not change as below cos() will fail) */
 }
 </style>
-
 <style id="stl-widget-ribbon-fixed-ie">
 /***************************/
 /* fork ribbon IE specific */
@@ -328,7 +310,7 @@ style[media]:before         { color: RoyalBlue }
     /* ribbon scale  = 1.1      */
     /* sqrt(2)       = 1.4142…  */
     /* (180-45deg)/2 = 67.5     */
-    /* cos(67.5)     = 0.38268343, to move element right */
+    /* cos(67.5)^2   = 0.38268343^2 = 0.1464466, to move element right */
     /* to go above top and beyond right margins: multiply with -1 to negate final result */
 
     /* after 45deg rotation (pivot around top/left corner) 'fork' height becomes diagonal of a square */
@@ -343,10 +325,9 @@ style[media]:before         { color: RoyalBlue }
     /* This works like a charm, so cool! (Thanks a bunch, Bob) */
 
     top  : calc((0.5vmin + 1.4rem) / 1.4142 * 1.1 * -1);
-    right: calc((((0.5vmin + 1.4rem) / 1.4142) + (2 * (5vmin + 10.25rem) * 0.38268343 * 0.38268343)) * 1.1 * -1);
+    right: calc((((0.5vmin + 1.4rem) / 1.4142) + (2 * (5vmin + 10.25rem) * 0.1464466)) * 1.1 * -1);
 }
 </style>
-
 <style id="stl-widget-ribbon-custom-variables">
 /*************************************/
 /* fork ribbon with custom variables */
@@ -363,17 +344,17 @@ style[media]:before         { color: RoyalBlue }
 
     /* do not modify */
     --fork-x: 1vmin;                        /* x is always 1vmin */
-    --sqrt-2: 1.4142;                       /* Math.sqrt(2) ~ 1.4142135…                */
-    --cos   : 0.38268343;                   /* cos(67.5) => 67.5 = (180deg - 45deg) / 2 */
+    --sqrt-2: 1.4142;                       /* Math.sqrt(2) ~ 1.4142135... */
+    --cos2   : 0.1464466;                   /* cos(67.5) => 67.5 = (180deg - 45deg) / 2 => cos^2 = 0.1464466 */
                                             /* Used to move rotated ribbon up and right */
 }
-.fork {
-    width    : calc((var(--fork-wm) * var(--fork-x) + var(--fork-wb)) * var(--fork-scale));
-    height   : calc((var(--fork-hm) * var(--fork-x) + var(--fork-hb)) * var(--fork-scale));
-    font-size: calc((var(--fork-fm) * var(--fork-x) + var(--fork-fb)) * var(--fork-scale-text));
-}
-.fork a { border-width: var(--fork-bd) 0; padding: calc(var(--fork-scale)/4 * 1rem) 0 }
+.fork a { border-width: var(--fork-bd) 0 }
 
+.fork { /* default ribbon */
+    width    : calc((var(--fork-wm) * var(--fork-x) + var(--fork-wb)) * var(--fork-scale));      /* (320,180)(1920,260) */
+    height   : calc((var(--fork-hm) * var(--fork-x) + var(--fork-hb)) * var(--fork-scale));      /* (320, 24)(1920, 32) */
+    font-size: calc((var(--fork-fm) * var(--fork-x) + var(--fork-fb)) * var(--fork-scale-text)); /* (320, 10)(1280, 16) */
+}
 .fork.tr45deg {
     /*       cos = cos(67.5) */
     /*         r = (wm * x + wb)                    /* width  of rectangle */
@@ -382,23 +363,36 @@ style[media]:before         { color: RoyalBlue }
     /* top   = (hm * x + hb) / sqrt2 * scale * -1   /* move above top border */
     /* right = (((hm * x + hb) / sqrt2) + (2 * (wm * x + wb) * cos * cos)) * scale * -1 /* move beyond right border */
 
-    top  : calc((var(--fork-hm) * var(--fork-x) + var(--fork-hb)) / var(--sqrt-2) * var(--fork-scale) * -1);
-    right: calc((((var(--fork-hm) * var(--fork-x) + var(--fork-hb)) / var(--sqrt-2)) + (2 * (var(--fork-wm) * var(--fork-x) + var(--fork-wb)) * var(--cos) * var(--cos))) * var(--fork-scale) * -1);
+    top  : calc(  (var(--fork-hm) * var(--fork-x) + var(--fork-hb)) / var(--sqrt-2) * var(--fork-scale) * -1);
+    right: calc((((var(--fork-hm) * var(--fork-x) + var(--fork-hb)) / var(--sqrt-2)) + (2 * (var(--fork-wm) * var(--fork-x) + var(--fork-wb)) * var(--cos2))) * var(--fork-scale) * -1);
+}
+</style>
+<style id="stl-widget-ribbon-theme-default">
+/***********************/
+/* fork ribbon theming */
+/***********************/
+.fork {
+    background-color: Black; color: White;
+
+    box-shadow: 0px 3px 5px -1px rgba(0,0,0,.4);
+    opacity: 0.9;
+}
+.fork:hover { opacity: 1 }
+
+.fork a {
+    line-height: 1.5; /* change lh to move borders up down */
+
+    font-weight: bold; color: inherit; white-space: nowrap;
+    text-decoration: none; text-align: center;
+    border-style: dotted; border-color: inherit transparent;
 }
 </style>
 <style id="theme-1-widget-ribbon-eyecandy">
 /************************************/
 /* fork ribbon [OPTIONAL] eye-candy */
 /************************************/
-.fork {
-    color: rgba(255,204,1,1);
-    box-shadow: 0px 3px 5px -1px rgba(0,0,0,.4);
-}
-.fork a {
-    font-weight: 600; color: inherit; text-decoration: none; 
-    border-style: dotted;
-    border-color: rgba(255,204,1,1) transparent;
-}
+.fork   { color: rgba(255,204,1,1); opacity: 0.8 }
+.fork a { border-color: rgba(255,204,1,1) transparent; font-weight: 600 }
 </style>
 
 
@@ -438,17 +432,17 @@ hr                  { border: 1px solid rgba(47, 79, 79,.1); border-top: none }
 /**********************/
 /* theme 1 typography */
 /**********************/
-body,input,select      { font-family: 'Open Sans', sans-serif; font-weight: 400 }
+body,input,select       { font-family: 'Open Sans', sans-serif; font-weight: 400 }
 
 /* The HERO font rule */
-[data-typo*="hero"]    { font-family: Cutive, serif;
-                         font-size: calc(5.625vmin - 0.375rem) }/* (320,12)(1280,66) */
+[data-typo*="hero"]     { font-family: Cutive, serif;
+                          font-size: calc(5.625vmin - 0.375rem) }/* (320,12)(1280,66) */
 
 /* Exception to the HERO font rule: at viewport size below 320px force fontsize to 12px */
 @media (max-width: 320px),(max-height: 320px) { [data-typo*="hero"] { font-size: 12px } }
 
-[data-typo*="subline"] { font-size: calc(0.625vmin + 0.625rem); /* (320,12)(1280,18) */
-                         padding: 0; text-align: right }
+[data-typo*="subline"]  { font-size: calc(0.625vmin + 0.625rem); /* (320,12)(1280,18) */
+                          padding: 0; text-align: right }
 </style>
 
 
@@ -595,7 +589,7 @@ hr {
 <div class="fork tr45deg"><a target="_blank" href="https://github.com/renevanderlende/renevanderlende.github.io/tree/master/js" data-ribbon="Code at Github"></a></div>
 
 <section band="padded.padx2.hero" C clr="3" plain="0">
-    <div data-typo="hero">linear equation to "calc()"</div>
+    <div data-typo="hero">linear equations to "calc()"</div>
     <p data-typo="subline">responsive sizes using y=mx+b</p>
 </section>
 
@@ -611,6 +605,7 @@ hr {
            or by 
            <a rel="noopener" target="_blank" href="https://codepen.io/TrentWalton">TrentWalton</a>
            on Codepen (and a few others:
+           <a rel="noopener" target="_blank" href="https://css-tricks.com/snippets/css/fluid-typography/">Fluid Typography</a>,
            <a rel="noopener" target="_blank" href="https://css-tricks.com/simplified-fluid-typography/">Simplified Fluid Typography</a> and
            <a rel="noopener" target="_blank" href="https://blog.typekit.com/2016/08/17/flexible-typography-with-css-locks/">Flexible typography with CSS locks</a>)
            on how to gain control over responsive typography (make sure to check them out).
