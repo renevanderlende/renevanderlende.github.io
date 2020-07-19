@@ -225,8 +225,8 @@ function getDimensions(el,cmp) {
 
     return {
              // Subtract padding (and border from W/H if CSS box-sizing is 'border-box')
-             width  : (cmp.boxSizing == 'border-box') ? el.clientWidth  - pr - pl - br - bl : el.clientWidth - pr - pl,
-             height : (cmp.boxSizing == 'border-box') ? el.clientHeight - pt - pb - bt - bt : el.clientHeight - pt - pb,
+             width  : (cmp.boxSizing == 'border-box') ? el.clientWidth  - pr - pl - br - bl : el.clientWidth  - pr - pl,
+             height : (cmp.boxSizing == 'border-box') ? el.clientHeight - pt - pb - bt - bb : el.clientHeight - pt - pb,
 
              // return parsed values, may save a bit of time in calling function
              padding: { top: pt, right: pr, bottom: pb, left: pl },

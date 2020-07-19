@@ -11,6 +11,25 @@ var html = document.documentElement;
 var body = document.body;
 var head = document.head;
 
+/*******************************/
+var vh,vw,vmin,vmax;
+
+function setViewportRelativeUnits() {
+    vh   = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+    vw   = Math.max(document.documentElement.clientWidth  || 0, window.innerWidth  || 0);
+    vmin = Math.min(vh,vw);
+    vmax = Math.max(vh,vw);
+}
+function vh(v)   { return v * vh   / 100; }
+function vw(v)   { return v * vw   / 100; }
+function vmin(v) { return v * vmin / 100; }
+function vmax(v) { return v * vmax / 100; }
+
+//window.addEventListener('resize', () => { setViewportRelativeUnits() });
+//setViewportRelativeUnits(); // First run
+/*******************************/
+
+
 /************************************/
 // Returns a values rounded up to a given number of decimals.
 // Params: float [, required # of decimals, default = 3]

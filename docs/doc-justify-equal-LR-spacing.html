@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>doc-justify-equal-LR-spacing</title>
+
+<style>
+/**************************/
+/* preferred global rules */
+/**************************/
+html,body               { box-sizing: border-box; width: 100%; max-width: 100%; height: 100% }
+*::before,*::after, *   { box-sizing: inherit }
+body                    { margin: 0 }
+
+
+.container {
+  display: flex;
+}
+
+.container {
+  display: flex;
+}
+
+p { padding: 0 .5rem }
+
+.column2 p { text-align: justify; text-justify: inter-word }
+
+* { outline: 1px dotted }
+</style>
+
+</head>
+<body>
+<div class="container">
+
+  <div class="column1">
+    <p>
+      Some content
+    </p>
+  </div>
+
+  <div class="column2">
+    <p>
+      There is more content in this div than the other divs. Blah, blah, blah, blah, blah, blah...
+    </p>
+  </div>
+
+  <div class="column3">
+    <p>
+      Some content
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

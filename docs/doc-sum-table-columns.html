@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>Insert title here</title>
+
+<style>
+
+</style>
+
+</head>
+<body>
+<table id="hikeTable" cellspacing="3" cellpadding="2" border="10">
+    <caption>
+    Hikes
+    </caption>
+    <tbody><tr>
+      <th scope="col">Locations</th>
+      <th scope="col"> Date </th>
+      <th scope="col">Miles (planned)</th>
+      <th scope="col">Miles (actual)</th>
+      <th scope="col">Comment</th>
+    </tr>
+    <tr>
+      <td>Alapocas Woods </td>
+      <td>02/18/06</td>
+      <td>1</td>
+      <td>1</td>
+      <td>busy that day; only time for a short hike </td>
+    </tr>
+    <tr>
+      <td>Brandywine State Park </td>
+      <td>02/25/06</td>
+      <td>5</td>
+      <td>0</td>
+      <td>too lazy to get off of couch </td>
+    </tr>
+    <tr>
+      <td>Judge Morris Estate </td>
+      <td>03/04/06</td>
+      <td>10</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Middle Run </td>
+      <td>03/11/06</td>
+      <td>7</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr id="HikeTotals">
+      <th>Totals</th>
+      <th>&nbsp;</th>
+      <th id="totalMilesPlanned">23</th>
+      <th id="totalMilesHiked">1</th>
+      <th>&nbsp;</th>
+    </tr>
+  </tbody>
+</table>
+
+
+    <script type="text/javascript">
+    var debugScript = false;
+
+    function computeTableColumnTotal(tableId, colNumber)
+    {
+        // find the table with id attribute tableId
+        // return the total of the numerical elements in column colNumber
+        // skip the top row (headers) and bottom row (where the total will go)
+        
+        var result = 0;
+        
+        try
+        {
+         var tableElem = window.document.getElementById(tableId);          
+         var tableBody = tableElem.getElementsByTagName("tbody").item(0);
+         var i;
+         var howManyRows = tableBody.rows.length;
+         for (i=1; i<(howManyRows-1); i++) // skip first and last row (hence i=1, and howManyRows-1)
+         {
+            var thisTrElem = tableBody.rows[i];
+            var thisTdElem = thisTrElem.cells[colNumber];           
+            var thisTextNode = thisTdElem.childNodes.item(0);
+            if (debugScript)
+            {
+               window.alert("text is " + thisTextNode.data);
+            } // end if
+            
+            // try to convert text to numeric
+            var thisNumber = parseFloat(thisTextNode.data);
+            // if you didn't get back the value NaN (i.e. not a number), add into result
+            if (!isNaN(thisNumber))
+               result += thisNumber;
+
+         } // end for
+         
+        } // end try
+        catch (ex)
+        {
+           window.alert("Exception in function computeTableColumnTotal()\n" + ex);
+           result = 0;
+        }
+        finally
+        {
+           return result;
+        }
+    
+    }
+        
+    function finishTable()
+    {
+        if (debugScript)
+           window.alert("Beginning of function finishTable");
+        
+        var totalMilesPlanned = computeTableColumnTotal("hikeTable",2);
+        var totalMilesHiked = computeTableColumnTotal("hikeTable",3);
+
+
+        try 
+        {
+          var totalMilesPlannedElem = window.document.getElementById("totalMilesPlanned");
+          totalMilesPlannedElem.innerHTML = totalMilesPlanned;
+
+          var totalMilesHikedElem = window.document.getElementById("totalMilesHiked");
+          totalMilesHikedElem.innerHTML = totalMilesHiked;
+        }
+        catch (ex)
+        {
+          window.alert("Exception in function finishTable()\n" + ex);
+        }
+        
+        return;
+    }
+    </script>
+
+</body>
+</html>

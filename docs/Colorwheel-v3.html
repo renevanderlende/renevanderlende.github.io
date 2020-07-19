@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=1">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:400,400i,500,500i,900,900i">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,600,700,300i,600i,700i|Raleway:600,800">
+<title>Colorwheel v3</title>
+
+<!--https://www.google.com/maps/place/APK+Station+Garage+De+Watermolen/@52.133172,5.568218,17z/data=!4m5!3m4!1s0x0:0x55be684ccc9e8c9b!8m2!3d52.1328624!4d5.5684698?hl=nl-->
+
+<style id="ers-globals-default">
+/*****************************/
+/* global defaults and utils */
+/*****************************/
+html,body               { box-sizing: border-box; width: 100%; height: 100%; margin: 0 }
+::before, ::after, *    { box-sizing: inherit; outline: none }
+
+html                    { min-height: 100vh; font-size: calc(0.625vmin + 0.875rem) } /* y=mx+b => f:y(320,14)(1280,20) */
+body                    { cursor: default }
+
+h1,h2,h3,h4,h5,h6       { margin: 0 }
+a                       { text-decoration: none; color: currentColor }
+img                     { display: block }
+
+/* 4 x [MANDATORY] for 'ellipsis' to work */
+code { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left }
+
+pre,code,kbd,samp       { font-size: calc(0.015625 * 100vmin);
+/*5>20 => gets unreadable small (TODO: needs click/tab to see full) */
+                          font-family: Consolas, monospace;
+                          font-weight: normal; line-height: normal;
+                          white-space: pre-wrap; letter-spacing: .02em }
+
+/* Darker/more contrast text (put in <body>)
+    => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,::selection,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
+
+/* prohibit user from selecting text (put in <body>) */
+[select="0"] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+/* enable user to select text (put in specific elements) */
+[select="1"] { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+
+[hide] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+
+/* show all elements with outlines (put in <body>) */
+[data-debug="1"] *      { outline: 1px dashed purple }
+</style>
+
+<style id="ers-banding-default">
+/*******************************/
+/* simple landing-page banding */
+/*******************************/
+[band] {
+    display: flex; flex-flow: row wrap; position: relative;
+    justify-content: center; align-content: center; align-items: flex-start;
+    padding: calc(5vh + 2rem) calc(19vw - 2.8rem);
+}   /* f:y=mx+b => T/B (320,48)(1280,96) and L/R (320,16)(1920,320) => 0.19x - 44.8 */
+
+[band]>*            { padding: 0 calc(.625vmin + .375rem) } /* (320,8)(1280,14) */
+
+[band="header"]     { flex-flow: column wrap; text-align: center }
+[band="header"]>*   { margin: 0 }
+
+[band="annotate"],
+[band="map"],
+[band="info"]       { width: 100%; padding: 0; }
+
+[band="annotate"]>*,
+[band="info"]>*     { flex-flow: column wrap; flex-grow: 1;
+                      min-width: 18rem; width: 100%; max-width: 50%;
+                      padding: calc(5vh + 2rem) 5vw }
+</style>
+
+<style id="ers-theming-default">
+/*************************/
+/* default theme STYLING */
+/*************************/
+body            { font-size: 1rem; line-height: 1.5; font-family: "Open Sans",Muli,Arial,Helvetica,sans-serif }
+
+h1              { font-size: calc(0.025  * 100vmin + .625em); letter-spacing: .18em }/*18>42*/
+h4              { font-size: calc(0.0125 * 100vmin + .375em); color: rgb(117,56,76); /*10>16*/
+                  letter-spacing: calc(0.000625 * 100vmin + 0.245em) }  /* sorta 0.265>0.295 */
+h1,h2,h3,
+h4,h5,h6        { font-family: 'Poppins',Muli,Arial,Helvetica,sans-serif; font-weight: 500; padding: .5em 1rem }
+
+p               { padding: .5rem 1rem }
+p[narrow]       { flex-basis: 65% }
+code            { font-family: Consolas, monospace; font-size: .875em; white-space: pre-wrap }
+q               { font-style: italic }
+
+dt              { list-style-position: inside }
+ul,dl,dd        { margin: 0; padding: 0 }
+ul              { padding: .5rem 2rem }
+.ul-table       { list-style-type: none }
+.ul-table span  { display: inline-block; min-width: 6rem; text-align: center }
+.list-label     { font-weight: bold }
+
+.comment li     { margin-bottom: .75rem }
+.ref            { width: 100%; margin-top: 0; font-size: smaller; text-align: right }
+
+.w3c-blue       { color: #005a9c }
+.para::before   { content: '§'; padding: 0 .125rem }
+
+.pad            { padding: 2px 6px }
+
+[data-elev="3"] {
+    box-shadow: 0px 3px 3px -2px rgba(0,0,0,.20),
+                0px 3px 4px  0px rgba(0,0,0,.14),
+                0px 1px 8px  0px rgba(0,0,0,.12)
+                } /* mdc 3dp */
+
+[data-elev="0"] { box-shadow: none }
+</style>
+
+<style id="ers-theming-colors-default">
+/************************/
+/* default theme COLORS */
+/************************/
+body                 { color: rgba(0,0,0,.87); background-color:  #bdbec1 }
+
+code                 { background-color: white; border-left: .25rem solid hsla(160.3,35.3%,33.9%,.15) }
+
+::selection          { background-color: hsla(160.3,35.3%,33.9%,.87); color: white }
+[band="header"] { background-color: hsla(160.3,35.3%,33.9%,.15) }
+</style>
+
+<style id="ers-colorwheel-demo-specific">
+/*************************/
+/* Just a few demo rules */
+/*************************/
+.userInput          { display: flex; flex-flow: column wrap; padding: 0 10vmin 5vmin }
+
+input,select        { font-size: .875rem }
+
+label               { display: flex; justify-content: space-between; padding: .25rem 0 .125rem 0 }
+label>*             { width: 10rem }
+
+/* Debugging, undo outline settings otherwise huge 'dashes' */
+[data-debug="1"] svg * { outline: none }
+
+[data-debug="0"] #svg-lines  { display: none }
+</style>
+
+</head>
+<body cleartype="0" select="1" data-debug="0">
+    <header band="header"><h4>Colorwheel v1.3 Demo (2019/10)</h4></header>
+
+    <section band>
+        <div class="userInput">
+            <label>Colorspace:&nbsp;
+            <select id="colorspace">
+                <option value="RGB" selected="selected">RGB (linear)</option>
+                <option value="RYB">RYB (perceptive)</option>
+                <option value="MONO">Monochromatic colors</option>
+            </select></label>
+
+            <label>Base Color:&nbsp;
+            <input id="inputcolor" value="hsla(0,100%,50%,1)" type="text"/></label>
+
+            <label>HTML Color:&nbsp;
+            <select id="HTMLcolor"></select></label>
+
+            <label>Harmony:&nbsp;
+            <select id="harmonytxt">
+                <option value="complementary" selected="selected">Complementary</option>
+                <option value="splitcomplementary">Split Complementary</option>
+                <option value="triadic">Triadic</option>
+                <option value="tetradic">Tetradic</option>
+                <option value="analogous">Analogous</option>
+                <option value="monochromatic">Monochromatic</option>
+            </select></label>
+
+            <label>Precision:&nbsp;
+            <select id="segments">
+                <option value= "12">&nbsp;&nbsp;30&deg; (12)</option>
+                <option value= "24">&nbsp;&nbsp;15&deg; (24)</option>
+                <option value= "36">&nbsp;&nbsp;10&deg; (36)</option>
+                <option value= "60">&nbsp;&nbsp;&nbsp;6&deg;  (60)</option>
+                <option value= "72">&nbsp;&nbsp;&nbsp;5&deg;  (72)</option>
+                <option value="120">&nbsp;&nbsp;&nbsp;3&deg; (120)</option>
+                <option value="180">&nbsp;&nbsp;&nbsp;2&deg; (180)</option>
+            </select></label>
+        </div>
+
+        <svg id ="svgColorWheel" viewbox="-1 -1 2 2.3" xmlns ="http://www.w3.org/2000/svg">
+            <style>
+                /* https://medium.com/hackernoon/a-simple-pie-chart-in-svg-dbdd653b6936 */
+                #svgColorWheel *        { paint-order: fill; shape-rendering: auto }
+                #svgColorWheel path,
+                #svgColorWheel circle   { cursor: pointer }
+            </style>
+            <defs>
+                <filter id="double">
+                <!--
+                    info: https://codepen.io/hanger/pen/OXMXXP
+                    http://apike.ca/prog_svg_filter_feComposite.html
+
+                    Here to toy with 'operator' modifying segment fill/stroke and layout
+                -->
+                    <feMorphology in="SourceGraphic" result="morph-output-name" operator="erode" radius="0.001" />
+                    <feComposite  in="SourceGraphic"    in2="morph-output-name" result="composite-output-name" operator="in" />
+                </filter>
+            </defs>
+            <g id="svg-hud">
+                <rect x ="-0.98"  y ="1.02" width="0.2" height="0.2" style="fill: red"    />
+                <rect x ="-0.588" y ="1.02" width="0.2" height="0.2" style="fill: cyan"   />
+                <rect x ="-0.196" y ="1.02" width="0.2" height="0.2" style="fill: lime"   />
+                <rect x = "0.196" y ="1.02" width="0.2" height="0.2" style="fill: purple" />
+                <rect x = "0.588" y ="1.02" width="0.2" height="0.2" style="fill: yellow" />
+            </g>
+            <g id="svg-lines"><!-- used for debugging purposes: '<body data-debug="1">' -->
+                <g>
+                    <line x1="-1" x2= "2" y1="-1" y2="2"       style="stroke: black; stroke-width:0.005" />
+                    <line x1= "1" x2="-2" y1="-1" y2="2"       style="stroke: black; stroke-width:0.005" />
+                    <line x1= "0" x2= "0" y1="-1" y2="2"       style="stroke: black; stroke-width:0.005" />
+                    <line x1="-1" x2= "2" y1= "0" y2="0"       style="stroke: black; stroke-width:0.005" />
+                </g>
+                <g>
+                    <rect x ="-1"    y ="-1"   width="99.99%" height="99.99%" style="stroke: black; stroke-width:0.01;  fill: none" />
+                    <rect x ="-0.98" y ="1.02" width="1.96"   height="0.26"   style="stroke: black; stroke-width:0.005; fill: none" />
+                </g>
+            </g>
+        </svg>
+    </section>
+
+    <section band hide>
+        <svg viewbox="0 0 325 325" xmlns="http://www.w3.org/2000/svg">
+          <path d="M  80  80 A 45 45, 0, 0, 0, 125 125 L 125  80 Z" fill="green" />
+          <path d="M 230  80 A 45 45, 0, 1, 0, 275 125 L 275  80 Z" fill="red"   />
+          <path d="M  80 230 A 45 45, 0, 0, 1, 125 275 L 125 230 Z" fill="purple"/>
+          <path d="M 230 230 A 45 45, 0, 1, 1, 275 275 L 275 230 Z" fill="blue"  />
+        </svg>
+    </section>
+
+<script src="../js/tinycolorEx.js">
+/* Main color handling routines */
+</script>
+
+
+<script>
+'use-strict';
+/********************/
+/* global constants */
+/********************/
+const DEBUG  = false;
+
+const IDX_USER_COLORSPACE = 0,
+      IDX_USER_BASECOLOR  = 1,
+      IDX_USER_HTMLCOLOR  = 2,
+      IDX_USER_HARMONY    = 3,
+      IDX_USER_PRECISION  = 4;
+
+const GROUP_SEGMENTS      = 0,
+      GROUP_OVERLAYS      = 1;
+
+const FIXED_DECIMALS_DEFAULT = 3;
+
+const FACTOR = .99;
+/*
+    FACTOR .99 instead of 1 (or, for example, 990 inst. of 1000),
+    this way full stroke is visible at outer edges of segments at 0,90,180 and 270deg.
+    FACTOR can also be used for 'padding' space in the main svg.
+*/
+
+// Mainly used to beautify console output
+const CR     = '\r',
+      LF     = '\n',
+      CRLF   = CR+LF;
+
+const XMLNS  = 'http://www.w3.org/2000/svg',
+      XLINK  = 'http://www.w3.org/1999/xlink';
+
+/********************/
+/* global variables */
+/********************/
+// Traverse all array elements executing passed callback function for each entry
+var forEachEntryIn = function (array, callback, scope) { // using internal caching
+    for (var i = 0, l = array.length; i < l; i++) { callback.call(scope, i, array[i]); }
+};
+
+/******************/
+/* util functions */
+/******************/
+ // prefix a string with given character(s) (default character = "0") to max(length) (default 3)
+function pad(str, max=3, chr='0')   { str = str.toString(); return str.length < max ? pad(chr + str, max) : str; }
+// Make sure a given number is an integer
+function clampInt(val)              { return parseInt(val,10) }
+// Make sure a given number is inside [0,360] degrees. Values > 360 are forced within 360. Think in circles...
+function clampDeg(deg,max=360)      { if (deg>=max) {deg -= max} else if (deg<0) {deg += max}; return deg; }
+//Rounds a number to given number of decimals, default 0. Use as-is. Used by 'fixedDec' below
+function roundIt(x, dec=0)          { return Number(Math.round(x+'e'+dec)+'e-'+dec); };
+
+// Rounds a number to given number of decimals, default FIXED_DECIMALS_DEFAULT
+function fixedDec(x, dec=FIXED_DECIMALS_DEFAULT) {
+    if      (dec>0)  { return Number(parseFloat(x).toFixed(dec)); }
+    else if (dec==0) { return roundIt(x); } // as '.toPrecision' won't accept values < 1
+    else  /* dec<0 */  return x; // At least return something as to not obfuscate that calling routine messed up
+};
+
+/******************/
+/* math functions */
+/******************/
+
+// Not used just yet (WIP)
+function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+
+    return {
+        x: centerX + (radius * Math.cos(angleInRadians)),
+        y: centerY + (radius * Math.sin(angleInRadians))
+    };
+};
+// Ditto
+function describeArc(x, y, radius, startAngle, endAngle){
+
+  var start = polarToCartesian(x, y, radius, endAngle);
+  var end   = polarToCartesian(x, y, radius, startAngle);
+
+  var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+  var d = [
+      "M", start.x, start.y, 
+      "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+  ].join(" ");
+
+  return d;       
+};
+
+/*
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="320" height="320">
+    <rect fill="rgba(0,0,0,0.1)" width="100%" height="100%" />
+    <path id="path" fill="none" stroke="#000" stroke-width="3" />
+</svg>
+
+*/
+// document.getElementById("arc1").setAttribute("d", describeArc(200, 400, 100, 0, 180));
+// <path id="arc1" fill="none" stroke="#446688" stroke-width="20" />
+
+// or
+// console.log(describeArc(255, 255, 220, 134, 136));
+// document.querySelector('#path').setAttribute('d', describeArc(300, 350, 500, 1500, 200));
+
+/*
+
+const angleInRadians = angleInDegrees => (angleInDegrees - 90) * (Math.PI / 180.0);
+
+const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
+    const a = angleInRadians(angleInDegrees);
+    return {
+        x: centerX + (radius * Math.cos(a)),
+        y: centerY + (radius * Math.sin(a)),
+    };
+};
+
+const arc = (x, y, radius, startAngle, endAngle) => {
+    const fullCircle = endAngle - startAngle === 360;
+    const start = polarToCartesian(x, y, radius, endAngle - 0.01);
+    const end   = polarToCartesian(x, y, radius, startAngle);
+    const arcSweep = endAngle - startAngle <= 180 ? '0' : '1';
+
+    const d = [
+        'M', start.x, start.y,
+        'A', radius, radius, 0, arcSweep, 0, end.x, end.y,
+    ].join(' ');
+
+// const d = `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 0 ${end.x} ${end.y}`
+
+ if (fullCircle) d.push('z');
+    return d;
+};
+
+*/
+
+var settings = { // modify initial settings to meet your requirements. TODO: make user modifiable
+        svg: {
+            padding: '.25rem',
+            height : 'calc(50vmin + 80px)'
+        },
+
+        startdeg: -92.5, // (90 + degrees/2) * -1 => /360 and rotate left to move 'HTMLcolor' to top/center
+
+        segmentgap: fixedDec(0.005 * FACTOR), // set to <0.005 when filter #double is used
+
+        usefilter: false,
+        
+        segment: {
+            degrees: 30,
+            height : fixedDec(0.333 * FACTOR)
+        },
+
+        harmony: {
+            analog: {
+                skip: 2
+            },
+        },
+
+        path: {
+            filter: '"url(#double)"'
+        },
+
+        circle: {
+            display : true,
+            centered: false, // set to false for <body data-debug="1">
+            radius  : fixedDec(0.02 * FACTOR),
+
+            pos: { // (0,0) is center wheel, (-1,-1) = top/left
+                cx: fixedDec( 0 * FACTOR),
+                cy: fixedDec(-1 * FACTOR + 0.07 * FACTOR)
+            },
+
+            fill: {
+                color: '#ddd', // overridden by activecolor
+            },
+
+            stroke: {
+                color: '#000', // overridden by activecolor.complement()
+                width: fixedDec(0.01 * FACTOR)
+            }
+        },
+
+        triangle: {
+            display: false,
+            lines  : fixedDec(-0.03 * FACTOR) + ' ' + fixedDec(-1    * FACTOR) + ',' + 
+                     fixedDec( 0.03 * FACTOR) + ' ' + fixedDec(-1    * FACTOR) + ',' + 
+                     fixedDec( 0.0  * FACTOR) + ' ' + fixedDec(-0.95 * FACTOR)      
+        },
+
+        text: {
+            display  : true,
+            content  : '\u25C0 ', // UTF "Geometric Shapes" => BLACK LEFT-POINTING TRIANGLE
+            transform: 'rotate(90) translate('+ fixedDec(-0.95 * FACTOR) +','+ fixedDec(1 * FACTOR) +')',
+
+            pos: {
+                x: fixedDec( 0.32 * FACTOR), // should be: settings.segment.height * FACTOR + some offset
+                y: fixedDec(-0.98 * FACTOR)  // 1 - settings.text.font.size / 2 (approx.: depends on font-family!)
+            },
+
+            fill: {
+                color: '#000',
+            },
+
+            font: {
+                family  : 'Poppins,"Open Sans", sans-serif',
+                size    : fixedDec(0.003 * FACTOR,4) + 'rem',
+                lspacing: fixedDec(0.001 * FACTOR,4) + 'rem' // TODO: FF 'letter-spacing' no effect?? (Edge works)
+            },
+        },
+
+        hud: {
+            count : 2,                              // 2 as complementary (2 colors) is default
+            offset: (1.96 - 0.98) - (2 * 0.2 / 2),  // total width (see '#svg-hud') - (count * box width / 2)
+
+            box: {
+                width : 0.2,
+                height: 0.2
+            },
+        },
+
+        styles: {
+            unselected: { stroke: { width: fixedDec(0.027 * FACTOR),
+                                    color: 'transparent',
+                                    scale: '' } },
+
+            selected  : { stroke: { width: fixedDec(0.0135 * FACTOR),
+                                    color: '#fff', // overridden by activecolor.complement()
+                                    scale: 'scale(.97)' } },
+
+            hovered   : { stroke: { width: fixedDec(0.0135 * FACTOR),
+                                    color: '#000', // overridden by activecolor.complement()
+                                    scale: 'scale(.99)' } }
+        }
+};
+
+/******************************/
+/* CLASS: ColorHarmony (WIP)  */
+/******************************/
+class ColorHarmony {
+    constructor(hue=0, sat=1, lit=0.5, alp=1, deg=30, segsLR=2) {
+
+        this._hue        = hue;
+        this._saturation = sat;
+        this._lightness  = lit;
+        this._alpha      = alp;
+
+        var color = 'hsla(' +
+                           this._hue +  ',' +
+                           this._saturation * 100 + '%,' +
+                           this._lightness  * 100 + '%,' +
+                           this._alpha +
+                        ')';
+
+        this._degrees = deg;
+
+        // CSS hsl() syntax
+        this._CSScolor = color;
+
+        // Using 'tinycolorEx' for easy color info and conversions
+        this._tinycolorEx = new tinycolorEx(color);
+
+        // Will create arrays for easy access to color harmony hues (WIP)
+        this.complementary      = this._hue;
+        this.splitcomplementary = this._hue;
+        this.triadic            = this._hue;
+        this.tetradic           = this._hue;
+
+        if (segsLR==2) this.analogous2 = this._hue; // 5 adjacent elements
+        else           this.analogous1 = this._hue; // 3 adjacent elements
+
+        // TODO: needs separate handling as lightness has to change in 'Colorwheel' instead of hue
+        this.monochromatic      = this._hue;
+    }
+
+    // getter METHODS
+    get CSScolor          () { return this._CSScolor          ; }
+    get tinycolorEx       () { return this._tinycolorEx       ; }
+
+    get complementary     () { return this._complementary     ; } // 2 elements
+    get splitcomplementary() { return this._splitcomplementary; } // 3 elements
+    get triadic           () { return this._triadic           ; } // 3 elements, different degrees
+    get tetradic          () { return this._tetradic          ; } // 4 elements
+    get analogous         () { return this._analogous         ; } // 3 or 5 elements based on segsLR
+    get monochromatic     () { return this._monochromatic     ; }
+    /*
+        Below could have used 'tinyColor' methods instead, but 'tinyColor' calculates these values on the fly,
+        which is undesired with a lot of segments in the colorwheel. So, this is a performance choice
+    */
+    set complementary     (hue) { this._hue = hue; this._complementary      = [hue,clampDeg(hue + 180)]                                        ; return this; } 
+    set splitcomplementary(hue) { this._hue = hue; this._splitcomplementary = [hue,clampDeg(hue + 150),clampDeg(hue + 210)]                    ; return this; } 
+    set triadic           (hue) { this._hue = hue; this._triadic            = [hue,clampDeg(hue + 120),clampDeg(hue + 240)]                    ; return this; } 
+    set tetradic          (hue) { this._hue = hue; this._tetradic           = [hue,clampDeg(hue +  90),clampDeg(hue + 180),clampDeg(hue + 270)]; return this; } 
+    // (WIP)
+    set monochromatic     (hue) { this._hue = hue; this._monochromatic      = [hue]; return this; } 
+
+    set analogous2(hue) {
+        this._hue = hue;
+        this._analogous = [hue,
+                           clampDeg(hue - 2 * this._degrees),
+                           clampDeg(hue -     this._degrees),
+                           clampDeg(hue +     this._degrees),
+                           clampDeg(hue + 2 * this._degrees)];
+        return this;
+    }
+    set analogous1(hue) {
+        this._hue = hue;
+        this._analogous = [hue,
+                           clampDeg(hue - this._degrees),
+                           clampDeg(hue + this._degrees)];
+        return this;
+    }
+}; // end of class 'ColorHarmony'
+
+/*****************************/
+/* CLASS: WheelSegment (WIP) */
+/*****************************/
+class WheelSegment {
+    constructor(parent,idx,elemID) {
+        this._initialized = false;
+        this._hasPath      = false;
+        this.selected      = false;
+
+        this._index       = idx;    // index into segment list (TODO: needed??)
+        this._id          = elemID; // element id string
+
+        // TODO: convert to proper SVG class and element constructor
+        this._svg   = { elem  : document.createElementNS(XMLNS,'path'),
+                       title : '' };  // SVG title element, defined in 'initialize'
+
+        this._svg.elem.setAttribute('id', this.id);
+
+        this._hue     = 0;  // color of this segment (basically the 'fill'). default 'red'
+        this._degrees = 0;  // Number of degrees it occupies
+        this._start   = 0;  // starting position 
+        this._height  = 0;  // [0,1] value * FACTOR
+
+        this._colorharmony = null;
+    }
+
+    // getters
+    get colorharmony()          { return this._colorharmony ; }
+    get degrees     ()          { return this._degrees      ; }
+    get hasPath     ()          { return this._hasPath      ; }
+    get height      ()          { return this._height       ; }
+    get hue         ()          { return this._hue          ; }
+    get id          ()          { return this._id           ; }
+    get index       ()          { return this._index        ; }
+    get initialized ()          { return this._initialized  ; }
+    get segsLR      ()          { return this._segsLR       ; }
+    get start       ()          { return this._start        ; }
+    get svg         ()          { return this._svg          ; }
+
+    // setters
+    set fill        (fill)      { this._svg.elem.style.fill        = fill  ; return this; }
+    set filter      (filter)    { this._svg.elem.style.filter      = filter; return this; }
+    set strokeColor (color)     { this._svg.elem.style.stroke      = color ; return this; }
+    set StrokeWidth (width)     { this._svg.elem.style.strokeWidth = width ; return this; }
+
+    set title(text) {
+        var title = this._svg.elem.getAttribute('title');
+        if (!title) title = document.createElementNS(XMLNS,'title');
+        title.textContent = text;
+
+        this._svg.elem.appendChild(title);
+        return this;
+    }
+
+    // Stubs for now (WIP)
+    update(opts) { return this; }
+    remove(opts) { return this; }
+    render(opts) { return this; }
+
+    initialize(opts) {
+        this._hue        = opts.hue;    // color of this segment (basically the 'fill')
+        this._saturation = opts.sat;
+
+        this._degrees = opts.deg;    // Number of degrees it occupies
+        this._height  = opts.hgt;    // [0,1] value * FACTOR
+
+        // div 4 => div 2 because SVG stroke always shifts 50% of its width outside element and
+        //          div 2 once more because of L/R gap  
+        this._start = opts.start - settings.segmentgap/4;
+
+        // Color harmonies for this HSLA
+        this._colorharmony =
+            new ColorHarmony(
+                  opts.hue,
+                  opts.sat,
+                  opts.lit,
+                  opts.alp,
+                  opts.deg * ((opts.skp) && (opts.skp>0) ? opts.skp : 1),
+                  opts.segsLR
+            );
+
+        this.title = this._colorharmony.CSScolor;
+        this.fill  = this._colorharmony.tinycolorEx.toHslString();
+
+        this.strokeColor = settings.styles.unselected.stroke.color;
+        this.strokeWidth = settings.styles.unselected.stroke.width;
+
+        if (settings.usefilter) this.filter = opts.flt;
+        else                    this.filter = '';
+
+        this._initialized = true;
+
+        return this; // makes it chainable
+    }
+
+    createPath() {
+    // Code from: https://medium.com/hackernoon/a-simple-pie-chart-in-svg-dbdd653b6936
+    // TODO: need to get rid of FACTOR!!!
+
+        function getLocationCoords(percent,thickness) {
+          var x = Math.cos(2 * Math.PI * percent),
+              y = Math.sin(2 * Math.PI * percent);
+
+          return [fixedDec(x * FACTOR),
+                  fixedDec(y * FACTOR),
+                  fixedDec(x * thickness/FACTOR * FACTOR),
+                  fixedDec(y * thickness/FACTOR * FACTOR)];
+        };
+
+        if (!this._hasPath) { // Path not already created?
+            var setWidth = this._degrees/360,
+                percent  = this._start;
+
+            var offset = (settings.segmentgap>0 ? settings.segmentgap/2/FACTOR : 0);
+            // div by 2 because of left/right side stroke
+
+            percent += offset;
+            var [startX, startY,startXt, startYt] = getLocationCoords(percent, this.height);
+
+            percent += setWidth - offset;
+            var [endX,endY,endXt,endYt] = getLocationCoords(percent, this.height);
+
+            var largeArcFlag = setWidth > .5 ? 1 : 0;
+            var arcString    = (1 * FACTOR) + ' ' + (1 * FACTOR);
+
+            var pathData = [
+                `M ${startX} ${startY}`,
+                `A ${arcString} 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                `L ${endXt} ${endYt}`,
+                `A ${this._height} ${this._height} 0 ${largeArcFlag} 0 ${startXt} ${startYt}`,
+                `Z`,        /* added to make full path stroke */
+                `${CRLF}`,  /* added for readability when saving the SVG through developer tools */
+            ].join(` `);
+
+            this._svg.elem.setAttribute('d', pathData);
+
+            this._hasPath = true;
+        };
+        return this; // makes it chainable
+    }
+
+}; // end of class 'WheelSegment'
+
+/*********************/
+/* colorwheel object */
+/*********************/
+function ColorWheel(svg) {
+    var owner       = document.body,                /* not used (WIP) */
+        parent      = document.getElementById(svg), /* TODO: check for SVG else create SVG */
+        elements    = document.querySelectorAll('#colorspace, #inputcolor, #HTMLcolor, #harmonytxt, #segments');
+
+    var selElement  = null,
+        related     = [];
+
+    var segmentList = [],
+        groups      = [],
+        colornames  = Object.getOwnPropertyNames(tinycolorEx.names),
+        colorvalues = Object.values(tinycolorEx.names);
+
+    var colorspace  = 'sRGB',
+        inputcolor  = new tinycolorEx('red'),
+        HTMLcolor   = new tinycolorEx('red'),
+        harmonytxt  = 'complementary',
+        segments    = 0;
+
+    var activecolor = HTMLcolor;
+
+    // Build options list for input element 'HTML Color'
+    forEachEntryIn(colornames,
+    function (idx,el,scope) {
+        var opt = document.createElement("option");
+
+        opt.value = opt.text = colornames[idx];
+        if (opt.value == 'red') { opt.defaultSelected = true; opt.text += ' (default)' };
+
+        opt.style.backgroundColor = colornames[idx];
+        opt.style.color = tinycolorEx.mostReadable(colornames[idx],['#000', '#fff']).toString();
+
+        elements[IDX_USER_HTMLCOLOR].add(opt, null);
+    });
+
+    // TODO: move to function
+    elements[IDX_USER_HTMLCOLOR].style.backgroundColor = inputcolor.toHexString();
+    elements[IDX_USER_HTMLCOLOR].style.color = tinycolorEx.mostReadable(inputcolor,['#000', '#fff']).toString();
+
+    forEachEntryIn(elements,
+    function (idx,el,scope) {  // traverse retrieved elements list
+        el.onchange = function(e) { _CWupdateColorwheelOnChange(e.target) }; // Assign 'onchange' listener
+    });
+
+    // Catch [enter]-key on user manual color value input
+    elements[IDX_USER_BASECOLOR].onkeydown = function(e) {
+        var chr = e.which || e.keyCode; if (chr == 13) _CWupdateColorwheelOnChange(e.target)
+    };
+
+    /*********************/
+    /* getParentSizeInfo */
+    /*********************/
+    function _CWgetParentSizeInfo() { // Need to use SVG getBBox() to get element width/height info
+        var bbox = parent.getBBox();
+        return { width: bbox.width, height: bbox.height, x: bbox.x, y: bbox.y };
+    };
+
+    /**************/
+    /* initialize */
+    /**************/
+    function _CWinitialize() {
+
+        parent.style.padding = settings.svg.padding; 
+        parent.style.height  = settings.svg.height;
+
+        selElement = null;  // clear selection
+        related    = [];
+
+        groups = [];
+        groups[GROUP_SEGMENTS] = document.createElementNS(XMLNS, 'g');
+        groups[GROUP_SEGMENTS].setAttribute('id', 'segments');
+
+        _CWcreateSegmentList(groups[GROUP_SEGMENTS]);
+
+        if (groups[GROUP_SEGMENTS].childElementCount>0) parent.appendChild(groups[GROUP_SEGMENTS]);
+
+        groups[GROUP_OVERLAYS] = document.createElementNS(XMLNS, 'g');
+        groups[GROUP_OVERLAYS].setAttribute('id', 'overlays');
+
+        _CWcreateSVGOverlays(groups[GROUP_OVERLAYS]);
+
+        if (groups[GROUP_OVERLAYS].childElementCount>0) parent.appendChild(groups[GROUP_OVERLAYS]);
+    };
+
+    /*********************/
+    /* createSegmentList */
+    /*********************/
+    function _CWcreateSegmentList(group) {
+        var partDeg, IdDeg;
+        
+        // Default is side-by-side analogous colors, use settings 'skip' (currently 2) when 'precision (parts)' > 60 
+        var skip = (elements[IDX_USER_PRECISION].selectedIndex>3) ? settings.harmony.analog.skip : 1;
+
+        // just for testing: skip even more (modify at will)
+        skip = (elements[IDX_USER_PRECISION].selectedIndex>5) ? 4 : skip;
+        
+        segmentList = []; // Destroys current list
+
+        // Walk a full circle and create the required segments (360 divided by segment-size-in-degrees)
+        for (var i = 0, l = 360 / settings.segment.degrees; i < l; i++) {
+            // calculate successive part colors from activecolor hue
+            partDeg = fixedDec(clampDeg(activecolor.h + i*settings.segment.degrees),1); // Hue as float
+            IdDeg   = clampInt(partDeg); // Hue as integer
+
+            segmentList[i] = new WheelSegment(group, i, _CWtoElemString(IdDeg))
+                .initialize(
+                 {
+                     hue: partDeg,
+                     sat: fixedDec(activecolor.s,1),
+                     lit: fixedDec(activecolor.l,1),
+                     alp: fixedDec(activecolor.a,1),
+                     deg: settings.segment.degrees,
+                     skp: skip,
+                     flt: settings.path.filter,
+
+                     // if less than 120 segments then 3 adjacent colors else 5 for analogous/monochromatic harmony
+                     segsLR: (l < 120) ? 1 : 2,
+                     hgt   : fixedDec(1 * FACTOR - settings.segment.height,4),
+                     start : fixedDec(i * (settings.segment.degrees/360) + (settings.startdeg/360),4),
+                 })
+                .createPath();
+
+            // When SVG 'path' create add it to 'g' group
+            if (segmentList[i].hasPath) {
+                segmentList[i].svg.elem.addEventListener("click",     function(e) { _CWsliceClick(e); });
+                segmentList[i].svg.elem.addEventListener("mouseover", function(e) { _CWsliceOver(e);  });
+                segmentList[i].svg.elem.addEventListener("mouseout" , function(e) { _CWsliceOut(e);   });
+
+                group.appendChild(segmentList[i].svg.elem);
+            }
+        }; // next
+    };
+
+    /*************/
+    /* SVG circle */
+    /*************/
+    function _CWcreateSVGOverlays(group) {
+    /*
+        TODO: - Modify 'settings' to have attributes name and value.
+              - Change below to a function that reads settings and sets attributes
+                in a loop. More generic and variable.
+    */
+        if (settings.circle.display) {
+            var circle = document.createElementNS(XMLNS,'circle'),
+                 title = document.createElementNS(XMLNS,'title' );
+
+            // Circle centered in colorwheel
+            if (settings.circle.centered) {
+                var info = _CWgetParentSizeInfo();
+                circle.setAttribute('r' , info.width/2 - settings.segment.height*1.08);
+                circle.setAttribute('cx', 0);
+                circle.setAttribute('cy', 0);
+            }
+            else {
+                circle.setAttribute('r' , settings.circle.radius);
+                circle.setAttribute('cx', settings.circle.pos.cx);
+                circle.setAttribute('cy', settings.circle.pos.cy);
+            };
+
+            if (settings.usefilter) circle.setAttribute('filter','url(#double)'); // here to toy with SVG filters (see <svg> element)
+            circle.setAttribute('fill'        , activecolor);
+            circle.setAttribute('stroke'      , activecolor.complement());
+            circle.setAttribute('stroke-width', settings.circle.stroke.width);
+
+            title.textContent = activecolor.complement().toHslString();
+            circle.appendChild(title);
+            group.appendChild(circle);
+        };
+
+        if (settings.triangle.display) {
+            var tri = document.createElementNS(XMLNS, 'polygon');
+            tri.setAttribute('points'        , settings.triangle.lines    );
+            tri.setAttribute('fill'          , activecolor.complement()   );
+            tri.setAttribute('stroke'        , settings.circle.stroke.color);
+            tri.setAttribute('stroke-width'  , settings.circle.stroke.width);
+            group.appendChild(tri);
+        };
+
+        if (settings.text.display) {
+            var text  = document.createElementNS(XMLNS, 'text');
+            text.setAttribute('transform'     , settings.text.transform    );
+            text.setAttribute('x'             , settings.text.pos.x        );
+            text.setAttribute('y'             , settings.text.pos.y        );
+            text.setAttribute('letter-spacing', settings.text.font.lspacing);
+
+            var compColor = (settings.circle.display && settings.circle.centered) ?
+                                                        activecolor.toHexString() : 
+                           window.getComputedStyle(document.body).backgroundColor;
+
+            text.setAttribute('fill',
+                tinycolorEx.mostReadable
+                (compColor, /* color to compare with */
+                 [activecolor.toHexString(),activecolor.complement().toHexString(),settings.text.fill.color,'#fff'] /* list of color choices */
+                ).toHexString());
+
+            text.style.fontFamily    = settings.text.font.family;
+            text.style.fontSize      = settings.text.font.size;
+            text.textContent         = settings.text.content + (activecolor.toName() ?
+                                                                activecolor.toName() :
+                                                                activecolor.toHexString());
+            group.appendChild(text);
+        };
+    };
+
+    function _CWdrawHud(segment) {
+        if (DEBUG) console.log(segment);
+    };
+
+    function _CWkillHud(segment) {
+        if (DEBUG) console.log(segment);
+    };
+
+    //Creates a HTML element ID string with integer part of the default HUE or color selected by user.
+    function _CWtoElemString(hue)   { return 'path-' + pad(clampInt(hue)); }
+    function _CWgetSegmentIndex(id) { return segmentList.findIndex(segment => segment.id === id); }; // Get index by ID
+
+    function _CWdeleteSegments()    { _CWdeleteFromSVG('#segments'); }; // pass list of selectors
+    function _CWdeleteOverlays()    { _CWdeleteFromSVG('#overlays'); };
+
+    function _CWdeleteFromSVG(selectorString) {
+        var list = parent.querySelectorAll(selectorString);
+        forEachEntryIn(list, function (i) { parent.removeChild(list[i]); });
+    };
+
+    /*******************/
+    /* event listeners */
+    /*******************/
+    function _CWsliceClick(event) {
+        var hue       = clampInt(event.target.id.substr(5)); // from element id to hue to compare
+        var isRelated = _CWisInRelated(hue);
+        var segidx    = _CWgetSegmentIndex(event.target.id);
+
+
+        // when found in array of related (harmony) hues or it is the selected hue then deselect
+        if (isRelated || (selElement)) _CWtoggleHarmony(selElement,false);
+
+        if (isRelated) { // in related hues (includes base hue) then reset and hover
+            // clear selection
+            selElement = null;
+            related    = [];
+
+            // and set wheel to proper hover settings
+            _CWhoverHarmony(event.target,true); 
+        }
+        else { // Apparently an unselected hue, save it and toggle 'selected'
+            selElement = event.target;
+            related    = [];
+
+            // fill [related] with harmony hues of selected elements
+            forEachEntryIn(segmentList[segidx].colorharmony[harmonytxt],
+            function (index,hue,scope) { related[index] = clampInt(hue); });
+
+            // switch on newly selected hue
+            _CWtoggleHarmony(event.target,true);
+        }
+    };
+
+    function _CWsliceOver(event)    { _CWhoverHarmony(event.target,true ) }; // Perform 'hover' actions
+    function _CWsliceOut (event)    { _CWhoverHarmony(event.target,false) }; // Cancel  'hover' actions
+
+    // Check if passed hue exists in array of previously selected (harmony) hues
+    function _CWisInRelated(hue) { return (related.indexOf(clampInt(hue)) > -1) };
+
+    function _CWhoverHarmony(elem,on) { // Performs/Cancels 'hover' actions
+        var segidx = _CWgetSegmentIndex(elem.id);
+
+        // Do for each related element based on (harmony) hue 
+        forEachEntryIn(segmentList[segidx].colorharmony[harmonytxt],
+        function (index,hue,scope) { 
+            var el = document.getElementById(_CWtoElemString(hue));
+
+            // when in array of selected previously selected (harmony) hues, perform 'selected' actions
+            if (_CWisInRelated(hue)) { _CWsetSelected(el); }
+            // if not, either perform or cancel 'hover' actions
+            else if (on)             { _CWsetHovered(el); }
+            // otherwise cancel all actions
+            else                     { _CWsetUnselected(el); };
+        });
+    };
+
+    function _CWtoggleHarmony(elem,on) { // Switch (harmony) hue selection either on or off
+        var segidx = _CWgetSegmentIndex(elem.id);
+
+        forEachEntryIn(segmentList[segidx].colorharmony[harmonytxt],
+        function (index,hue,scope) { 
+            var el = document.getElementById(_CWtoElemString(hue));
+
+            if (on) { _CWsetSelected(el)  ; }
+            else    { _CWsetUnselected(el); };
+        });
+    ;}
+
+    function _CWsetSelected(el) {
+        el.style.transform   = settings.styles.selected.stroke.scale;
+        el.style.strokeWidth = settings.styles.selected.stroke.width;
+        el.style.stroke      = segmentList[_CWgetSegmentIndex(el.id)].colorharmony.tinycolorEx.complement();
+
+        _CWdrawHud(segmentList[_CWgetSegmentIndex(el.id)]);
+    };
+
+    function _CWsetUnselected(el) {
+        el.style.transform   = settings.styles.unselected.stroke.scale;
+        el.style.strokeWidth = settings.styles.unselected.stroke.width;
+        el.style.stroke      = settings.styles.unselected.stroke.color;
+
+        _CWkillHud(segmentList[_CWgetSegmentIndex(el.id)]);
+    };
+
+    function _CWsetHovered(el) {
+        el.style.transform   = settings.styles.hovered.stroke.scale;
+        el.style.strokeWidth = settings.styles.hovered.stroke.width;
+        el.style.stroke      = segmentList[_CWgetSegmentIndex(el.id)].colorharmony.tinycolorEx.complement();
+    };
+
+    /*********************/
+    /* document handling */
+    /*********************/
+    function _CWupdateColorwheelAll() { // Execute on change of user input fields, checks all fields
+        forEachEntryIn(elements, function (idx,el,scope) { _CWProcessUserInput(el); });
+
+        _CWinitialize();
+    };
+
+    function _CWupdateColorwheelOnChange(element) { // Execute on change of user input fields, checks single field
+        if (_CWProcessUserInput(element)) {
+            _CWdeleteWheel();
+            _CWinitialize();
+        };
+    };
+
+    function _CWdeleteWheel() { // Removes entire colorwheel
+        _CWdeleteOverlays();
+        _CWdeleteSegments();
+    };
+
+    function _CWProcessUserInput(element) { // Checks if a user input field has changed
+    var dataChanged = false; // Assume no update required
+
+        switch (element.id) { // HTML element #id
+        case 'colorspace':
+            if (element.value != colorspace) {
+                colorspace = element.value;
+                dataChanged = true;
+            }; break;        
+
+        case 'inputcolor':
+            if (element.value != inputcolor.getOriginalInput()) {
+                inputcolor  = new tinycolorEx(element.value);
+                activecolor = inputcolor;
+
+                elements[IDX_USER_BASECOLOR].style.backgroundColor = element.value;
+                elements[IDX_USER_BASECOLOR].style.color = tinycolorEx.mostReadable(element.value,['#000', '#fff']).toString();
+
+                dataChanged = true; 
+            }; break;        
+
+        case 'HTMLcolor':
+            if (element.value != HTMLcolor.getOriginalInput()) {
+                HTMLcolor   = new tinycolorEx(element.value);
+                activecolor = HTMLcolor;
+
+                elements[IDX_USER_HTMLCOLOR].style.backgroundColor = element.value;
+                elements[IDX_USER_HTMLCOLOR].style.color = tinycolorEx.mostReadable(element.value,['#000', '#fff']).toString();
+
+                dataChanged = true; 
+            }; break;        
+
+        case 'harmonytxt':
+            if (element.value != harmonytxt) {
+                harmonytxt = element.value;
+                dataChanged = true;
+            }; break;        
+
+        case 'segments':
+            if (element.value != segments) {
+                settings.segment.degrees = 360/element.value;
+                settings.startdeg = (90 + settings.segment.degrees/2) * -1;
+                segments = element.value;
+                dataChanged = true;
+            }; break;        
+        };
+
+        return dataChanged;
+    };
+
+    return {
+      /* PROPERTIES */
+      elements: elements,
+
+      /* METHODS */
+      initialize: _CWinitialize,
+      update    : _CWupdateColorwheelOnChange,
+      updateAll : _CWupdateColorwheelAll,
+    };
+};
+
+/********/
+/* MAIN */
+/********/
+var CW = new ColorWheel('svgColorWheel');
+CW.updateAll();
+
+
+/****************************/
+/* color functions / object */
+/****************************/
+/*
+    tints, tones, and shades
+
+    color variations that are created by adding 
+    white, gray, or black to a hue (or pure color) to alter its lightness:
+
+    Tint : is the mixture of a color with white, which increases lightness
+    Tone : is produced either by the mixture of a color with gray, or by both tinting and shading
+    Shade: is the mixture of a color with black, which reduces lightness
+
+    
+    In Fives
+
+    Here tints, tones, and shades are applied to hues in sets of five,
+    starting with the hue as a middle value and then go lighter and darker in two steps.
+    This way you create a range that looks like this:
+
+    Darkest > Darker > Hue < Lighter < Lightest
+
+    When creating tints, tones, and shades, and then apply the More Colorful Naming concept,
+    naming colors “darker dark blue” or “lightest light orange" is avoided.
+
+    Instead, a result might be:
+
+    Darkest Coral > Darker Coral > Coral < Lighter Coral < Lightest Coral    
+
+    References: 
+    - https://www.viget.com/articles/tints-tones-shades/
+    - https://en.wikipedia.org/wiki/Tints_and_shades
+*/
+
+
+/*
+
+Creation of the SVG circle.
+
+To draw a circle you need the radius and diameter values.
+Let’s calculate it starting with this simple math formula:
+
+    radius = circumference / 2PI
+
+So for a circle with a circumference of 100 the value of radius will be:
+
+    radius = 100 / ( 3,14159 * 2 ) = 15,9155
+
+    diameter = 15,9155 * 2 = 31.831
+
+*/
+
+/*
+
+SVG Path Mini-Language
+
+There is an SVG Path Mini-Language comprised of lower and upper case letters.
+This Mini-Language is defined as follows:
+
+Name                    Command     Parameters    Repeatable    Explanation
+Move                    M ( m )     x, y            Yes         Move the pen to a new location. No line is drawn.
+                                                                All path data must begin with a 'moveto' command.
+
+Line                    L ( l )     x, y            Yes         Draw a line from the current point to the point (x,y).
+                        H ( h )     x               Yes         Draw a horizontal line from the current point to x.
+                        V ( v )     y               Yes         Draw a horizontal line from the current point to y.
+
+Cubic Bezier Curve      C ( c )     x1 y1 x2 y2 x y Yes         Draw a cubic Bézier curve from the current point to
+                                                                the point (x,y) using (x1,y1) as the control point
+                                                                at the beginning of the curve and (x2,y2)
+                                                                as the control point at the end of the curve.
+                        S ( s )     x2 y2 x y       Yes         Draw a cubic Bézier curve from the current point to (x,y).
+                                                                The first control point is assumed to be the reflection
+                                                                of the last control point on the previous command relative
+                                                                to the current point. (x2,y2) is the second control point
+                                                                (i.e., the control point at the end of the curve).
+
+Quadratic Bezier Curve  Q ( q )     x1 y1 x y       Yes         Draw a quadratic Bézier curve from the current point 
+                                                                to (x,y) using (x1,y1) as the control point.
+                        T ( t )     x y             Yes         Draw a quadratic Bézier curve from the current point
+                                                                to (x,y). The control point is assumed to be the
+                                                                reflection of the control point on the previous command
+                                                                relative to the current point.
+
+Elliptical Arc Curve    A ( a )     rx ry           Yes         Draws an elliptical arc from the current point
+                                    x-axis-rotation             to (x, y). The size and orientation of the ellipse are
+                                    large-arc-flag              defined by two radii (rx, ry) and an x-axis-rotation,
+                                    sweep-flag x y              which indicate how the ellipse as a whole is rotated
+                                                                relative to the current SVG coordinate system.
+                                                                The center (cx, cy) of the ellipse is calculated
+                                                                automatically to satisfy the constraints imposed
+                                                                by the other parameters.
+                                                                large-arc-flag and sweep-flag contribute to the
+                                                                automatic calculations and help determine how the arc
+                                                                is drawn.
+
+End Path                Z ( z )     none            No          Closes the path. A line is drawn from the last point
+                                                                to the first point drawn.
+
+*/
+
+/*
+<!-- from http://tutorials.jenkov.com/svg/path-element.html -->
+<table style="border:1px solid #aaaaaa;" cellspacing="0" cellpadding="5">
+    <tbody><tr><td style="border-bottom:1px solid #aaaaaa;"><b>Com.</b></td>
+        <td style="border-bottom:1px solid #aaaaaa;"><b>Parameters</b></td>
+        <td style="border-bottom:1px solid #aaaaaa;"><b>Name</b></td>
+        <td style="border-bottom:1px solid #aaaaaa;"><b>Description</b></td>
+    </tr>
+
+    <tr><td valign="top">M</td>
+        <td valign="top">x,y</td>
+        <td valign="top">moveto</td>
+        <td valign="top">Moves pen to specified point x,y without drawing.</td>
+    </tr>
+    <tr><td valign="top">m</td>
+        <td valign="top">x,y</td>
+        <td valign="top">moveto</td>
+        <td valign="top">Moves pen to specified point x,y relative to current pen location, without drawing.</td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+
+    <tr><td valign="top">L</td>
+        <td valign="top">x,y</td>
+        <td valign="top">lineto</td>
+        <td valign="top">Draws a line from current pen location to specified point x,y .</td>
+    </tr>
+    <tr><td valign="top">l</td>
+        <td valign="top">x,y</td>
+        <td valign="top">lineto</td>
+        <td>Draws a line from current pen location to specified point x,y relative to current pen location.</td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+
+    <tr><td valign="top">H</td>
+        <td valign="top">x</td>
+        <td valign="top">horizontal lineto</td>
+        <td>Draws a horizontal line to the point defined by <br>(specified x, pens current y).</td>
+    </tr>
+    <tr><td>h</td>
+        <td valign="top">x</td>
+        <td>horizontal lineto</td>
+        <td>Draws a horizontal line to the point defined by <br>(pens current x + specified x, pens current y).
+            The x is relative to the current pens x position.
+        </td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+
+    <tr><td valign="top">V</td>
+        <td valign="top">y</td>
+        <td valign="top">vertical lineto</td>
+        <td valign="top">Draws a vertical line to the point defined by <br>(pens current x, specified y).</td>
+    </tr>
+    <tr><td valign="top">v</td>
+        <td valign="top">y</td>
+        <td valign="top">vertical lineto</td>
+        <td valign="top">Draws a vertical line to the point defined by <br>(pens current x, pens current y + specified y).
+            The y is relative to the pens current y-position.
+        </td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+
+    <tr><td valign="top">C</td>
+        <td valign="top">x1,y1 x2,y2 x,y</td>
+        <td valign="top">curveto</td>
+        <td valign="top">Draws a cubic Bezier curve from current pen point to x,y.
+            x1,y1 and x2,y2 are start and end control points of the curve,
+            controlling how it bends.
+        </td>
+    </tr>
+    <tr><td valign="top">c</td>
+        <td valign="top">x1,y1 x2,y2 x,y</td>
+        <td valign="top">curveto</td>
+        <td valign="top">Same as C, but interprets coordinates relative to current pen point.</td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+
+    <tr><td valign="top">S</td>
+        <td valign="top">x2,y2 x,y</td>
+        <td valign="top">shorthand / <br><nobr>smooth curveto</nobr></td>
+        <td valign="top">Draws a cubic Bezier curve from current pen point to x,y.
+            x2,y2 is the end control point. The start control point is
+            is assumed to be the same as the end control point of the
+            previous curve.
+        </td>
+    </tr>
+    <tr><td valign="top">s</td>
+        <td valign="top">x2,y2 x,y</td>
+        <td valign="top">shorthand / <br>smooth curveto</td>
+        <td valign="top">Same as S, but interprets coordinates relative to current pen point.</td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+
+    <tr><td valign="top">Q</td>
+        <td valign="top">x1,y1 x,y</td>
+        <td valign="top">quadratic Bezier curveto</td>
+        <td valign="top">Draws a quadratic Bezier curve from current pen point to x,y.
+            x1,y1 is the control point controlling how the curve bends.
+        </td>
+    </tr>
+    <tr><td valign="top">q</td>
+        <td valign="top">x1,y1 x,y</td>
+        <td valign="top">quadratic Bezier curveto</td>
+        <td valign="top">Same as Q, but interprets coordinates relative to current pen point.</td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+
+    <tr><td valign="top">T</td>
+        <td valign="top">x,y</td>
+        <td valign="top">shorthand / smooth quadratic Bezier curveto</td>
+        <td valign="top">Draws a quadratic Bezier curve from current pen point to x,y.
+            The control point is assumed to be the same as the last control point used.
+        </td>
+    </tr>
+    <tr><td valign="top">t</td>
+        <td valign="top">x,y</td>
+        <td valign="top">shorthand / smooth quadratic Bezier curveto</td>
+        <td valign="top">Same as T, but interprets coordinates relative to current pen point.</td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+
+    <tr><td valign="top">A</td>
+        <td valign="top">rx,ry <br>x-axis-rotation <br>large-arc-flag,<br>sweepflag <br>x,y</td>
+        <td valign="top">elliptical arc</td>
+        <td valign="top">Draws an elliptical arc from the current point to the point x,y.
+            rx and ry are the elliptical radius in x and y direction.<br>
+            The x-rotation determines how much the arc is to be rotated around the x-axis.
+            It only seems to have an effect when rx and ry have different values.<br>
+            The large-arc-flag doesn't seem to be used (can be either 0 or 1). Neither
+            value (0 or 1) changes the arc. <br>
+            The sweep-flag determines the direction
+            to draw the arc in.
+        </td>
+    </tr>
+    <tr><td valign="top">a</td>
+        <td valign="top">rx,ry <br>x-axis-rotation <br>large-arc-flag,<br>sweepflag <br>x,y</td>
+        <td valign="top">elliptical arc</td>
+        <td valign="top">Same as A, but interprets coordinates relative to current pen point.</td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+
+    <tr><td valign="top">Z</td>
+        <td>&nbsp;</td>
+        <td valign="top">closepath</td>
+        <td valign="top">Closes the path by drawing a line from current point to first point.</td>
+    </tr>
+    <tr><td valign="top">z</td>
+        <td>&nbsp;</td>
+        <td valign="top">closepath</td>
+        <td valign="top">Closes the path by drawing a line from current point to first point.</td>
+    </tr>
+</tbody></table>
+*/
+</script>
+</body>
+</html>
