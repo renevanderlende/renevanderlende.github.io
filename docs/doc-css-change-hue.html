@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>Doc CSS Change Hue</title>
+
+<style>
+/*****************************/
+/* my preferred global rules */
+/*****************************/
+html,body            { width: 100%; max-width: 100% }
+
+html                 { -webkit-box-sizing: border-box; box-sizing: border-box }
+*, *:before, *:after { -webkit-box-sizing: inherit; box-sizing: inherit }
+
+body                 { margin: 0 } /* remove default <body> spacing */
+/*
+    Above CSS defines ALL elements to use 'border-box'
+
+    Defining `box-sizing: border-box` will make calculation/manipulating element sizes
+    much easier as (usually) you would want to know the width/height of an element 
+    including its inner spacing ('padding') and border.
+
+    => element width/height = content width/height + padding + border
+    
+    Default CSS is 'box-sizing: content-box'
+    => element width/height = content width/height
+
+    'margin' is never part of an element width/height, so use sparsely!
+    
+    Own the boxmodel knowledge (MDN): https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model 
+    w3schools 'CSS box-sizing Property': https://www.w3schools.com/cssref/css3_pr_box-sizing.asp
+*/
+/*
+
+    All math reference: https://www.mathsisfun.com/equation_of_line.html
+
+*/
+/* responsive base font size using y = mx + b (deactivated) */
+.html   { font-size: calc(0.625vmin + 0.75rem) } /* (320,14)(1280,20) */
+
+/* Simple banding attribute for use in 'Landing Page' layout */
+[band] { display: flex; flex-flow: column wrap; align-content: center }
+
+body[padded="1"],
+body[padded="0"] [band*="padded"] {
+/*
+    responsive page padding
+    and responsive band padding (same as responsive page padding, but at band level)
+
+    Top/Bottom padding: p1(320,16) p2(1920, 72) => 0.035x + 4.8  => vary from 16 to  72px
+    Left/Right padding: p3(320, 8) p4(1920,320) => 0.195x - 54.4 => vary from  8 to 320px
+
+    'Band padding' is only active when 'page padding' is off (0)
+*/
+    padding: calc(3.5vh + 4.8px) calc(19.5vw - 54.4px);
+}
+/* for debugging */
+[outlines="1"] * { outline: 1px dashed }
+</style>
+
+
+<style>
+
+/* demo 1 */
+:root {
+    /*  stash brand color meta  */
+    --hue: 320; /* hue/tone   */
+    --sat: 90%; /* saturation */
+    --lit: 80%; /* lightness  */
+
+    /*  use it for the primary color  */
+    --primary: var(--hue) var(--sat) var(--lit);
+
+    /*  use --primary as the values for HSL / pass some alpha  */
+    --primary-50: hsl(var(--primary) / 50%);
+
+    /*  use hue but hand create a brand saturation almost black  */
+    --on-primary: var(--hue) 100% 5%
+}
+
+@media (color-index: 48) {
+    :root {
+        --sat: 90%;
+        --lit:  3%;
+
+        --primary: var(--hue) var(--sat) var(--lit);
+        --on-primary: var(--hue) 100% 90%
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --saturation: 90%;
+        --lightness: 3%;
+
+        --primary: var(--hue) var(--sat) var(--lit);
+        --on-primary: var(--hue) 100% 90%
+    }
+}
+
+.use-color {
+    /*  use them  */
+    background: hsl(320, 90%, 80%);
+    background: hsl(var(--primary));
+    color: hsl(320, 100%, 5%);
+    color: hsl(var(--on-primary));
+}
+
+/* demo 2 */
+/* https://codepen.io/argyleink/pen/ExjReJa */
+.color-test {
+    font-size: 2.5rem;
+    margin: 5rem;
+    text-align: center;
+
+    /*
+        'turn' unit is a value between [0,1] representing a percentage of 360
+
+        0turn =   0 degrees
+        1turn = 360 degrees
+
+        Nturn = N degrees/360, which can be > 1 when N degrees > 360 making it
+                               well suited to calculate a hue as any value > 1
+                               simply starts a new 'turn' (of the colorwheel).
+    */
+    --turn-base  : 0.0turn;     /* start hue value at 0degrees (red) */
+    --turn-amount: 0.25turn;    /* between .05 and .35 are best */
+
+
+    --saturation: 50%; /* make 100% for fully saturated colors */
+    --lightness : 50%;
+    --alpha     : 1;   /* value [0,1] 0.0 fully transparent to 1.0 fully opaque */
+}
+
+/* each child uses it's index to get it's color */
+.color-test>:nth-child(1) {
+    color: hsla(calc(var(--turn-base) + calc(var(--turn-amount) * 1)),
+                var(--saturation),
+                var(--lightness),
+                var(--alpha)
+               );
+}
+.color-test>:nth-child(2) {
+    color: hsla(calc(var(--turn-base) + calc(var(--turn-amount) * 2)),
+                var(--saturation),
+                var(--lightness),
+                var(--alpha)
+               );
+}
+.color-test>:nth-child(3) {
+    color: hsla(calc(var(--turn-base) + calc(var(--turn-amount) * 3)),
+                var(--saturation),
+                var(--lightness),
+                var(--alpha)
+               );
+}
+</style>
+
+
+</head>
+
+<body outlines="0" padded="1">
+<div class="color-test">
+    <div>hsl() and hsla() hue accept an angle, </div>
+    <div>which means they also accept turns, </div>
+    <div>which means we can do math on the turns...</div>
+</div>
+</body>
+</html>
