@@ -9,7 +9,7 @@
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" crossorigin="anonymous">
 
-<style>
+<style id="ers-globals-default">
 /******************************/
 /* general global preferences */
 /******************************/
@@ -22,31 +22,75 @@ body        { width: 100%; height: 100%; margin: 0; cursor: default;
               font-size: 1rem;
               font-family: Roboto,Arial,Helvetica,sans-serif;
 
-              background-color: Gainsboro; color: black }
+              background-color: Gainsboro; color: black;
+              
+              overflow: auto;
+              -webkit-overflow-scrolling: touch
+            }
 
 h1          { font-size: 2rem }
+a           { text-decoration: none; color: currentColor }
 
+</style>
+
+<style id="ers-flexbox-default">
 /* generic flexbox shortcuts */
 [F]         { display: flex }
-[R]         { flex-direction: row    }
+[R]         { flex-direction: row }
 [C]         { flex-direction: column }
 [W]         { flex-wrap: wrap }
+</style>
 
-[no-select] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;
-              user-select: none; -moz-appearance : none; -webkit-appearance: none }
+<style id="ers-utility-default">
+/******************************/
+/* Global utility preferences */
+/******************************/
+body  { cursor: default } /* Plain arrow for everything, but... */
+input { cursor: auto    } /* ...use HTML default cursor on inputs, except on: */
 
-/* Show element outlines for debugging (use in <body> tag) */
-[outlines="1"] * { outline: 1px dashed purple }
+input[list="datalist"],input[type="button"],input[type="checkbox"],input[type="radio"],
+input[type="color"],input[type="range"],input[type="reset"],input[type="file"],input[type="submit"],
+label:not([for=""]),
+a,button,select,keygen   { cursor: pointer } 
+[contenteditable="true"] { cursor: text    }
 
-/* Color to show nesting level for debugging (use in <body> tag) */
-[hover="1"] [data-knot*="branch"]:hover { background-color: rgba(255,  0,  0,.1); border: 3px dashed red }
-[hover="1"] [data-knot*="node"  ]:hover { background-color: rgba(  0,255,  0,.1); border: 3px dashed green }
-[hover="1"] [data-knot*="step"  ]:hover { background-color: rgba(  0,  0,255,.1); border: 3px dashed blue }
-[hover="1"] [data-symbol        ]:hover { background-color: rgba(255,  0,255,.1); border: 3px dashed magenta }
+/* Darker/more contrast text (put this in <body>)
+   => GPU intensive, set default to "0" if document scroll feels too sluggish. */
+[cleartype="1"]         { text-shadow: .1px  .1px .2px hsla(0,0%,15%,.35),
+                                      -.1px -.1px .2px hsla(0,0%,15%,.25) }
+h1,h2,h3,h4,h5,h6,b,
+[cleartype="0"],strong  { text-shadow: none } /* exceptions, no need to go even 'bolder' */
 
-[hover="1"] [data-knot],
-[hover="1"] [data-symbol] { border: 3px dotted rgba(0,0,0,.1) }
+/* prohibit user from selecting text (put this in <body>) */
+.noselect,[select="0"],[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+.select  ,[select="1"],[select]   { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
 
+/* element positioning (concurrent options possible) */
+[push*="T"] { margin-bottom: auto } /* UP    */
+[push*="R"] { margin-left  : auto } /* RIGHT */
+[push*="B"] { margin-top   : auto } /* DOWN  */
+[push*="L"] { margin-right : auto } /* LEFT  */
+
+/* element alignment for non FBL (one option possible) */
+[just="C"] { text-align: center  }
+[just="J"] { text-align: justify }
+[just="L"] { text-align: left    }
+[just="R"] { text-align: right   }
+
+[hide] {
+    display: none; position: absolute; overflow: hidden; clip: rect(0 0 0 0);
+    z-index: -999999; top: -999999px; margin: -1px; padding: 0; border: 0;
+    height: 1px; width: 1px; min-height: 0; min-width: 0; max-height: 0; max-width: 0
+}
+[data-hide="0"] { display: flex } /* yes, assuming FBL */
+[data-hide="1"] { display: none }
+</style>
+
+
+
+
+<style>
 /***************/
 /* Chart Setup */
 /***************/
@@ -54,8 +98,6 @@ h1          { font-size: 2rem }
 [data-knot]         { display: flex; flex-grow: 1 }
 
 /* default alignments */
-/* If you want the knots distributed as-is, remove 'align-items'... */
-[data-chart*="OC"]  { align-items: center     } /* [OPTIONAL], ...or try 'normal' */
 [data-knot]         { justify-content: center }
 
 /* TODO: WIP remove, used for content?? caution */
@@ -96,7 +138,7 @@ h1          { font-size: 2rem }
 
 [dir="rtl"] [data-knot*="branch"]:not([C])>:last-child:before,
 [dir="rtl"] [data-knot*="branch"]:not([C])>:last-child:after  { left : 50%; width: 50% }
-/**/
+
 /**************/
 /* Line Color */
 /**************/
@@ -136,46 +178,98 @@ h1          { font-size: 2rem }
 [data-knot*="step"]:before  { height : 1.875vmin }              /* Same height as [data-step] T/B padding */
 [data-knot*="step"]:after   { height : calc(100% - 1.875vmin) } /* pct to from below (minus T/B padding) */
 
+/************************/
+/* Chart Specific Rules */
+/************************/
+/* If you want the knots distributed as-is, remove 'align-items'... */
+[data-chart*="OC"]  { align-items: center } /* [OPTIONAL], ...or try 'normal' */
+
+
+
 /****************/
 /* Symbol Setup */
 /****************/
+/*
+    Chart 'data-symbol's, flexbox intended use
+
+    FBL (V)     FBL (H)      Any
+    --------    -------      -------
+    (S)ymbol -> (H)eader  -> content
+             -> (C)ontent -> content
+             -> (F)ooter  -> content
+*/
 [data-symbol],
 [data-symbol]>*         { display: flex }   /* S,H,C,F are flexbox parent containers */
 [data-symbol]>*>*       { flex-grow: 1 }    /* sets default to 'fill' for content of H,C,F */
 
-[data-symbol]           { flex-direction: column  } /* a column of 1:N rows */
+[data-symbol]           { flex-direction: column } /* a column of 1:N rows */
 [data-symbol]>*         { align-items: center }
 
-[content],[footer]      { display: none }/**/
+/**/
 
-/* styling */
-[data-symbol]           { text-decoration: none; color: currentColor; background-color: transparent }
+[data-symbol] { position: relative }
+
+[data-symbol]::before {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+
+    content: '';
+
+    display: flex; justify-content: center; align-content: center; align-items: center;
+    text-align: center;
+}
+
+[data-symbol][bg="utf"]::before {
+    content: attr(utf); /* syntax in HTML: utf="&#x + unicode + ;" (without + and spaces) */
+
+    font-family: 'Noto Sans', Georgia; /* 'Noto Sans' has most UTF characters */
+
+    font-size: calc((8.125vmin + 24px) * 0.65);
+    line-height: 1;
+}
 
 [data-symbol]>* {
+    /* responsive sizes: p1(320,50) p2(1920,180) */
+    width : calc(8.125vmin + 24px);
+    height: calc(8.125vmin + 24px);
+
     padding: .25rem .5rem;
-    border-radius: 50%;
 
     /* responsive fontsize: p1(320,50) p2(1920,180) */
     font-size: calc(.875vmin + 3.2px);
     text-align: center;
 }
-[data-symbol]>.header {
-    /* responsive sizes: p1(320,50) p2(1920,180) */
-    width : calc(8.125vmin + 24px);
-    height: calc(8.125vmin + 24px);
-}
+
 [data-symbol]>.tiny {
     /* responsive sizes: p1(320,30) p2(1920,90) */
     width : calc(3.75vmin + 18px);
     height: calc(3.75vmin + 18px);
 }
 
-[clr="0"]       { background-color: Gainsboro; color: black }
-.header,.tiny,        /* .header here saves coding html */
+/******************/
+/* Theming/Colors */
+/******************/
+
+[content],[footer]      { display: none }/**/
+
+
+/*[data-chart*="OC"] [data-symbol], /**/
+[data-chart*="OC"] [data-symbol] { border-radius: 50% }
+
+/*[data-chart*="FC"] [data-symbol], /**/
+[data-chart*="FC"] [data-symbol] { border-radius: 10% }
+
+
+[data-symbol], /* rule here saves coding html */
 [clr="1"]       { background-color: #fefefe; color: #1e1e1e }
+[clr="0"]       { background-color: Gainsboro; color: black }
 [clr="2"]       { background-color: #1e1e1e; color: Yellow ; font-weight: bolder }
 [clr="3"]       { background-color: #ffcc01; color: #1e1e1e; font-weight: bolder }
+</style>
 
+
+
+<style>
 /**************************************/
 /* Google Material Component inspired */
 /**************************************/
@@ -205,165 +299,146 @@ h1          { font-size: 2rem }
     font-feature-settings     : 'liga';
     -moz-osx-font-smoothing   : grayscale;
 }
+</style>
 
+<style>
 /******************/
 /* simple banding */
 /******************/
 [band] { display: flex; flex-flow: row wrap;
-         justify-content: center; align-content: center;
-         padding: calc(5vh + 48px) calc(19.5vw - 54.4px) }
+         justify-content: center; align-content: center }
 
-/* [OPTIONAL] */
-@media screen and (max-width: 319px) { [band] { padding: 1.5rem   8px } }
-@media screen and (min-width:1921px) { [band] { padding: 1.5rem 320px } }
+[padded="1"],
+[padded="0"] [band*="padded"] {
+/*
+    responsive page padding
+    and responsive band padding (same as responsive page padding, but at band level)
+    p1(320,32) p2(1920, 72) => 0.025x + 24
+    p3(320, 8) p4(1920,320) => 0.195x - 54.4 
 
+    'Band padding' is only active when 'page padding' is off 
+*/
+    padding: calc( 2.5vh + 24px) calc(19.5vw - 54.4px);
+}
+</style>
+
+<style>
+/*************/
+/* DEBUGGING */
+/*************/
+/* Show element outlines for debugging (use in <body> tag) */
+[outlines="1"] * { outline: 1px dashed purple }
+
+/* Color to show nesting level for debugging (use in <body> tag) */
+[hover="1"] [data-knot*="branch"]:hover { background-color: rgba(255,  0,  0,.1); border: 3px dashed red }
+[hover="1"] [data-knot*="node"  ]:hover { background-color: rgba(  0,255,  0,.1); border: 3px dashed lime }
+[hover="1"] [data-knot*="step"  ]:hover { background-color: rgba(  0,  0,255,.1); border: 3px dashed blue }
+[hover="1"] [data-symbol        ]:hover { background-color: rgba(255,  0,255,.1); border: 3px dashed magenta }
+
+[hover="1"] [data-knot],
+[hover="1"] [data-symbol] { border: 3px dotted rgba(0,0,0,.1) }
+</style>
+
+<style>
+/*
+    Miscellaneous Symbols and Pictographs - https://www.compart.com/en/unicode/block/U+1F300
+    Playing Cards                         - https://www.compart.com/en/unicode/block/U+1F0A0
+*/
+
+[red]     { color: Red     }
+[green]   { color: Lime    } /* Yes, in CSS 'Lime' is rgb 'Green' (00ff00) */
+[blue]    { color: Blue    }
+
+[cyan]    { color: Cyan    }
+[yellow]  { color: Yellow  }
+[magenta] { color: Magenta }
+
+[black]   { color: Black   }
+[grey]    { color: Grey    }
+[white]   { color: White   }
+
+[card] {
+    position: relative;
+    display: inline-block;
+    background-color: rgba(255, 255, 255,.7);
+
+    opacity: 0.75;
+    margin: 1rem;
+}
+[face]::before,[face]::after {
+    display: flex;
+
+    color: inherit;
+    background-color: rgba(255, 255, 255,1);
+
+    line-height: 0.9;
+    font-size: 20vmin;
+    font-style: normal;
+    
+    letter-spacing: -0.41vmin;
+    text-indent   : -0.41vmin;
+}
+[face]::before {
+    display: flex;
+    content: attr(face); /* syntax in HTML: face="&#x + unicode + ;" (without + and spaces) */
+
+    text-shadow: 0px 1px 1px gray;
+}
+/*
+[face]::after {
+    position: absolute; content: '';
+
+    top   : -0.575vmin;
+    left  : -0.425vmin;
+    bottom: -0.75vmin;
+    right : -0.4vmin;
+
+    border: 1vmin solid White;
+    border-radius: 5%;
+}
+*/
+</style>
+
+<style>
 /***********************/
 /* Some extra eyecandy */
 /***********************/
-[data-symbol]>* {
+[card],
+[data-symbol] {
     box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
                 0px 1px 1px  0px rgba(0,0,0,.14),
                 0px 1px 3px  0px rgba(0,0,0,.12);   /* GMC elevation 1dp */
 }
-[data-symbol]>:hover:not(:focus)  { transform: scale(1.01) }
-[data-symbol]>:active:not(:focus) { transform: scale(0.995);
+[card]:hover:not(:focus),
+[data-symbol]:hover:not(:focus)  { transform: scale(1.01) } /**/
+
+[card]:active:not(:focus),
+[data-symbol]:active:not(:focus) { transform: scale(1);
     box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
                 0px 5px  8px  0px rgba(0,0,0,.14),
                 0px 1px 14px  0px rgba(0,0,0,.12);  /* GMC elevation 5dp */
 }
-[data-symbol]>:hover {
+[card]:hover,
+[data-symbol]:hover {
     box-shadow: 0px 3px  5px -1px rgba(0,0,0,.2),
                 0px 6px 10px  0px rgba(0,0,0,.14),
                 0px 1px 18px  0px rgba(0,0,0,.12);  /* GMC elevation 6dp */
 }
 </style>
+
 </head>
 
-<body dir="ltr" no-select hover="0" outlines="0">
+<body dir="ltr" padded="0" hover="0" outlines="0">
 
-    <section band>
-        <div data-chart="OC" C>
-
-            <div data-knot="branch" C>
-                <div data-knot="node.step.start">
-                    <div data-symbol>
-                        <div class="header" clr="2"><div><i icon>account_balance</i><br>Group Board</div></div>
-                    </div>
-                </div>
-                <div data-knot="node.step">
-                    <div data-symbol>
-                        <div class="header" clr="3"><div><i icon>account_balance</i><br>Board Committees</div></div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div data-knot="branch">
-                <div data-knot="node">
-                    <div data-knot="step">
-                         <div data-symbol>
-                            <div class="header"><div>Audit</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div data-knot="node">
-                    <div data-knot="step">
-                        <div data-symbol>
-                            <div class="header"><div>Remuneration and Human Resources</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div data-knot="node">
-                    <div data-knot="node.step"><!-- empty data-knot for vertical line --></div>
-                </div>
-                <div data-knot="node.ctr">
-                    <div data-knot="step">
-                        <div data-symbol>
-                            <div class="header"><div>Social Ethics</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div data-knot="node">
-                    <div data-knot="step">
-                        <div data-symbol>
-                            <div class="header"><div>Nominations</div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div data-knot="branch">
-                <div data-knot="node">
-                    <div data-knot="step">
-                        <div data-symbol>
-                            <div class="header" clr="3"><div><i icon>account_balance</i><br>Compliance Committee</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div data-knot="node">
-                    <div data-knot="node.step"></div>
-                </div>
-                <div data-knot="node">
-                    <div data-knot="step">
-                        <div data-symbol>
-                            <div class="header" clr="3"><div><i icon>account_balance</i><br>Executive Committees</div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div data-knot="branch">
-                <div data-knot="node">
-                    <div data-knot="step">
-                         <div data-symbol>
-                            <div class="header"><div>Group Searching</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div data-knot="node">
-                    <div data-knot="step">
-                        <div data-symbol>
-                            <div class="header"><div>Group Operation</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div data-knot="node">
-                    <div data-knot="step">
-                        <div data-symbol>
-                            <div class="header"><div>Group Talent</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div data-knot="node">
-                    <div data-knot="step">
-                        <div data-symbol>
-                            <div class="header"><div>Group Treasure</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div data-knot="node">
-                    <div data-knot="step">
-                        <div data-symbol>
-                            <div class="header"><div>Group Transformation</div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    <section band>
+    <section band="padded">
         <div data-chart="FC" C>
 
             <div data-knot="branch.start">
                 <div data-knot="node" C>
                     <div data-knot="step">
                         <!-- 1.1 -->
-                         <div data-symbol>
-                            <div class="header"><div>symbol 1.1</div></div>
+                         <div data-symbol bg="utf" utf="&#x1f428;">
+                                <div class="header"><div>x</div></div>
                         </div>
                     </div>
                 </div>
@@ -371,8 +446,8 @@ h1          { font-size: 2rem }
                 <div data-knot="node" C>
                     <div data-knot="step">
                         <!-- 1.2 -->
-                        <div data-symbol>
-                            <div class="header"><div>symbol 1.2</div></div>
+                        <div data-symbol bg="utf" utf="&#x1F5FA;">
+                            <div class="header"><div>x</div></div>
                         </div>
                     </div>
                 </div>
@@ -380,8 +455,8 @@ h1          { font-size: 2rem }
                 <div data-knot="node" C>
                     <div data-knot="step">
                         <!-- 1.3 -->
-                        <div data-symbol>
-                            <div class="header"><div>symbol 1.3</div></div>
+                        <div data-symbol bg="utf" utf="&#x1F9BB;">
+                            <div class="header"><div>x</div></div>
                         </div>
                     </div>
                 </div>
@@ -389,8 +464,8 @@ h1          { font-size: 2rem }
                 <div data-knot="node" C>
                     <div data-knot="step">
                         <!-- 1.4 -->
-                        <div data-symbol>
-                            <div class="header"><div>symbol 1.4</div></div>
+                        <div data-symbol bg="utf" utf="&#x1F441;" clr="1">
+                            <div class="header"><div>x</div></div>
                         </div>
                     </div>
                 </div>
@@ -606,6 +681,218 @@ h1          { font-size: 2rem }
                 </div>
             </div>
         </div>
+    </section>
+
+
+    <section band="padded" bg="utf" utf="&#x1F5FA;">
+        <div data-chart="OC" C>
+
+            <div data-knot="branch" C>
+                <div data-knot="node.step.start">
+                    <div data-symbol>
+                        <div class="header" clr="2"><div><i icon>account_balance</i><br>Group Board</div></div>
+                    </div>
+                </div>
+                <div data-knot="node.step">
+                    <div data-symbol>
+                        <div class="header" clr="3"><div><i icon>account_balance</i><br>Board Committees</div></div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div data-knot="branch">
+                <div data-knot="node">
+                    <div data-knot="step">
+                         <div data-symbol>
+                            <div class="header"><div>Audit</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div data-knot="node">
+                    <div data-knot="step">
+                        <div data-symbol>
+                            <div class="header"><div>Remuneration and Human Resources</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div data-knot="node">
+                    <div data-knot="node.step"><!-- empty data-knot for vertical line --></div>
+                </div>
+                <div data-knot="node.ctr">
+                    <div data-knot="step">
+                        <div data-symbol>
+                            <div class="header"><div>Social Ethics</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div data-knot="node">
+                    <div data-knot="step">
+                        <div data-symbol>
+                            <div class="header"><div>Nominations</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div data-knot="branch">
+                <div data-knot="node">
+                    <div data-knot="step">
+                        <div data-symbol>
+                            <div class="header" clr="3"><div><i icon>account_balance</i><br>Compliance Committee</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div data-knot="node">
+                    <div data-knot="node.step"></div>
+                </div>
+                <div data-knot="node">
+                    <div data-knot="step">
+                        <div data-symbol>
+                            <div class="header" clr="3"><div><i icon>account_balance</i><br>Executive Committees</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div data-knot="branch">
+                <div data-knot="node">
+                    <div data-knot="step">
+                         <div data-symbol>
+                            <div class="header"><div>Group Searching</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div data-knot="node">
+                    <div data-knot="step">
+                        <div data-symbol>
+                            <div class="header"><div>Group Operation</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div data-knot="node">
+                    <div data-knot="step">
+                        <div data-symbol>
+                            <div class="header"><div>Group Talent</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div data-knot="node">
+                    <div data-knot="step">
+                        <div data-symbol>
+                            <div class="header"><div>Group Treasure</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div data-knot="node">
+                    <div data-knot="step">
+                        <div data-symbol>
+                            <div class="header"><div>Group Transformation</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section band="padded" black>
+        <div card red><div face="&#127136;"></div></div>
+        <div card    ><div face="&#127136;"></div></div>
+        <div card red><div face="&#127167;"></div></div>
+        <div card    ><div face="&#127199;"></div></div>
+    </section>
+
+    <section band="padded" black>
+        <div card><div face="&#127137;"></div></div>
+        <div card><div face="&#127138;"></div></div>
+        <div card><div face="&#127139;"></div></div>
+        <div card><div face="&#127140;"></div></div>
+        <div card><div face="&#127141;"></div></div>
+        <div card><div face="&#127142;"></div></div>
+        <div card><div face="&#127143;"></div></div>
+        <div card><div face="&#127144;"></div></div>
+        <div card><div face="&#127145;"></div></div>
+        <div card><div face="&#127146;"></div></div>
+        <div card><div face="&#127147;"></div></div>
+        <div card><div face="&#127148;"></div></div>
+        <div card><div face="&#127149;"></div></div>
+        <div card><div face="&#127150;"></div></div>
+    </section>
+    <section band="padded" red>
+        <div card><div face="&#127153;"></div></div>
+        <div card><div face="&#127154;"></div></div>
+        <div card><div face="&#127155;"></div></div>
+        <div card><div face="&#127156;"></div></div>
+        <div card><div face="&#127157;"></div></div>
+        <div card><div face="&#127158;"></div></div>
+        <div card><div face="&#127159;"></div></div>
+        <div card><div face="&#127160;"></div></div>
+        <div card><div face="&#127161;"></div></div>
+        <div card><div face="&#127162;"></div></div>
+        <div card><div face="&#127163;"></div></div>
+        <div card><div face="&#127164;"></div></div>
+        <div card><div face="&#127165;"></div></div>
+        <div card><div face="&#127166;"></div></div>
+    </section>
+    <section band="padded" red>
+        <div card><div face="&#127169;"></div></div>
+        <div card><div face="&#127170;"></div></div>
+        <div card><div face="&#127171;"></div></div>
+        <div card><div face="&#127172;"></div></div>
+        <div card><div face="&#127173;"></div></div>
+        <div card><div face="&#127174;"></div></div>
+        <div card><div face="&#127175;"></div></div>
+        <div card><div face="&#127176;"></div></div>
+        <div card><div face="&#127177;"></div></div>
+        <div card><div face="&#127178;"></div></div>
+        <div card><div face="&#127179;"></div></div>
+        <div card><div face="&#127180;"></div></div>
+        <div card><div face="&#127181;"></div></div>
+        <div card><div face="&#127182;"></div></div>
+    </section>
+    <section band="padded">
+        <div card><div face="&#127185;"></div></div>
+        <div card><div face="&#127186;"></div></div>
+        <div card><div face="&#127187;"></div></div>
+        <div card><div face="&#127188;"></div></div>
+        <div card><div face="&#127189;"></div></div>
+        <div card><div face="&#127190;"></div></div>
+        <div card><div face="&#127191;"></div></div>
+        <div card><div face="&#127192;"></div></div>
+        <div card><div face="&#127193;"></div></div>
+        <div card><div face="&#127194;"></div></div>
+        <div card><div face="&#127195;"></div></div>
+        <div card><div face="&#127196;"></div></div>
+        <div card><div face="&#127197;"></div></div>
+        <div card><div face="&#127198;"></div></div>
+    </section>
+
+    <section band="padded">
+        <div card><div face="&#127200;"></div></div>
+        <div card><div face="&#127201;"></div></div>
+        <div card><div face="&#127202;"></div></div>
+        <div card><div face="&#127203;"></div></div>
+        <div card><div face="&#127204;"></div></div>
+        <div card><div face="&#127205;"></div></div>
+        <div card><div face="&#127206;"></div></div>
+        <div card><div face="&#127207;"></div></div>
+        <div card><div face="&#127208;"></div></div>
+        <div card><div face="&#127209;"></div></div>
+        <div card><div face="&#127210;"></div></div>
+
+        <div card><div face="&#127211;"></div></div>
+        <div card><div face="&#127212;"></div></div>
+        <div card><div face="&#127213;"></div></div>
+        <div card><div face="&#127214;"></div></div>
+        <div card><div face="&#127215;"></div></div>
+        <div card><div face="&#127216;"></div></div>
+        <div card><div face="&#127217;"></div></div>
+        <div card><div face="&#127218;"></div></div>
+        <div card><div face="&#127219;"></div></div>
+        <div card><div face="&#127220;"></div></div>
+        <div card><div face="&#127221;"></div></div>
     </section>
 </body>
 </html>

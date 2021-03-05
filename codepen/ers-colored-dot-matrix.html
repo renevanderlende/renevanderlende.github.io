@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>Colored Dots Matrix</title>
+
+<style>
+/*
+    ALL math (y=mx+b) reference: https://www.mathsisfun.com/equation_of_line.html
+*/
+/**************************/
+/* preferred global rules */
+/**************************/
+html,body             { box-sizing: border-box; width: 100%; max-width: 100% }
+*::before,*::after, * { box-sizing: inherit }
+
+/* responsive base font size using y = mx + b */
+html   { font-size: calc(0.625vmin + 0.75rem) } /* (320,14)(1280,20) */
+/* change default font-size in browser font settings to see effect */
+
+/* remove default markup */
+body,p { margin: 0 }
+ul     { margin: 0; padding: 0 }
+ul,li  { list-style-type: none }
+
+/* prohibit user from selecting text (put this in <body>) */
+[no-select],[noselect] { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none }
+[select]               { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text }
+/* enable user to select text (put in specific elements) */
+
+/***********************************/
+/* easy RESPONSIVE|PATCH GRID|NESS */
+/***********************************/
+
+/* base flexbox patch grid structure */
+[patch],
+[patch]>*,
+[patch]>*>* { display: flex; flex-wrap: wrap } /* path and cell containers */
+
+[patch]     { align-content: flex-start; position: relative }
+
+[patch]>*,
+[patch]>*>* { flex-grow: 1; justify-content: center; align-items: center; overflow: hidden }
+
+/* the "nine-patch": inspired by Android 9-patch image, essentially a 3x3 matrix */
+[patch^="3x"]>*   { height: 33.33333%; max-height: 33.33333% }
+[patch*="x3"]>*   { flex-basis: 33.33333%; max-width : 33.33333% }
+
+/* add your own specific patch cell sizes like below */
+[patch^="1x"]>* { height:100%; max-height:100% } [patch*="x1"]>* { flex-basis: 100%; max-width:100% }
+[patch^="2x"]>* { height: 50%; max-height: 50% } [patch*="x2"]>* { flex-basis:  50%; max-width: 50% }
+[patch^="4x"]>* { height: 25%; max-height: 25% } [patch*="x4"]>* { flex-basis:  25%; max-width: 25% }
+[patch^="5x"]>* { height: 20%; max-height: 20% } [patch*="x5"]>* { flex-basis:  20%; max-width: 20% }
+/* 
+   7x1 days in a week, 18x8 Periodic Table, 24x1 hours in a day, 22x6 keyboard+numpad, etc.
+   just divide 100% by the required XxY values
+*/
+/* When there are less elements than required by [patch] use [fill] */
+[patch][fill=""]>:last-child,[patch][fill*="H"]>:last-child { max-width : 100% }
+[patch][fill=""]>:last-child,[patch][fill*="V"]>:last-child { max-height: 100% }
+
+/******************/
+/* eye-candy only */
+/******************/
+body           { background-color: rgba(0,0,0,0.1) }
+[band^="hero"] { background-color: rgba(47, 79, 79,.5) } /* DarkSlateGrey */
+
+/* responsive patch font size using y = mx + b */
+[patch] { font-size: calc(0.9375vw + 4px); /* (320,7)(1280,16) */ }
+
+/************************/
+/* Landing page banding */
+/************************/
+[band]            { display: flex; flex-flow: column wrap; }
+[band*="rows"]    { flex-direction: column }
+[band*="cols"]    { flex-direction: row }
+
+[band],[centered] { justify-content: center; align-content: center; align-items: center }
+
+[band]>[band]     { align-self: flex-start }
+
+/*********************/
+/* Main page padding */
+/*********************/
+body[padded="1"],
+body[padded="0"] [band*="padded"] {
+   margin: 0; /* for use with h1-h6 as band */
+/*
+    responsive page padding
+    and responsive band padding (same as responsive page padding, but at band level)
+
+    Top/Bottom padding: p1(320,16) p2(1920, 72) => 0.035x + 4.8  => vary from 16 to  72px
+    Left/Right padding: p3(320, 8) p4(1920,320) => 0.195x - 54.4 => vary from  8 to 320px
+
+    'Band padding' is only active when 'page padding' is off (0)
+*/
+    padding: calc(3.5vh + 4.8px) calc(19.5vw - 54.4px);
+}
+
+/* to show all elements with outlines (put in <body>) */
+[outlines="1"] * { outline: 1px dashed }
+</style>
+
+<style>
+/**********/
+/* colors */
+/**********/
+
+/* based on https://codepen.io/argyleink/pen/ExjReJa */
+
+[color-matrix] {
+    /* 5by5 elements matrix, using JS array logic where 1st indexNo = 0 */
+    --mr : 5; /* matrix row count    */
+    --mc : 5; /* matrix column count */
+    --cr : 0; /* current row         */
+    --cc : 0; /* current column      */
+
+    /* HTML Red, top of color wheel */
+    --hue-val:   0;  /* hue         */
+    --hue-sat: 100%; /* saturation  */
+    --hue-lit:  50%; /* lightness   */
+    --hue-alp:   1;  /* alpha value */
+
+    /* 360 / (mr * mc) for full color wheel (here 360/(5*5)=14.4) */
+    --hue-skip: 360 / (var(--mr) * var(--mc));
+
+    --hue: calc(var(--hue-val) + (var(--cr) * var(--mr) + var(--cc)) * var(--hue-skip));
+}
+
+/*
+    result = value + (currentRow * columnsInRow + currentColumn) * skip
+
+    => hue: calc( var(--hue-val) + (var(--cr) * var(--mr) + var(--cc)) * var(--hue-skip) )
+*/
+
+[color-matrix="dots"]>*>* {
+    /* HTML Orchid */
+/*    --hue-val: 302;  /* hue */
+    --hue-sat:  50%; /* saturation */
+
+    /* +180 to test complementary color */
+/*    --hue: calc(var(--hue-val) + 180); /* Primary: Orchid, Complement: Soft Lime Green */
+
+/*    --hue-skip: 3.6deg; /* or use lower values for subtle color variations */
+
+    background-color: hsla(
+                           calc( var(--hue-val) + (var(--cr) * var(--mr) + var(--cc)) * var(--hue-skip) ),
+                           var(--hue-sat),
+                           var(--hue-lit),
+                           var(--hue-alp)
+                          );
+}
+.dot-matrix { /* main matrix => [patch] */
+    width : calc(30vmin + 144px); /* (320,240)(1920,720) */
+    height: calc(30vmin + 144px);
+}
+.dot-matrix>* { /* dot containers => [patch] cells */
+    padding: 0.5rem;
+}
+.dot-matrix>*>* { /* [patch] cell content */
+    width: 100%;
+    height: 100%;
+
+    border-radius: 50%;
+
+    cursor: pointer;
+    color: White; 
+    opacity: .8;
+}
+
+.dot-matrix>*>:hover {
+    opacity: 1;
+}
+
+/* Some eye-candy */
+.dot-matrix>*>* {
+    /* GMC elevation 1dp */
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,.20),
+                0px 1px 1px  0px rgba(0,0,0,.14),
+                0px 1px 3px  0px rgba(0,0,0,.12);
+}
+.dot-matrix>*>:hover {
+    transform: scale(1.03);
+    /* GMC elevation 3dp */
+    box-shadow: 0px 3px 3px -2px rgba(0,0,0,.20),
+                0px 3px 4px  0px rgba(0,0,0,.14),
+                0px 1px 8px  0px rgba(0,0,0,.12);
+}
+.dot-matrix>*>:active:not(:focus) { transform: scale(1) }
+</style>
+
+<style>
+/* Last in CSS so it can override any defined radii */
+/***********************************************/
+/* various border radii for odd shaped buttons */
+/***********************************************/
+/*                      Position:  T   R   B   L */
+[radius^="0000"] { border-radius:  0   0   0   0  } /* full square */
+[radius^="0001"] { border-radius:  0   0   0  50% }
+[radius^="0010"] { border-radius:  0   0  50%  0  }
+[radius^="0011"] { border-radius:  0   0  50% 50% }
+[radius^="0100"] { border-radius:  0  50%  0   0  }
+[radius^="0101"] { border-radius:  0  50%  0  50% }
+[radius^="0110"] { border-radius:  0  50% 50%  0  }
+[radius^="0111"] { border-radius:  0  50% 50% 50% }
+[radius^="1000"] { border-radius: 50%  0   0   0  }
+[radius^="1001"] { border-radius: 50%  0   0  50% }
+[radius^="1010"] { border-radius: 50%  0  50%  0  }
+[radius^="1011"] { border-radius: 50%  0  50% 50% }
+[radius^="1100"] { border-radius: 50% 50%  0   0  }
+[radius^="1101"] { border-radius: 50% 50%  0  50% }
+[radius^="1110"] { border-radius: 50% 50% 50%  0  }
+[radius^="1111"] { border-radius: 50% 50% 50% 50% } /* full circle */
+</style>
+
+<style>
+/*
+pocket color wheel
+gretag macbeth colorchecker
+
+the largset number possible
+*/
+</style>
+
+
+</head>
+<body padded="0" noselect outlines="0" dir="ltr">
+
+<!-- h2 band="hero.padded">25 colored dots</h2 -->
+<div band="dots.cols.padded">
+    <div band>
+        <div class="dot-matrix" patch="5x5" fill
+        
+            color-matrix="dots"
+
+            style="--hue-val : 122;
+                   --hue-skip: 7.2">
+
+            <div><div style="--cr: 0; --cc: 0" radius="0010">0,0</div></div>
+            <div><div style="--cr: 0; --cc: 1" radius="0011">0,1</div></div>
+            <div><div style="--cr: 0; --cc: 2" radius="0011">0,2</div></div>
+            <div><div style="--cr: 0; --cc: 3" radius="0011">0,3</div></div>
+            <div><div style="--cr: 0; --cc: 4" radius="0001">0,4</div></div>
+
+            <div><div style="--cr: 1; --cc: 0" radius="0110">1,0</div></div>
+            <div><div style="--cr: 1; --cc: 1" radius="1101">1,1</div></div>
+            <div><div style="--cr: 1; --cc: 2" radius="1100">1,2</div></div>
+            <div><div style="--cr: 1; --cc: 3" radius="1110">1,3</div></div>
+            <div><div style="--cr: 1; --cc: 4" radius="1001">1,4</div></div>
+
+            <div><div style="--cr: 2; --cc: 0" radius="0110">2,0</div></div>
+            <div><div style="--cr: 2; --cc: 1" radius="1001">2,1</div></div>
+            <div><div style="--cr: 2; --cc: 2" radius="0000">2,2</div></div>
+            <div><div style="--cr: 2; --cc: 3" radius="0110">2,3</div></div>
+            <div><div style="--cr: 2; --cc: 4" radius="1001">2,4</div></div>
+
+            <div><div style="--cr: 3; --cc: 0" radius="0110">3,0</div></div>
+            <div><div style="--cr: 3; --cc: 1" radius="1011">3,1</div></div>
+            <div><div style="--cr: 3; --cc: 2" radius="0011">3,2</div></div>
+            <div><div style="--cr: 3; --cc: 3" radius="0111">3,3</div></div>
+            <div><div style="--cr: 3; --cc: 4" radius="1001">3,4</div></div>
+
+            <div><div style="--cr: 4; --cc: 0" radius="0100">4,0</div></div>
+            <div><div style="--cr: 4; --cc: 1" radius="1100">4,1</div></div>
+            <div><div style="--cr: 4; --cc: 2" radius="1100">4,2</div></div>
+            <div><div style="--cr: 4; --cc: 3" radius="1100">4,3</div></div>
+            <div><div style="--cr: 4; --cc: 4" radius="1000">4,4</div></div>
+        </div>
+        <div class="dot-matrix" patch="5x5" fill
+        
+            color-matrix="dots"
+
+            style="--hue-val : 122;
+                   --hue-skip: 7.2">
+
+            <div><div style="--cr: 0; --cc: 0">0,0</div></div>
+            <div><div style="--cr: 0; --cc: 1">0,1</div></div>
+            <div><div style="--cr: 0; --cc: 2">0,2</div></div>
+            <div><div style="--cr: 0; --cc: 3">0,3</div></div>
+            <div><div style="--cr: 0; --cc: 4">0,4</div></div>
+
+            <div><div style="--cr: 1; --cc: 0">1,0</div></div>
+            <div><div style="--cr: 1; --cc: 1">1,1</div></div>
+            <div><div style="--cr: 1; --cc: 2">1,2</div></div>
+            <div><div style="--cr: 1; --cc: 3">1,3</div></div>
+            <div><div style="--cr: 1; --cc: 4">1,4</div></div>
+
+            <div><div style="--cr: 2; --cc: 0">2,0</div></div>
+            <div><div style="--cr: 2; --cc: 1">2,1</div></div>
+            <div><div style="--cr: 2; --cc: 2">2,2</div></div>
+            <div><div style="--cr: 2; --cc: 3">2,3</div></div>
+            <div><div style="--cr: 2; --cc: 4">2,4</div></div>
+
+            <div><div style="--cr: 3; --cc: 0">3,0</div></div>
+            <div><div style="--cr: 3; --cc: 1">3,1</div></div>
+            <div><div style="--cr: 3; --cc: 2">3,2</div></div>
+            <div><div style="--cr: 3; --cc: 3">3,3</div></div>
+            <div><div style="--cr: 3; --cc: 4">3,4</div></div>
+
+            <div><div style="--cr: 4; --cc: 0">4,0</div></div>
+            <div><div style="--cr: 4; --cc: 1">4,1</div></div>
+            <div><div style="--cr: 4; --cc: 2">4,2</div></div>
+            <div><div style="--cr: 4; --cc: 3">4,3</div></div>
+            <div><div style="--cr: 4; --cc: 4">4,4</div></div>
+        </div>
+    </div>
+</div>
+
+<svg width="24px" height="24px" viewBox="0 0 24 24">
+    <g id="overflow" class="icon_svg-stroke" stroke-width="1.5" stroke="#666" fill="none" fill-rule="evenodd">
+        <path d="M5,14 C3.8954305,14 3,13.1045695 3,12 C3,10.8954305 3.8954305,10 5,10 C6.1045695
+                 10 7,10.8954305 7,12 C7,13.1045695 6.1045695,14 5,14 Z M12,14 C10.8954305,14 10,
+                 13.1045695 10,12 C10,10.8954305 10.8954305,10 12,10 C13.1045695,10 14,10.8954305 14,
+                 12 C14,13.1045695 13.1045695,14 12,14 Z M19,14 C17.8954305,14 17,13.1045695 17,
+                 12 C17,10.8954305 17.8954305,10 19,10 C20.1045695,10 21,10.8954305 21,12 C21,
+                 13.1045695 20.1045695,14 19,14 Z">
+        </path>
+    </g>
+</svg>
+
+<!-- 6911503837897,2200000000000 = 3,14159265358954... -->
+<!-- h3>Programming (php) to find the greatest common factor of 2 or more values using Euclid's Algorithm</h3>
+                <p>We can create a script that uses Euclid's Algorithm to find the <abbr title="greatest common factor">GCF</abbr> of 2 or more numbers. Of course you will need to handle incorrect user inputs such as 0, negative values or only one value if you are setting up your own calculator but this is the core script.</p>
+                <pre><code>
+        // set up an array of values to be evaluated
+        $values = array(225, 45, 15, 540)
+
+        // count the number of values in the array
+        $num_values = count($values);
+
+        // get the first 2 values in the array
+        $x = current($values);
+        $y = next($values);
+
+        // set up the larger and smaller of the values and initialize the result c
+        $a = max( $x, $y );
+        $b = min( $x, $y );
+        $c = 1;
+
+        // set up a for-loop to check through all of the values in the array
+        // the first pass will check 2 numbers then each additional pass will check 1
+        // make ($num_values - 1) passes
+        for ($i = 1; $i &lt; $num_values; $i ++)
+        {
+            // find the GCF of $a and $b
+            // it will be found when $c == 0 in the next do-while-loop
+            do
+            {
+                // subtract the lower number from the higher as many times as possible
+                // until our result is lower than the lower number
+                // this will do until $c is less than $b but not less than 0
+                do
+                {
+                    $c = $a - $b;
+                    $a = $c;
+                }
+                while ($c  &gt;  $b);
+
+                // capture last value of $b as the potential last GCF result
+                $gcf = $b;
+
+                // if $c did not = 0 we need to repeat with the values held in $b and $c
+                // at this point $b is higher than $c so we set up for the next iteration
+                // set $a to the higher number and $b to the lower number
+                $a = $b;
+                $b = $c;
+
+            }
+            while ($c != 0);
+
+            // if $c did == 0 then we have found the GCF of 2 numbers
+            // now set up to find the GCF of the last GCF we found
+            // and the next value in the array()
+            $x = $gcf;
+            $y = next($values);
+
+            $a = max( $x, $y );
+            $b = min( $x, $y );
+            $c = 1;
+
+        }  // end for loop through array()
+
+        //
+        // the greatest common factor of our array of values is now held in <strong>$gcf</strong>
+        //
+        </code></pre>
+                <h3>Programming (php) to find the greatest common factor more efficiently</h3>
+                <p>Using Euclid's Algorithm to construct a php script to find the <abbr title="greatest common factor">GCF</abbr> of 2 or more numbers works very well. However, the process in the algorithm is the same as the  dividing one number by another and using the remainder. For this we can substitute the modulus function (%). a mod b is the remainder of a divided by b. We also move the initialization of $a and $b to the inside of the for-loop only.</p>
+                <pre><code>
+        // set up an array of values to be evaluated
+        $values = array(225, 45, 15, 540)
+
+        // count the number of values in the array
+        $num_values = count($values);
+
+        // get the first 2 values in the array
+        $x = current($values);
+        $y = next($values);
+
+        // set up a for-loop to check through all of the values in the array
+        // the first pass will check 2 numbers then each additional pass will check 1
+        // make ($num_values - 1) passes
+        for ($i = 1; $i &lt; $num_values; $i ++)
+        {
+            // set up the larger and smaller of the values
+            $a = max( $x, $y );
+            $b = min( $x, $y );
+            $c = 1;
+
+            // find the GCF of $a and $b
+            // it will be found when $c == 0
+            do
+            {
+                $c = $a % $b;
+
+                // capture last value of $b as the potential last GCF result
+                $gcf = $b;
+
+                // if $c did not = 0 we need to repeat with the values held in $b and $c
+                // at this point $b is higher than $c so we set up for the next iteration
+                // set $a to the higher number and $b to the lower number
+                $a = $b;
+                $b = $c;
+
+            }
+            while ($c != 0);
+
+            // if $c did == 0 then we have found the GCF of 2 numbers
+            // now set up to find the GCF of the last GCF we found
+            // and the next value in the array()
+            $x = $gcf;
+            $y = next($values);
+
+        }  // end for loop through array()
+
+        //
+        // the greatest common factor of our array of values is now held in <strong>$gcf</strong>
+        //
+        </code>
+                      </pre -->
+
+<script>
+//Get a reference to an element by its ID
+var ID = function (s){ return document.getElementById(s); };
+
+console.log(ID('emo1').innerHTML,ID('emo2').innerHTML);
+</script>
+</body>
+</html>

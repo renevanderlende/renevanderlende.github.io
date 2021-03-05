@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+
+<title>SVG Burger Menu - SO62815794</title>
+
+<style>
+/*
+    ALL math (y=mx+b) reference: https://www.mathsisfun.com/equation_of_line.html
+*/
+/**************************/
+/* preferred global rules */
+/**************************/
+html,body             { box-sizing: border-box; width: 100%; max-width: 100% }
+*::before,*::after, * { box-sizing: inherit }
+
+/* responsive base font size using y = mx + b */
+html   { font-size: calc(0.625vmin + 0.75rem) } /* (320,14)(1280,20) */
+/* change default font-size in browser font settings to see effect */
+
+/* remove default markup */
+body,p { margin: 0 }
+ul     { margin: 0; padding: 0 }
+ul,li  { list-style-type: none }
+
+/***********************************/
+/* easy RESPONSIVE|PATCH GRID|NESS */
+/***********************************/
+
+/* base flexbox patch grid structure */
+[patch],[patch]>* { display: flex; flex-wrap: wrap } /* path and cell containers */
+[patch]           { align-content: flex-start; position: relative }
+[patch]>*         { flex-grow: 1; justify-content: center; align-items: center; overflow: hidden }
+
+/* the "nine-patch": inspired by Android 9-patch image, essentially a 3x3 matrix */
+[patch^="3x"]>*   { height: 33.33333%; max-height: 33.33333% }
+[patch*="x3"]>*   { flex-basis: 33.33333%; max-width : 33.33333% }
+
+/* DEMO extras */
+
+/* add your own specific patch cell sizes like below */
+[patch^="1x"]>* { height:100%; max-height:100% } [patch*="x1"]>* { flex-basis: 100%; max-width:100% }
+[patch^="2x"]>* { height: 50%; max-height: 50% } [patch*="x2"]>* { flex-basis:  50%; max-width: 50% }
+[patch^="4x"]>* { height: 25%; max-height: 25% } [patch*="x4"]>* { flex-basis:  25%; max-width: 25% }
+[patch^="5x"]>* { height: 20%; max-height: 20% } [patch*="x5"]>* { flex-basis:  20%; max-width: 20% }
+/* 
+   7x1 days in a week, 18x8 Periodic Table, 24x1 hours in a day, 22x6 keyboard+numpad, etc.
+   just divide 100% by the required XxY values
+*/
+
+/* When there are less elements than required by [patch] use [fill] */
+[patch][fill=""]>:last-child,[patch][fill*="H"]>:last-child { max-width : 100% }
+[patch][fill=""]>:last-child,[patch][fill*="V"]>:last-child { max-height: 100% }
+
+/************************/
+/* DEMOS for SO62815794 */
+/************************/
+
+/*
+    precursor/alternative to using 'CSS Variables'
+
+    Instead of assigning sizes to specific classes,
+    define a size attribute all elements can use.
+
+    [size] has default w1 and h1 width and height,
+           when used without attribute value.
+*/
+[size], [size*="w1"] { width : calc(5vmin + 16px) }          /* (320,32)(1920,112) */
+[size], [size*="h1"] { height: calc(5vmin + 16px) }
+        [size*="w2"] { width : 100% }
+        [size*="h2"] { height: 100% }
+        [size*="w3"] { width : calc(1.6667vmin + 5.3333px) } /* 1/3rd */
+        [size*="h3"] { height: calc(1.6667vmin + 5.3333px) }
+
+/* either/or attributes */
+[shape]>*>*         { background-color: rgba(0,0,0,1); cursor: pointer }  /* default for all */
+[shape*="lnh"]>*>*  { width : 100%; height:  70% }                          /* horizontal line */
+[shape*="lnv"]>*>*  { width :  70%; height: 100% }                          /* vertical line */
+[shape*="sq" ]>*>*  { width :  75%; height:  75% }                          /* square */
+[shape*="dt" ]>*>*  { width :  80%; height:  80%; border-radius: 50% }      /* dot */
+
+[shape*=".tpw"]>*             { margin: 0 auto }                            /* taper width for Dönner */
+[shape*=".tpw"]>:nth-child(1) { max-width : 100%; height: 70% }
+[shape*=".tpw"]>:nth-child(2) { max-width :  70%; height: 70% }
+[shape*=".tpw"]>:nth-child(3) { max-width :  40%; height: 70% }             /* assumes max 3 rows */
+
+/* Some :hover eye-candy */
+[shape]:hover                { transform: scale(1.03) }
+[shape]:active               { transform: scale(1)    }
+[shape]:hover>*>:not(:hover) { background-color: rgba(0,0,0,.6) }
+[shape]>*>:hover             { background-color: rgba(255,0,0,.9) }
+
+
+/* demo 1, patch grid buttons */
+.patch-1,.patch-3 { /* square using y=mx+b */
+    width : calc(5vmin + 16px); /* (320,32)(1920,112) */
+    height: calc(5vmin + 16px);
+} /* square */
+
+.patch-2 { /* half a square using y=mx+b  */
+    width : calc(5vmin + 16px); /* (320,32)(1920,112) */
+    height: calc(2.5vmin + 8px); /* (320,16)(1920,56) */
+} /* half a square */
+
+[class^="patch-"]>*>*,   /* anything cell content */
+[class^="patch-"] .dot { /* or .dot */
+  border-radius: 50%;
+  width : 80%;
+  height: 80%;
+}
+/* demo 2, patch grid */
+/* main container, mandatory (fixed or relative units) */
+.patch {
+    width : calc(10vmax + 32px); /* (320,64)(1920,224) */
+    height: calc(10vmax + 32px)
+}
+/* mechanism takes care of sizes, just eye-candy */
+.cell  { outline: 1px solid rgba(0,0,0,0.4) }
+
+/* SUDOKU, patch grid nesting demo */
+.sudoku {
+    /* responsive width and height using y = mx + b */
+    height: calc(11.25vw + 264px); /* (320,300)(1920,480) */
+    width : calc(11.25vw + 264px); /* (320,300)(1920,480) */
+}
+
+/******************/
+/* eye-candy only */
+/******************/
+body           { background-color: rgba(0,0,0,0.1); padding-bottom: 5rem }
+[band^="hero"] { background-color: rgba(47, 79, 79,.5) } /* DarkSlateGrey */
+
+/* responsive patch font size using y = mx + b */
+[patch] { font-size: calc(0.9375vw + 4px); /* (320, 7)(1280,16) */ }
+
+/* class starts with... */
+[class^="patch-"]          { margin: 1rem }
+
+[class^="patch-"]:hover    { transform: scale(1.03) }
+[class^="patch-"]:active   { transform: scale(1)    }
+
+[class^="patch-"]>*>*      { background-color: rgba(0,0,0,.6); cursor: pointer }
+[class^="patch-"]>*>:hover { background-color: rgba(255,0,0,1) }
+
+[class^="patch-"]:hover>*>:not(:hover) { background-color: rgba(0,0,0,1) }
+
+.sudoku [patch]            { font-size: calc(0.625vw + 10px); /* (320,12)(1280,18) */ }
+.sudoku ul:nth-child(odd)  { background-color: rgba(0,0,0,0.05) }
+.sudoku ul:nth-child(even) { background-color: White }
+.sudoku,.sudoku li         { outline: 1px solid rgba(0,0,0,.2) }
+
+.sudoku ul:hover,
+.sudoku li:hover { background-color: rgba(47, 79, 79,.3) } /* DarkSlateGrey */
+
+
+/***********************************************/
+/* various border radii for odd shaped buttons */
+/***********************************************/
+/*                      Position:  T   R   B   L */
+[radius^="0000"] { border-radius:  0   0   0   0  } /* full square */
+[radius^="0001"] { border-radius:  0   0   0  50% }
+[radius^="0010"] { border-radius:  0   0  50%  0  }
+[radius^="0011"] { border-radius:  0   0  50% 50% }
+[radius^="0100"] { border-radius:  0  50%  0   0  }
+[radius^="0101"] { border-radius:  0  50%  0  50% }
+[radius^="0110"] { border-radius:  0  50% 50%  0  }
+[radius^="0111"] { border-radius:  0  50% 50% 50% }
+[radius^="1000"] { border-radius: 50%  0   0   0  }
+[radius^="1001"] { border-radius: 50%  0   0  50% }
+[radius^="1010"] { border-radius: 50%  0  50%  0  }
+[radius^="1011"] { border-radius: 50%  0  50% 50% }
+[radius^="1100"] { border-radius: 50% 50%  0   0  }
+[radius^="1101"] { border-radius: 50% 50%  0  50% }
+[radius^="1110"] { border-radius: 50% 50% 50%  0  }
+[radius^="1111"] { border-radius: 50% 50% 50% 50% } /* full circle */
+
+/************************/
+/* Landing page banding */
+/************************/
+[band]            { display: flex; flex-flow: column wrap; }
+[band*="rows"]    { flex-direction: column }
+[band*="cols"]    { flex-direction: row }
+
+[band],[centered] { justify-content: center; align-content: center; align-items: center }
+
+/* [band] for SO62815794 */
+[band*="fullmenu"]>* { margin: 0.5rem 1.5rem }
+[band]>[band]        { align-self: flex-start }
+
+/*********************/
+/* Main page padding */
+/*********************/
+body[padded="1"],
+body[padded="0"] [band*="padded"] {
+   margin: 0; /* for use with h1...h6 as band */
+/*
+    responsive page padding
+    and responsive band padding (same as responsive page padding, but at band level)
+
+    Top/Bottom padding: p1(320,16) p2(1920, 72) => 0.035x + 4.8  => vary from 16 to  72px
+    Left/Right padding: p3(320, 8) p4(1920,320) => 0.195x - 54.4 => vary from  8 to 320px
+
+    'Band padding' is only active when 'page padding' is off (0)
+*/
+    padding: calc(3.5vh + 4.8px) calc(19.5vw - 54.4px);
+}
+
+/* to show all elements with outlines (put in <body>) */
+[outlines="1"] * { outline: 1px dashed }
+
+</style>
+
+<style>
+svg:hover  { transform: scale(1.03); fill: rgba(0,0,0,.6) }
+svg:active { transform: scale(1) }
+
+.circle:hover,
+.rect:hover { fill: rgba(255,200,0,1); cursor: pointer }
+
+</style>
+
+</head>
+<body padded="0" outlines="0">
+
+<h2 band="hero.padded">for starters: the full menu</h2>
+<div band="fullmenu.cols.padded">
+    <div band>
+        <h3>hamburger</h3>
+        <div patch="3x1" size="w1.h1" shape="lnh">
+            <div><p></p></div>
+            <div><p></p></div>
+            <div><p></p></div>
+        </div>
+    </div>
+    <div band>
+        <h3>bearclaw</h3>
+        <div patch="1x3" size="w1.h1" shape="lnv">
+            <div><p></p></div>
+            <div><p></p></div>
+            <div><p></p></div>
+        </div>
+    </div>
+    <div band>
+        <h3>dönner</h3>
+        <div patch="3x1" size="w1.h1" shape="lnh.tpw">
+            <div><p></p></div>
+            <div><p></p></div>
+            <div><p></p></div>
+        </div>
+    </div>
+    <div band>
+        <h3>bento</h3>
+        <div patch="3x3" size="w1.h1" shape="sq">
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+        </div>
+    </div>
+    <div band>
+        <h3>kebab</h3>
+        <div patch="3x1" size="w3.h1" shape="dt">
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+        </div>
+    </div>
+    <div band>
+        <h3>meatballs</h3>
+        <div patch="1x3" size="w1.h3" shape="dt">
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+        </div>
+    </div>
+</div>
+
+<h2 band="hero.padded">demo 1, patch grid buttons</h2>
+<div band="demo2.cols.padded">
+    <div class="patch-1" patch="3x3">
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+    </div>
+    <div class="patch-2" patch="2x4">
+      <div><span></span></div>
+      <div><span></span></div>
+      <div><span></span></div>
+      <div><span></span></div>
+      <div><span></span></div>
+      <div><span></span></div>
+      <div><span></span></div>
+      <div><span></span></div>
+    </div>
+    <div class="patch-3" patch="2x2">
+      <div><span radius="0111"></span></div>
+      <div><span radius="1011"></span></div>
+      <div><span radius="1110"></span></div>
+      <div><span radius="1101"></span></div>
+    </div>
+</div>
+
+<h2 band="hero.padded">demo 2, the patch grid</h2>
+<div band="demo1.cols.padded">
+    <div band>
+        <h3>2x2 &lt;div&gt;&lt;p&gt;</h3>
+        <div class="patch" patch="2x2">
+            <div class="cell"><p>1</p></div>
+            <div class="cell"><p>2</p></div>
+            <div class="cell"><p>3</p></div>
+            <div class="cell"><p>4</p></div>
+        </div>
+    </div>
+    <div band>
+        <h3>fill 2x2 &lt;li&gt;&lt;p&gt;</h3>
+        <ul class="patch" patch="2x2" fill>
+            <li class="cell"><p>1</p></li>
+            <li class="cell"><p>2</p></li>
+            <li class="cell"><p>3</p></li>
+        </ul>
+    </div>
+    <div band>
+        <h3>3x3 &lt;div&gt;&lt;div&gt;</h3>
+        <div class="patch" patch="3x3">
+            <div class="cell"><div>1</div></div>
+            <div class="cell"><div>2</div></div>
+            <div class="cell"><div>3</div></div>
+            <div class="cell"><div>4</div></div>
+            <div class="cell"><div>5</div></div>
+            <div class="cell"><div>6</div></div>
+            <div class="cell"><div>7</div></div>
+            <div class="cell"><div>8</div></div>
+            <div class="cell"><div>9</div></div>
+        </div>
+    </div>
+</div>
+
+<h2 band="hero.padded">sudoku, a patch grid nesting demo</h2>
+<div band="demo3.padded">
+    <h3>3x3 times 3x3 with &lt;ul&gt;&lt;li&gt;</h3>
+    <div class="sudoku" patch="3x3">
+        <ul patch="3x3"><li> <li>9<li> <li>4<li><li>1<li> <li> <li>3</ul>
+        <ul patch="3x3"><li>2<li> <li>5<li> <li><li> <li> <li> <li> </ul>
+        <ul patch="3x3"><li> <li>1<li> <li>3<li><li>9<li>6<li> <li> </ul>
+        <ul patch="3x3"><li> <li> <li>3<li> <li><li> <li>9<li> <li> </ul>
+        <ul patch="3x3"><li>4<li> <li>8<li> <li><li> <li>6<li> <li>1</ul>
+        <ul patch="3x3"><li> <li> <li>5<li> <li><li> <li> <li> <li>7</ul>
+        <ul patch="3x3"><li> <li> <li>9<li>6<li><li>7<li> <li>3<li> </ul>
+        <ul patch="3x3"><li> <li> <li> <li> <li><li> <li>7<li> <li>9</ul>
+        <ul patch="3x3"><li>1<li> <li> <li>4<li><li>2<li> <li>8<li> </ul>
+    </div>
+</div>
+
+<h2 band="hero.padded">SVG full menu</h2>
+<div band="fullmenu.cols.padded">
+    <svg size="w1.h1"><use href="#hamburger"/></svg>
+    <svg size="w1.h1"><use href="#bearclaw" /></svg>
+    <svg size="w1.h1"><use href="#donner"   /></svg>
+    <svg size="w1.h1"><use href="#bento"    /></svg>
+    <svg size="w1.h1"><use href="#meatballs"/></svg>
+    <svg size="w1.h1"><use href="#kebab"    /></svg>
+</div>
+
+<h2 band="hero.padded">parts for SVG full menu</h2>
+<div band="fullmenu.cols.padded">
+    <svg size="w1.h1"><use href="#dot"/></svg>
+    <svg size="w1.h1"><use href="#sqr"/></svg>
+    <svg size="w1.h1"><use href="#lnh"/></svg>
+    <svg size="w1.h1"><use href="#lnv"/></svg>
+
+    <svg size="w1.h1"><use href="#s-row" /></svg>
+    <svg size="w1.h1"><use href="#s-col"/></svg>
+    <svg size="w1.h1"><use href="#d-row3"/></svg>
+</div>
+
+<!-- Predefined in-document SVG shapes (and make 'parent' SVG invisible with 0 sizes)  -->
+<svg width="0" height="0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <style>
+        svg:hover  { transform: scale(1.03); fill: rgba(0,0,0,.6) }
+        svg:active { transform: scale(1) }
+
+        circle:hover,
+        rect:hover { fill: rgba(255,0,0,.9); cursor: pointer }
+        
+    </style>
+
+    <symbol id="dot" viewBox="0 0 1 1"  ><circle cx="0.5" cy="0.5" r="0.45"/></symbol>
+    <symbol id="sqr" viewBox="0 0 1 1"  ><rect  x="0" y="0" width="1"   height="1"  /></symbol>
+    <symbol id="lnh" viewBox="0 0 1 3.5"><rect  x="0" y="0" width="1"   height="3.5"/></symbol>
+    <symbol id="lnv" viewBox="0 0 3.5 1"><rect  x="0" y="0" width="3.5" height="1"  /></symbol>
+
+    <!-- using squares -->
+
+    <symbol id="s-row">
+        <use href="#sqr" x="6.25%"  y="0" width="25%"/>
+        <use href="#sqr" x="37.5%"  y="0" width="25%"/>
+        <use href="#sqr" x="68.75%" y="0" width="25%"/>
+    </symbol>
+
+    <symbol id="s-col">
+        <use href="#sqr" y="6.25%"  x="0" width="100%" height="25%"/>
+        <use href="#sqr" y="37.5%"  x="0" width="100%" height="25%"/>
+        <use href="#sqr" y="68.75%" x="0" width="100%" height="25%"/>
+    </symbol>
+
+    <symbol id="bento">
+        <use href="#s-row" y="6.25%"  x="0" height="25%" />
+        <use href="#s-row" y="37.5%"  x="0" height="25%"/>
+        <use href="#s-row" y="68.75%" x="0" height="25%"/>
+    </symbol>
+
+    <symbol id="hamburger">
+        <use href="#lnv" y="6.25%"  x="0" width="100%" height="25%"/>
+        <use href="#lnv" y="37.5%"  x="0" width="100%" height="25%"/>
+        <use href="#lnv" y="68.75%" x="0" width="100%" height="25%"/>
+    </symbol>
+
+    <symbol id="bearclaw">
+        <use href="#lnh" x="6.25%"  y="0" height="100%" width="25%"/>
+        <use href="#lnh" x="37.5%"  y="0" height="100%" width="25%"/>
+        <use href="#lnh" x="68.75%" y="0" height="100%" width="25%"/>
+    </symbol>
+
+    <symbol id="donner">
+        <use href="#lnv" y="6.25%"  x="0"   width="100%"  height="25%"/>
+        <use href="#lnv" y="41%"    x="25%" width="52.5%" height="25%"/>
+        <use href="#lnv" y="68.75%" x="35%" width="30%"   height="25%"/>
+    </symbol>
+
+    <!-- using dots -->
+    <symbol id="meatballs">
+        <use href="#dot" x="6.25%"  y="0" width="25%"/>
+        <use href="#dot" x="37.5%"  y="0" width="25%"/>
+        <use href="#dot" x="68.75%" y="0" width="25%"/>
+    </symbol>
+    <symbol id="kebab">
+        <use href="#dot" y="6.25%"  x="0" height="25%"/>
+        <use href="#dot" y="37.5%"  x="0" height="25%"/>
+        <use href="#dot" y="68.75%" x="0" height="25%"/>
+    </symbol>
+
+    <symbol id="d-row3">
+        <use href="#meatballs" y="6.25%"  x="0" height="25%"/>
+        <use href="#meatballs" y="37.5%"  x="0" height="25%"/>
+        <use href="#meatballs" y="68.75%" x="0" height="25%"/>
+    </symbol>
+</svg>
+</body>
+</html>
